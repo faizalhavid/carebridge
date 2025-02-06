@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{title}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: #F0F8EE;
+            max-width: 500px;
+        }
+
+        h1, h2, p {
+            color: #858585;
+        }
+
+        .header {
+            background-color: #ffffff;
+            padding: 15px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 500px;
+        }
+
+        .greeting {
+            font-size: 1rem;
+        }
+
+        .username {
+            font-weight: 600;
+        }
+
+        .title {
+            font-size: 1rem;
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .mail-content {
+            font-size: 0.8rem;
+        }
+
+        .additional-component-container {
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.5rem;
+            color: #34A853;
+            border: 1px solid #34A853;
+        }
+
+        .otp {
+            letter-spacing: 5px;
+            margin: 0;
+            padding: 1px;
+        }
+
+        .otp:hover {
+            color: #59C877;
+        }
+
+        .highlight-text {
+            text-decoration: none;
+            color: #34A853;
+            font-weight: bold;
+        }
+
+        .highlight-text:hover {
+            text-decoration: underline;
+            color: #59C877;
+        }
+
+        .footer {
+            font-size: 0.8rem;
+        }
+
+        .btn {
+            background-color: #34A853;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 0;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #59C877;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <img alt="CareBridge Logo" src="https://ik.imagekit.io/yovnsgigm4/care-bridge-logo.png" width="180">
+</div>
+<div class="content" style="background-color: #F0F8EE;">
+    <p class="greeting">Hi, <span class="username">{username}</span></p>
+    <h1 class="title">{title}</h1>
+
+    <p class="mail-content">
+        {message}
+    </p>
+    <div class="additional-component-container">
+        {additional_component}
+    </div>
+
+    <p class="footer">
+        Regards,<br> CareBridge Team
+    </p>
+</div>
+</body>
+</html>
