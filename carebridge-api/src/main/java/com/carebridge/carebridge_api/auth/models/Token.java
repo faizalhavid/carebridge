@@ -37,4 +37,7 @@ public class Token extends BaseEntity {
     @Column(name = "used_for", length = 100)
     private TokenUsedFor usedFor;
 
+    @Column(name = "attempts")
+    private Integer attempts = 0;
+
 }

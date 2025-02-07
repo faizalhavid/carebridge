@@ -1,6 +1,7 @@
 package com.carebridge.carebridge_api.auth.dto.requests;
 
 
+import com.carebridge.carebridge_api.auth.models.DeviceInfo;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -34,5 +35,7 @@ public class RegisterAccountRequest {
     private String confirmPassword;
 
     private String imagePath;
+
+    private DeviceInfo deviceInfo;
 
 }

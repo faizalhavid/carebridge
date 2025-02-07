@@ -4,8 +4,8 @@ spring.datasource.url=jdbc:sqlite:memory:myDb?cache=shared
 spring.datasource.username=
 spring.datasource.password=
 
-spring.data.redis.host=localhost
-spring.data.redis.port=6379
+spring.data.redis.host={{REDIS_HOST}}
+spring.data.redis.port={{REDIS_PORT}}
 
 
 # Hibernate Config
@@ -16,8 +16,8 @@ spring.jpa.show-sql=true
 
 # Spring Mail Configuration
 spring.mail.host=smtp.gmail.com
-spring.mail.username=nurfaizal966@gmail.com
-spring.mail.password=yzrc xzqf xxto azss
+spring.mail.username={{MAIL_USERNAME}}
+spring.mail.password={{MAIL_PASSWORD}}
 spring.mail.port=587
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true

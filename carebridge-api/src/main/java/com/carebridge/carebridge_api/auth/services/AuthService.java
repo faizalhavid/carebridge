@@ -6,6 +6,7 @@ import com.carebridge.carebridge_api.auth.dto.responses.LoginResponse;
 import com.carebridge.carebridge_api.auth.dto.responses.RegisterAccountResponse;
 import com.carebridge.carebridge_api.auth.models.DeviceInfo;
 import com.carebridge.carebridge_api.auth.models.Token;
+import com.carebridge.carebridge_api.auth.repositories.DeviceInfoRepository;
 import com.carebridge.carebridge_api.auth.repositories.TokenRepository;
 import com.carebridge.carebridge_api.core.enums.TokenUsedFor;
 import com.carebridge.carebridge_api.core.helpers.JwtHelper;
@@ -22,6 +23,7 @@ import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,10 +34,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -44,10 +51,13 @@ public class AuthService {
     final private TokenRepository tokenRepository;
     final private RoleRepository roleRepository;
     final private BiodataRepository biodataRepository;
+    final private DeviceInfoRepository deviceRepository;
+
     final private PasswordEncoder passwordEncoder;
     final private AuthenticationManager authenticationManager;
     final private ModelMapper modelMapper;
     final private SenderMail senderMail;
+    private final RedisTemplate<String, Object> redisTemplate;
     final private JwtHelper jwtHelper = new JwtHelper();
 
     @Value("${jwt.expiration-access-token}")
@@ -92,6 +102,7 @@ public class AuthService {
         userRepository.save(user);
         String accessToken = jwtHelper.generateToken(user.getEmail(), user.getId(), accessTokenExpiration);
         String refreshToken = jwtHelper.generateToken(user.getEmail(), user.getId(), refreshTokenExpiration);
+        redisTemplate.opsForValue().set(STR."refresh_token:\{user.getId()}", refreshToken, refreshTokenExpiration, TimeUnit.MILLISECONDS);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
@@ -114,10 +125,10 @@ public class AuthService {
         }
 
         Token tokenOtp = generateTokenOtp(email, TokenUsedFor.REGISTRATION, user);
-
+        long minutesLeft = ChronoUnit.MINUTES.between(LocalDateTime.now(), tokenOtp.getExpiredAt());
         Map<String, String> mailContext = Map.of(
                 "subject", "Email Verification",
-                "message", STR."<p>Thanks for your interest in joining CareBridge! To complete your registration, we need you to verify your email address. Use the code below to verify your email.</p><p class=\"message\">The code above is only valid for <span class=\"highlight-text\">\{tokenOtp.getExpiredAt().minusMinutes(LocalDateTime.now().getMinute()).getMinute()} minutes</span>.</p>"
+                "message", STR."<p>Thanks for your interest in joining CareBridge! To complete your registration, we need you to verify your email address. Use the code below to verify your email.</p><p class=\"message\">The code above is only valid for <span class=\"highlight-text\">\{minutesLeft} minutes</span>.</p>"
                 "additional_component", STR."<h1 class='otp'>\{tokenOtp.getToken()}</h1>"
         );
 
@@ -129,12 +140,25 @@ public class AuthService {
     public void verifyTokenOTP(String token, String email, TokenUsedFor usedFor) {
         Token tokenOtp = tokenRepository.findTokenByTokenAndEmailAndUsedFor(token, email, usedFor.toString())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
+
         if (tokenOtp.getExpiredAt().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
         }
+
+        if (tokenOtp.getAttempts() >= 3) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has been blocked due to too many failed attempts.");
+        }
+
+        if (!tokenOtp.getToken().equals(token)) {
+            tokenOtp.setAttempts(tokenOtp.getAttempts() + 1);
+            tokenRepository.save(tokenOtp);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token");
+        }
+
         User user = userRepository.findByEmailAndIsDeleteFalse(email);
         user.setIsActive(true);
         userRepository.save(user);
+
         tokenOtp.setIsExpired(true);
         tokenOtp.setExpiredAt(LocalDateTime.now());
         tokenRepository.save(tokenOtp);
@@ -143,6 +167,7 @@ public class AuthService {
     public RegisterAccountResponse registerAccount(RegisterAccountRequest registerAccountRequest) {
         User user = userRepository.findByEmailAndIsDeleteFalse(registerAccountRequest.getEmail());
         Biodata biodata = modelMapper.map(registerAccountRequest, Biodata.class);
+        DeviceInfo deviceInfo = modelMapper.map(registerAccountRequest.getDeviceInfo(), DeviceInfo.class);
         RegisterAccountResponse registerAccountResponse = new RegisterAccountResponse();
         if (!user.getIsActive()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not verified");
         RoleProjection checkRole = roleRepository.findRoleByCode("ROLE_CUSTOMER");
@@ -152,6 +177,9 @@ public class AuthService {
         user.setBiodata(biodata);
         userRepository.save(user);
         biodataRepository.save(biodata);
+        deviceInfo.setUser(user);
+        deviceRepository.save(deviceInfo);
+
         registerAccountResponse.setUser(user);
 
         return registerAccountResponse;
@@ -185,36 +213,35 @@ public class AuthService {
     }
 
     public void logout(String token) {
-        Token tokenUser = tokenRepository.findTokenByTokenAndUsedFor(token, TokenUsedFor.AUTHENTICATION.toString())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token not found"));
-        tokenUser.setIsExpired(true);
-        tokenUser.setExpiredAt(LocalDateTime.now());
-        tokenRepository.save(tokenUser);
+        redisTemplate.delete(STR."refresh_token:\{jwtHelper.extractUserId(token)}");
     }
-    private Token generateTokenOtp(String email, TokenUsedFor usedFor, User user) throws BadRequestException {
-        Optional<Token> tokenJustCreated = tokenRepository.findTokenJustCreatedByEmailAndUsedFor(email,
-                usedFor.toString());
-        if (tokenJustCreated.isPresent()) {
-            Token existingToken = tokenJustCreated.get();
-            if (LocalDateTime.now().isBefore(existingToken.getCreatedAt().plusSeconds(TIME_RESEND_TOKEN))) {
-                throw new BadRequestException(STR."Token already sent. Please wait for \{TIME_RESEND_TOKEN} seconds before requesting a new token.");
-            }
-            existingToken.setExpiredAt(LocalDateTime.now());
-            existingToken.setIsExpired(true);
-            tokenRepository.save(existingToken);
-        }
-        Token tokenOtp = new Token();
-        tokenOtp.setToken(String.format("%06d", new Random().nextInt(999999)));
-        tokenOtp.setEmail(email);
-        tokenOtp.setUsedFor(usedFor);
-        tokenOtp.setExpiredAt(LocalDateTime.now().plusMinutes(TIME_EXPIRED_TOKEN));
-        // tokenOtp.setModifiedOn(LocalDateTime.now());
-        if (user != null) {
-            tokenOtp.setUserId(user.getId());
-        }
 
-        tokenRepository.save(tokenOtp);
-        return tokenOtp;
-    }
+   private Token generateTokenOtp(String email, TokenUsedFor usedFor, User user) throws BadRequestException {
+       Optional<Token> tokenJustCreated = tokenRepository.findTokenJustCreatedByEmailAndUsedFor(email,
+               usedFor.toString());
+       if (tokenJustCreated.isPresent()) {
+           Token existingToken = tokenJustCreated.get();
+           if (LocalDateTime.now().isBefore(existingToken.getCreatedAt().plusSeconds(TIME_RESEND_TOKEN))) {
+               throw new BadRequestException("Token already sent. Please wait for " + TIME_RESEND_TOKEN + " seconds before requesting a new token.");
+           }
+           existingToken.setExpiredAt(LocalDateTime.now());
+           existingToken.setIsExpired(true);
+           tokenRepository.save(existingToken);
+       }
+       Token tokenOtp = new Token();
+    tokenOtp.setToken(new SecureRandom().ints(0, 10)
+            .limit(6)
+            .mapToObj(Integer::toString)
+            .collect(Collectors.joining()));
+       tokenOtp.setEmail(email);
+       tokenOtp.setUsedFor(usedFor);
+       tokenOtp.setExpiredAt(LocalDateTime.now().plusMinutes(TIME_EXPIRED_TOKEN));
+       if (user != null) {
+           tokenOtp.setUserId(user.getId());
+       }
+
+       tokenRepository.save(tokenOtp);
+       return tokenOtp;
+   }
 
 }

@@ -34,6 +34,9 @@ public class DeviceInfo extends BaseEntity {
     @Column(name = "device_token", length = 255)
     private String deviceToken;
 
+    @Column(name = "ip_address", length = 50)
+    private String ipAddress;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
