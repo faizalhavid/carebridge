@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeviceInfo extends BaseEntity {
+
     @Column(name = "device_type", length = 50)
     private String deviceType;
 

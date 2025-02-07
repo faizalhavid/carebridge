@@ -1,5 +1,6 @@
 package com.carebridge.carebridge_api.user.models;
 
+import com.carebridge.carebridge_api.admin.models.Admin;
 import com.carebridge.carebridge_api.core.BaseEntity;
 import com.carebridge.carebridge_api.customer.models.Customer;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -31,9 +32,9 @@ public class Biodata extends BaseEntity {
     @JsonBackReference
     List<Customer> customer;
 
-//    @OneToMany(mappedBy="biodata", cascade=CascadeType.ALL)
-//    @JsonBackReference
-//    List<Admin> admin;
+    @OneToMany(mappedBy="biodata", cascade=CascadeType.ALL)
+    @JsonBackReference
+    List<Admin> admin;
 
 //    @OneToMany(mappedBy="biodata", cascade= CascadeType.ALL)
 //    @JsonBackReference

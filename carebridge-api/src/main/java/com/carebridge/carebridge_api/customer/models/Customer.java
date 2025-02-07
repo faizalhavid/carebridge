@@ -33,10 +33,10 @@ public class Customer extends BaseEntity {
     @Column(name = "gender")
     private String gender;
 
-//    @ManyToOne
-//    @JoinColumn(name = "blood_group_id", insertable = false, updatable = false)
-//    @JsonManagedReference
-//    public BloodGroup bloodGroup;
+    @ManyToOne
+    @JoinColumn(name = "blood_group_id", insertable = false, updatable = false)
+    @JsonManagedReference
+    public BloodGroup bloodGroup;
 
     @Column(name = "blood_group_id")
     private Long bloodGroupId;

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @MappedSuperclass
-public class SuccessResponse<T> {
+public class SuccessResponse<T, R> {
     private String message;
     private int status;
     private T data;

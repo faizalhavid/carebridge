@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 @AllArgsConstructor
+@Component
 public class SenderMail {
     private JavaMailSenderImpl mailSender;
 

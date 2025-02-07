@@ -16,4 +16,11 @@ public class ErrorResponse<T> {
     private String message;
     private T errors;
     private LocalDateTime timestamp;
+
+    public ErrorResponse(String status, String message, T errors) {
+        this.status = status;
+        this.message = message;
+        this.errors = errors;
+        this.timestamp = LocalDateTime.now();
+    }
 }

@@ -8,7 +8,10 @@ public enum TokenUsedFor {
     FORGOT_PASSWORD,
     CHANGE_EMAIL,
     CHANGE_PASSWORD,
-    REGISTRATION;
+    REGISTRATION,
+
+    // TODO : REDIS - delete this
+    REFRESH_TOKEN;
 
     @JsonCreator
     public static TokenUsedFor fromValue(String value) {

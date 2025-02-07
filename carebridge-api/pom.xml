@@ -107,12 +107,12 @@
 			<version>6.4.2</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-redis -->
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-redis</artifactId>
-			<version>3.4.2</version>
-		</dependency>
+<!--		&lt;!&ndash; https://mvnrepository.com/artifact/org.springframework.data/spring-data-redis &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.data</groupId>-->
+<!--			<artifactId>spring-data-redis</artifactId>-->
+<!--			<version>3.4.2</version>-->
+<!--		</dependency>-->
 
 
 

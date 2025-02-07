@@ -2,11 +2,9 @@ package com.carebridge.carebridge_api.core.responses;
 
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 public class Pagination<T> {
     private Integer page;
