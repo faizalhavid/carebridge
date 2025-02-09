@@ -4,9 +4,10 @@ import java.time.LocalDateTime;
 
 public interface RoleProjection {
     Long getId();
+
     String getName();
+
     String getCode();
-    LocalDateTime getCreatedOn();
-    String getModifiedBy();
-    LocalDateTime getModifiedOn();
+
+    LocalDateTime getCreatedAt();
 }

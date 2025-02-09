@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+// @Service
+// @NoArgsConstructor
+// @AllArgsConstructor
+// @Data
 public class AdminService {
 }

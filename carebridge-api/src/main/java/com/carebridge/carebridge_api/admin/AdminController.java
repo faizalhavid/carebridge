@@ -8,10 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Data
-@AllArgsConstructor
-@Service
+
 public class AdminController {
-    final private UserRepository userRepository;
-    final private AdminRepository adminRepository;
+//    final private UserRepository userRepository;
+//    final private AdminRepository adminRepository;
 }

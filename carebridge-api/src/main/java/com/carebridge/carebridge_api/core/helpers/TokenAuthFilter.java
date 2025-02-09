@@ -1,6 +1,7 @@
 package com.carebridge.carebridge_api.core.helpers;
 
 import com.carebridge.carebridge_api.auth.repositories.TokenRepository;
+import com.carebridge.carebridge_api.auth.services.ImplUserDetailService;
 import com.carebridge.carebridge_api.core.responses.ErrorResponse;
 import com.carebridge.carebridge_api.user.repositories.UserRepository;
 import io.jsonwebtoken.Jwts;
@@ -25,35 +26,33 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
-
 @Component
 @AllArgsConstructor
 public class TokenAuthFilter extends OncePerRequestFilter {
-    private final UserDetailsService userDetailsService;
-    private final UserRepository userRepository;
-    private final List<String> PUBLIC_URLS = List.of("/api/auth/login", "/api/auth/forgot-password", "/api/auth/verify-token-otp", "/api/auth/reset-password");
-
+    private final ImplUserDetailService userDetailsService;
+    private final List<String> publicUrls;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        try{
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        try {
             String authHeader = request.getHeader("Authorization");
             String token = null, username = null;
             JwtHelper jwtHelper = new JwtHelper();
-            // Bypass token validation for login endpoint
-            if (PUBLIC_URLS.contains(request.getRequestURI())) {
+
+            // Cek apakah path termasuk dalam public URLS
+            if (publicUrls.stream().anyMatch(url -> request.getRequestURI().startsWith(url))) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
             System.out.println("Auth Header: " + authHeader);
-            if (authHeader != null && authHeader.startsWith("Bearer ")){
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
                 username = jwtHelper.extractUsername(token);
             }
 
-            if(token == null) {
+            if (token == null) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -61,18 +60,20 @@ public class TokenAuthFilter extends OncePerRequestFilter {
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 if (jwtHelper.validateToken(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    usernamePasswordAuthenticationToken
+                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
             }
-        } catch (AccessDeniedException e){
+            filterChain.doFilter(request, response);
+        } catch (AccessDeniedException e) {
             System.out.println("Access Denied : " + e.getMessage());
-            ErrorResponse apiResponse = new ErrorResponse("Access Denied", "You are not authorized to access this resource", null, LocalDateTime.now());
+            ErrorResponse apiResponse = new ErrorResponse("Access Denied",
+                    "You are not authorized to access this resource", null, LocalDateTime.now());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write(apiResponse.toString());
         }
-
-
     }
 }

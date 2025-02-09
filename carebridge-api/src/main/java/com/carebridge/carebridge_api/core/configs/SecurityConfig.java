@@ -1,27 +1,41 @@
+// filepath: /C:/Users/USER/OneDrive/Dokumen/GitHub/carebridge/carebridge-api/src/main/java/com/carebridge/carebridge_api/core/configs/SecurityConfig.java
 package com.carebridge.carebridge_api.core.configs;
 
+import com.carebridge.carebridge_api.auth.services.ImplUserDetailService;
 import com.carebridge.carebridge_api.core.helpers.TokenAuthFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
 public class SecurityConfig {
-    private final UserDetailsService userDetailsService;
+    private final ImplUserDetailService userDetailsService;
     private final TokenAuthFilter tokenAuthFilter;
+
+    private static final List<String> PUBLIC_URLS = List.of(
+            "/api/v1/auth/.*",
+            "/swagger-ui.html",
+            "/v3/api-docs");
+
+    public SecurityConfig(ImplUserDetailService userDetailsService, TokenAuthFilter tokenAuthFilter) {
+        this.userDetailsService = userDetailsService;
+        this.tokenAuthFilter = tokenAuthFilter;
+    }
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -29,20 +43,27 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll()
                         .requestMatchers("/api/auth/logout", "/api/menu").authenticated()
-                        .requestMatchers("/", "/api/auth/**", "/api/guest/**").permitAll()
-                        .requestMatchers("/api/{role}/**")
-                        .access((authentication, object) -> {
-                            String role = authentication.get().getAuthorities().stream()
-                                    .map(grantedAuthority -> grantedAuthority.getAuthority())
-                                    .findFirst()
-                                    .orElse("");
-                            boolean granted = role.equals("ROLE_" + object.getRequest().getRequestURI().split("/")[2].toUpperCase());
-                            return new AuthorizationDecision(granted);
-                        })
-                        .anyRequest().authenticated())
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/api/medic/**").hasRole("MEDIC")
+                        .anyRequest().permitAll())
                 .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Accept", "X-Requested-With", "Authorization"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
@@ -52,8 +73,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
+        AuthenticationManagerBuilder authenticationManagerBuilder = http
+                .getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
                 .userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());

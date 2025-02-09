@@ -5,6 +5,7 @@ import com.carebridge.carebridge_api.user.models.Biodata;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 @Table(name = "m_customer")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@AllArgsConstructor
 public class Customer extends BaseEntity {
 
     @ManyToOne
@@ -50,23 +52,23 @@ public class Customer extends BaseEntity {
     @Column(name = "weight")
     private Float weight;
 
-    @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonBackReference
     List<CustomerMember> customerMember;
 
-//    @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
-//    @JsonBackReference
-//    List<CustomerChat> customerChat;
+    // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
+    // @JsonBackReference
+    // List<CustomerChat> customerChat;
 
-//    @OneToOne(mappedBy="customer" ,cascade=CascadeType.ALL)
-//    @JsonBackReference
-//    private CustomerWallet customerWallet;
+    // @OneToOne(mappedBy="customer" ,cascade=CascadeType.ALL)
+    // @JsonBackReference
+    // private CustomerWallet customerWallet;
 
-//    @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
-//    @JsonBackReference
-//    List<CustomerWalletWithdraw> customerWalletWithdraws;
+    // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
+    // @JsonBackReference
+    // List<CustomerWalletWithdraw> customerWalletWithdraws;
 
-//    @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
-//    @JsonBackReference
-//    List<CustomerCustomNominal> customerCustomNominals;
+    // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
+    // @JsonBackReference
+    // List<CustomerCustomNominal> customerCustomNominals;
 }

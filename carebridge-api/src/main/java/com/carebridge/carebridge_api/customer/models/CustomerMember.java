@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "m_customer_member")
 @Data
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class CustomerMember extends BaseEntity {
 
     @Column(name = "parent_biodata_id")
@@ -27,6 +28,5 @@ public class CustomerMember extends BaseEntity {
     @JoinColumn(name = "customer_relation_id", insertable = false, updatable = false)
     @JsonManagedReference
     private CustomerRelation customerRelation;
-
 
 }

@@ -5,7 +5,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import javax.crypto.SecretKey;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -18,13 +17,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
 public class JwtHelper {
 
-    @Value("${jwt.secret}")
+//    @Value("${jwt.secret}")
     private final SecretKey secretKey = Jwts.SIG.HS256.key().build();
 
-    public String generateToken(String email, Long userId, Long expirationTime) {
+    public String generateToken(String email, Long userId, int expirationTime) {
         var now = Instant.now();
         return Jwts.builder()
                 .claims()
@@ -35,18 +33,24 @@ public class JwtHelper {
                 .signWith(secretKey)
                 .compact();
     }
+
     public String extractUsername(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getSubject();
     }
+
     public Long extractUserId(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("user_id", Long.class);
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("user_id",
+                Long.class);
     }
+
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
+
     private boolean isTokenExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration()
+                .before(new Date());
     }
 
     public String expireToken(String token) {
