@@ -22,10 +22,10 @@ public class VerifyTokenOtpRequest {
     private String email;
 
     @Schema(description = "Used for", example = "REGISTRATION")
-//    @EnumValidator(
-//            enumClass = TokenUsedFor.class,
-//            acceptedValues = {"REGISTRATION", "PASSWORD_RESET"},
-//            message = "Invalid value for UsedFor. Allowed values: REGISTRATION, PASSWORD_RESET"
-//    )
-    private TokenUsedFor usedFor;
+    @EnumValidator(
+            enumClass = TokenUsedFor.class,
+            acceptedValues = {"REGISTRATION", "PASSWORD_RESET"},
+            message = "Invalid value for UsedFor. Allowed values: REGISTRATION, PASSWORD_RESET"
+    )
+    private String usedFor;
 }

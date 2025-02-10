@@ -149,37 +149,35 @@ public class AuthService {
         return tokenOtp.getExpiredAt();
     }
 
-    public void verifyTokenOTPService(VerifyTokenOtpRequest verifyTokenOtpRequest) {
-        Token tokenOtp = tokenRepository
-                .findTokenByTokenAndEmailAndUsedFor(verifyTokenOtpRequest.getToken(), verifyTokenOtpRequest.getEmail(),
-                        verifyTokenOtpRequest.getUsedFor().toString())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
+ public void verifyTokenOTPService(VerifyTokenOtpRequest verifyTokenOtpRequest) {
+     TokenUsedFor usedForEnum = TokenUsedFor.fromString(verifyTokenOtpRequest.getUsedFor());
+     Token tokenOtp = tokenRepository
+             .findTokenByTokenAndEmailAndUsedFor(verifyTokenOtpRequest.getToken(), verifyTokenOtpRequest.getEmail(), usedForEnum)
+             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
 
-        if (tokenOtp.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
-        }
+     if (tokenOtp.getExpiredAt().isBefore(LocalDateTime.now())) {
+         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
+     }
 
-        if (tokenOtp.getAttempts() >= 3) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Token has been blocked due to too many failed attempts.");
-        }
+     if (tokenOtp.getAttempts() >= 3) {
+         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has been blocked due to too many failed attempts.");
+     }
 
-        if (!tokenOtp.getToken().equals(verifyTokenOtpRequest.getToken())) {
-            tokenOtp.setAttempts(tokenOtp.getAttempts() + 1);
-            tokenRepository.save(tokenOtp);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token");
-        }
+     if (!tokenOtp.getToken().equals(verifyTokenOtpRequest.getToken())) {
+         tokenOtp.setAttempts(tokenOtp.getAttempts() + 1);
+         tokenRepository.save(tokenOtp);
+         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token");
+     }
 
-        User user = new User();
-        user.setEmail(tokenOtp.getEmail());
-        user.setIsActive(true);
-        userRepository.save(user);
-        tokenOtp.setUserId(user.getId());
-        tokenOtp.setIsExpired(true);
-        tokenOtp.setExpiredAt(LocalDateTime.now());
-        tokenRepository.save(tokenOtp);
-    }
-
+     User user = new User();
+     user.setEmail(tokenOtp.getEmail());
+     user.setIsActive(true);
+     userRepository.save(user);
+     tokenOtp.setUserId(user.getId());
+     tokenOtp.setIsExpired(true);
+     tokenOtp.setExpiredAt(LocalDateTime.now());
+     tokenRepository.save(tokenOtp);
+ }
     public RegisterAccountResponse registerAccountService(RegisterAccountRequest registerAccountRequest) {
         User user = userRepository.findByEmailAndIsDeleteFalse(registerAccountRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
@@ -254,7 +252,7 @@ public class AuthService {
     public void resetPasswordService(ResetPasswordRequest resetPasswordRequest) {
         Token tokenOtp = tokenRepository
                 .findTokenByTokenAndEmailAndUsedFor(resetPasswordRequest.getToken(), resetPasswordRequest.getEmail(),
-                        TokenUsedFor.FORGOT_PASSWORD.toString())
+                        TokenUsedFor.FORGOT_PASSWORD)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
         if (tokenOtp.getExpiredAt().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
