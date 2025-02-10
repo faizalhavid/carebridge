@@ -3,6 +3,7 @@ package com.carebridge.carebridge_api.auth.models;
 
 import com.carebridge.carebridge_api.core.BaseEntity;
 import com.carebridge.carebridge_api.user.models.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,6 +41,7 @@ public class DeviceInfo extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
 }

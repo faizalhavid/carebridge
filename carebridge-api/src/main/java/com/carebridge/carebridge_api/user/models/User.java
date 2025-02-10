@@ -51,9 +51,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    @Column(name = "is_active")
-    private Boolean isActive = false;
-
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DeviceInfo> deviceInfos;
@@ -84,11 +81,6 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return isActive;
     }
 
     @Override

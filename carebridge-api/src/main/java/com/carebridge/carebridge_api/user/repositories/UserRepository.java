@@ -11,5 +11,5 @@ import org.springframework.data.rest.core.annotation.RestResource;
 @RepositoryRestResource(collectionResourceRel = "users", path = "users")
 public interface UserRepository extends JpaRepository<User, Long> {
     @RestResource(exported = false)
-    Optional<User> findByEmailAndIsDeleteFalse(String email);
+    Optional<User> findByEmailAndIsDeletedFalse(String email);
 }

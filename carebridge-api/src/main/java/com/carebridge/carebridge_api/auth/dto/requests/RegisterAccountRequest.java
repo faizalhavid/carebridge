@@ -16,6 +16,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterAccountRequest {
 
+    @NotBlank(message = "Token cannot be blank")
+    private String token;
+
     @Schema(description = "Email", example = "nurhavid123@gmail.com")
     @NotBlank(message = "email cannot be blank")
     @Email(message = "Invalid email address")

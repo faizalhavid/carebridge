@@ -10,7 +10,9 @@ import java.util.Optional;
 public interface TokenRepository extends JpaRepository<Token, Long> {
 
     @Query(value = "SELECT * FROM t_token mt WHERE mt.email = ?1 AND mt.used_for = ?2 AND mt.created_at = ((SELECT MAX(created_at) FROM t_token WHERE email = ?1 AND used_for = ?2))", nativeQuery = true)
-    Optional<Token> findTokenJustCreatedByEmailAndUsedFor(String email, String usedFor);
+    Optional<Token> findTokenJustCreatedByEmailAndUsedFor(String email, TokenUsedFor usedFor);
+
+    Optional<Token> findFirstByTokenAndUsedForOrderByCreatedAtDesc(String token, TokenUsedFor usedFor);
 
     Optional<Token> findTokenByTokenAndEmailAndUsedFor(String token, String email, TokenUsedFor usedFor);
 
