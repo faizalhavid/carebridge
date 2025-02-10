@@ -1,9 +1,6 @@
 package com.carebridge.carebridge_api.auth;
 
-import com.carebridge.carebridge_api.auth.dto.requests.LoginRequest;
-import com.carebridge.carebridge_api.auth.dto.requests.RegisterAccountRequest;
-import com.carebridge.carebridge_api.auth.dto.requests.ResetPasswordRequest;
-import com.carebridge.carebridge_api.auth.dto.requests.VerifyTokenOtpRequest;
+import com.carebridge.carebridge_api.auth.dto.requests.*;
 import com.carebridge.carebridge_api.auth.services.AuthService;
 import com.carebridge.carebridge_api.core.responses.SuccessResponse;
 import jakarta.mail.MessagingException;
@@ -30,13 +27,13 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<SuccessResponse<?, Object>> forgotPasswordController(@Valid @RequestBody String email) throws MessagingException, IOException {
-        return ResponseEntity.ok(new SuccessResponse<>(authService.forgotPasswordEmailService(email), "Forgot password successful", 200));
+    public ResponseEntity<SuccessResponse<?, Object>> forgotPasswordController(@Valid @RequestBody SendEmailRequest sendEmailRequest) throws MessagingException, IOException {
+        return ResponseEntity.ok(new SuccessResponse<>(authService.forgotPasswordEmailService(sendEmailRequest.getEmail()), "Forgot password successful", 200));
     }
 
     @PostMapping("/register-email")
-    public ResponseEntity<SuccessResponse<?, Object>> registerEmailController(@Valid @RequestBody String email) throws MessagingException, IOException {
-        return ResponseEntity.ok(new SuccessResponse<>(authService.registerEmailService(email), "Register email successful", 200));
+    public ResponseEntity<SuccessResponse<?, Object>> registerEmailController(@Valid @RequestBody SendEmailRequest sendEmailRequest) throws MessagingException, IOException {
+        return ResponseEntity.ok(new SuccessResponse<>(authService.registerEmailService(sendEmailRequest.getEmail()), "Register email successful", 200));
     }
 
     @PostMapping("/verify-token-otp")

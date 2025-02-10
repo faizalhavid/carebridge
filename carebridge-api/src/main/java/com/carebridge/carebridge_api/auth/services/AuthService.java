@@ -10,6 +10,7 @@ import com.carebridge.carebridge_api.auth.repositories.DeviceInfoRepository;
 import com.carebridge.carebridge_api.auth.repositories.TokenRepository;
 import com.carebridge.carebridge_api.core.enums.TokenUsedFor;
 import com.carebridge.carebridge_api.core.helpers.JwtHelper;
+import com.carebridge.carebridge_api.core.responses.ErrorResponse;
 import com.carebridge.carebridge_api.core.utils.SenderMail;
 import com.carebridge.carebridge_api.user.dto.projections.RoleProjection;
 import com.carebridge.carebridge_api.user.models.Biodata;
@@ -43,32 +44,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class AuthService {
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
     private TokenRepository tokenRepository;
-    @Autowired
     private RoleRepository roleRepository;
-    @Autowired
     private BiodataRepository biodataRepository;
-    @Autowired
     private DeviceInfoRepository deviceRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
     private ModelMapper modelMapper;
-    @Autowired
     private SenderMail senderMail;
-    // @Autowired private RedisTemplate<String, Object> redisTemplate;
-    private final JwtHelper jwtHelper = new JwtHelper();
 
-    private int accessTokenExpiration = 3;
+    // private RedisTemplate<String, Object> redisTemplate;
+    final private JwtHelper jwtHelper = new JwtHelper();
 
-    private int refreshTokenExpiration = 5;
+    final private int accessTokenExpiration = 3;
+
+    final private int refreshTokenExpiration = 5;
 
     final private int TIME_EXPIRED_TOKEN = 5;
     final private int TIME_RESEND_TOKEN = 180;
@@ -134,13 +127,13 @@ public class AuthService {
     public LocalDateTime registerEmailService(String email) throws MessagingException, IOException {
         Optional<User> user = userRepository.findByEmailAndIsDeleteFalse(email);
         if (user.isPresent() && user.get().getIsActive())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already registered");
+            throw new BadRequestException("User already verified");
 
         Optional<Token> existingToken = tokenRepository.findTokenJustCreatedByEmailAndUsedFor(email,
                 TokenUsedFor.REGISTRATION.toString());
         if (existingToken.isPresent() && LocalDateTime.now().isBefore(existingToken.get().getExpiredAt())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "A verification token has already been sent. Please check your email.");
+            throw new BadRequestException("Token already sent. Please wait for " + TIME_RESEND_TOKEN
+                    + " seconds before requesting a new token.");
         }
 
         Token tokenOtp = generateTokenOtp(email, TokenUsedFor.REGISTRATION, user);
@@ -152,7 +145,7 @@ public class AuthService {
                         + minutesLeft + " minutes</span>.</p>",
                 "additional_component", "<h1 class='otp'>" + tokenOtp.getToken() + "</h1>");
 
-        senderMail.sendMail(email, mailContext);
+//        senderMail.sendMail(email, mailContext);
         return tokenOtp.getExpiredAt();
     }
 

@@ -1,10 +1,10 @@
 package com.carebridge.carebridge_api.auth.dto.requests;
 
 
+import com.carebridge.carebridge_api.core.annotations.EnumValidator;
 import com.carebridge.carebridge_api.core.enums.TokenUsedFor;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,10 +16,16 @@ public class VerifyTokenOtpRequest {
     @NotBlank(message = "Token cannot be blank")
     private String token;
 
+    @Schema(description = "Email address", example = "nurhavid123@gmail.com")
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email cannot be blank")
     private String email;
 
-    @NotEmpty(message = "Used for cannot be empty")
+    @Schema(description = "Used for", example = "REGISTRATION")
+//    @EnumValidator(
+//            enumClass = TokenUsedFor.class,
+//            acceptedValues = {"REGISTRATION", "PASSWORD_RESET"},
+//            message = "Invalid value for UsedFor. Allowed values: REGISTRATION, PASSWORD_RESET"
+//    )
     private TokenUsedFor usedFor;
 }

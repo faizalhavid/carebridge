@@ -43,9 +43,16 @@ public class JwtHelper {
                 Long.class);
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return true;
+        } catch (SignatureException | ExpiredJwtException e) {
+            System.out.println("Invalid JWT token: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("JWT token validation error: " + e.getMessage());
+        }
+        return false;
     }
 
     private boolean isTokenExpired(String token) {

@@ -2,7 +2,9 @@ package com.carebridge.carebridge_api.core;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 
 @Data
 @MappedSuperclass
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class BaseEntity {
 
     @Id

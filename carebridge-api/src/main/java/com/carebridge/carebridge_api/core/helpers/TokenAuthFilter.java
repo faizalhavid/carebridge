@@ -1,27 +1,20 @@
 package com.carebridge.carebridge_api.core.helpers;
 
-import com.carebridge.carebridge_api.auth.repositories.TokenRepository;
 import com.carebridge.carebridge_api.auth.services.ImplUserDetailService;
 import com.carebridge.carebridge_api.core.responses.ErrorResponse;
-import com.carebridge.carebridge_api.user.repositories.UserRepository;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import liquibase.command.CommandOverride;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +23,10 @@ import java.util.List;
 @AllArgsConstructor
 public class TokenAuthFilter extends OncePerRequestFilter {
     private final ImplUserDetailService userDetailsService;
-    private final List<String> publicUrls;
+    private static final List<String> PUBLIC_URLS = List.of(
+            "/api/v1/auth/.*",
+            "/swagger-ui.html",
+            "/v3/api-docs");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,33 +35,26 @@ public class TokenAuthFilter extends OncePerRequestFilter {
             String authHeader = request.getHeader("Authorization");
             String token = null, username = null;
             JwtHelper jwtHelper = new JwtHelper();
+            String requestURI = request.getRequestURI();
+            boolean isPublic = PUBLIC_URLS.stream()
+                    .anyMatch(requestURI::matches);
 
-            // Cek apakah path termasuk dalam public URLS
-            if (publicUrls.stream().anyMatch(url -> request.getRequestURI().startsWith(url))) {
+            if (isPublic && !requestURI.equals("/api/v1/logout")) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            System.out.println("Auth Header: " + authHeader);
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
                 username = jwtHelper.extractUsername(token);
             }
 
-            if (token == null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (token != null && jwtHelper.validateToken(token)) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                if (jwtHelper.validateToken(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken
-                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                }
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
+                        null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             filterChain.doFilter(request, response);
         } catch (AccessDeniedException e) {

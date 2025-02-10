@@ -23,19 +23,14 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig {
     private final ImplUserDetailService userDetailsService;
     private final TokenAuthFilter tokenAuthFilter;
-
     private static final List<String> PUBLIC_URLS = List.of(
-            "/api/v1/auth/.*",
+            "/auth/.*",
             "/swagger-ui.html",
             "/v3/api-docs");
-
-    public SecurityConfig(ImplUserDetailService userDetailsService, TokenAuthFilter tokenAuthFilter) {
-        this.userDetailsService = userDetailsService;
-        this.tokenAuthFilter = tokenAuthFilter;
-    }
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -45,10 +40,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll()
                         .requestMatchers("/api/auth/logout", "/api/menu").authenticated()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                         .requestMatchers("/api/medic/**").hasRole("MEDIC")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll())
                 .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

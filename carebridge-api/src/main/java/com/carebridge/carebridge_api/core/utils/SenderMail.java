@@ -12,8 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 
-@AllArgsConstructor
 @Component
+@AllArgsConstructor
 public class SenderMail {
     private JavaMailSenderImpl mailSender;
 

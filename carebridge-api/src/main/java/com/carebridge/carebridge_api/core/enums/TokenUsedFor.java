@@ -4,17 +4,26 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TokenUsedFor {
-    AUTHENTICATION,
-    FORGOT_PASSWORD,
-    CHANGE_EMAIL,
-    CHANGE_PASSWORD,
-    REGISTRATION,
+    AUTHENTICATION("authentication"),
+    FORGOT_PASSWORD("forgot_password"),
+    CHANGE_EMAIL("change_email"),
+    CHANGE_PASSWORD("change_password"),
+    REGISTRATION("registration"),
+    REFRESH_TOKEN("refresh_token");
 
-    // TODO : REDIS - delete this
-    REFRESH_TOKEN;
+    private final String value;
+
+    TokenUsedFor(String value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 
     @JsonCreator
-    public static TokenUsedFor fromValue(String value) {
+    public static TokenUsedFor fromString(String value) {
         for (TokenUsedFor tokenUsedFor : TokenUsedFor.values()) {
             if (tokenUsedFor.name().equalsIgnoreCase(value)) {
                 return tokenUsedFor;
@@ -23,8 +32,5 @@ public enum TokenUsedFor {
         throw new IllegalArgumentException("Invalid value for TokenUsedFor: " + value);
     }
 
-    @JsonValue
-    public String toValue() {
-        return this.name();
-    }
+
 }
