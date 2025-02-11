@@ -27,7 +27,7 @@ public class Token extends BaseEntity {
     @Column(name = "token", length = 500)
     private String token;
 
-    @Column(name = "expired_on")
+    @Column(name = "expired_at")
     private LocalDateTime expiredAt;
 
     @Column(name = "is_expired")

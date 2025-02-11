@@ -64,7 +64,7 @@ public class AuthService {
     final private int TIME_RESEND_TOKEN = 180;
     final private int MAX_LOGIN_ATTEMPT = 3;
 
-    public LoginResponse loginService(LoginRequest loginRequest) throws MessagingException, IOException {
+   public LoginResponse loginService(LoginRequest loginRequest) throws MessagingException, IOException {
         User user = userRepository.findByEmailAndIsDeletedFalse(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
         LoginResponse loginResponse = new LoginResponse();
@@ -84,6 +84,7 @@ public class AuthService {
         if (user.getDeviceInfos().stream().noneMatch(
                 deviceInfo -> deviceInfo.getDeviceToken().equals(loginRequest.getDeviceInfo().getDeviceToken()))) {
             DeviceInfo newDevice = modelMapper.map(loginRequest.getDeviceInfo(), DeviceInfo.class);
+            newDevice.setUser(user); // Ensure the user is set
             user.getDeviceInfos().add(newDevice);
             userRepository.save(user);
             Map<String, String> mailContent = Map.of(
@@ -175,49 +176,60 @@ public class AuthService {
     }
 
     public RegisterAccountResponse registerAccountService(RegisterAccountRequest registerAccountRequest) {
-        String userVerifiedEmail = tokenRepository.findFirstByTokenAndUsedForOrderByCreatedAtDesc(registerAccountRequest.getToken(), TokenUsedFor.REGISTRATION)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token")).getEmail();
-        User user = userRepository.findByEmailAndIsDeletedFalse(userVerifiedEmail)
+        Token token = tokenRepository.findFirstByTokenAndUsedForOrderByCreatedAtDesc(registerAccountRequest.getToken(), TokenUsedFor.REGISTRATION)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
+
+//        if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
+//            token.setIsExpired(true);
+//            tokenRepository.save(token);
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
+//        }
+
+        User user = userRepository.findByEmailAndIsDeletedFalse(token.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
 
-        RoleProjection checkRole = roleRepository.findRoleByCode("ROLE_CUSTOMER");
-        if (checkRole == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found");
-        }
-        user.setRole(modelMapper.map(checkRole, Role.class));
+        Role role = roleRepository.findFirstByCode("ROLE_CUSTOMER")
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found"));
+        user.setRole(role);
+        if (!registerAccountRequest.getPassword().equals(registerAccountRequest.getConfirmPassword()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password does not match");
         user.setPassword(passwordEncoder.encode(registerAccountRequest.getPassword()));
-        user.setBiodata(modelMapper.map(registerAccountRequest, Biodata.class));
+
+//     Biodata biodata = modelMapper.map(registerAccountRequest, Biodata.class);
+        Biodata biodata = new Biodata();
+        biodata.setFullname(registerAccountRequest.getFullname());
+        biodata.setImagePath(registerAccountRequest.getImagePath());
+        biodataRepository.save(biodata);
+        user.setBiodata(biodata);
         userRepository.save(user);
-        DeviceInfo deviceInfo = modelMapper.map(registerAccountRequest.getDeviceInfo(), DeviceInfo.class);
-        deviceInfo.setUser(user);
-        deviceRepository.save(deviceInfo);
+
         return new RegisterAccountResponse(user);
     }
 
-    public RegisterAccountByAdminResponse registerAccountByAdminService(
-            RegisterAccountByAdminRequest registerAccountRequest) {
-        User user = userRepository.findByEmailAndIsDeletedFalse(registerAccountRequest.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
-        Biodata biodata = modelMapper.map(registerAccountRequest, Biodata.class);
-        DeviceInfo deviceInfo = modelMapper.map(registerAccountRequest.getDeviceInfo(), DeviceInfo.class);
-        RegisterAccountByAdminResponse registerAccountResponse = new RegisterAccountByAdminResponse();
-        RoleProjection checkRole = roleRepository.findRoleByCode("ROLE_CUSTOMER");
-        if (checkRole == null)
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found");
-        user.setRole(modelMapper.map(checkRole, Role.class));
-        user.setPassword(passwordEncoder.encode(registerAccountRequest.getPassword()));
-        user.setBiodata(biodata);
-        userRepository.save(user);
-        biodataRepository.save(biodata);
-        deviceInfo.setUser(user);
-        deviceRepository.save(deviceInfo);
-
-        registerAccountResponse.setUser(user);
-        registerAccountResponse.setRole(user.getRole());
-        registerAccountResponse.setAuthorities(user.getAuthorities());
-
-        return registerAccountResponse;
-    }
+//    public RegisterAccountByAdminResponse registerAccountByAdminService(
+//            RegisterAccountByAdminRequest registerAccountRequest) {
+//        User user = userRepository.findByEmailAndIsDeletedFalse(registerAccountRequest.getEmail())
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+//        Biodata biodata = modelMapper.map(registerAccountRequest, Biodata.class);
+//        DeviceInfo deviceInfo = modelMapper.map(registerAccountRequest.getDeviceInfo(), DeviceInfo.class);
+//        RegisterAccountByAdminResponse registerAccountResponse = new RegisterAccountByAdminResponse();
+//        RoleProjection checkRole = roleRepository.findRoleByCode("ROLE_CUSTOMER");
+//        if (checkRole == null)
+//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found");
+//        user.setRole(modelMapper.map(checkRole, Role.class));
+//        user.setPassword(passwordEncoder.encode(registerAccountRequest.getPassword()));
+//        user.setBiodata(biodata);
+//        userRepository.save(user);
+//        biodataRepository.save(biodata);
+//        deviceInfo.setUser(user);
+//        deviceRepository.save(deviceInfo);
+//
+//        registerAccountResponse.setUser(user);
+//        registerAccountResponse.setRole(user.getRole());
+//        registerAccountResponse.setAuthorities(user.getAuthorities());
+//
+//        return registerAccountResponse;
+//    }
 
     public LocalDateTime forgotPasswordEmailService(String email) throws MessagingException, IOException {
         Optional<User> user = userRepository.findByEmailAndIsDeletedFalse(email);

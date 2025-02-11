@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterAccountRequest {
 
+    @Schema(description = "Token", example = "123456")
     @NotBlank(message = "Token cannot be blank")
     private String token;
 

@@ -29,7 +29,7 @@ public abstract class BaseEntity {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
-    private Boolean isDeleted = true;
+    private Boolean isDeleted = false;
 
     @Column(nullable = true)
     private LocalDateTime deleteAt;

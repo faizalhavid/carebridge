@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VerifyTokenOtpRequest {
+    @Schema(description = "Token", example = "123456")
     @NotBlank(message = "Token cannot be blank")
     private String token;
 

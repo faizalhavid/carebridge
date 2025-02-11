@@ -30,7 +30,7 @@ public class SenderMail {
         content = content.replace("{username}", username);
         content = content.replace("{title}", mailContext.get("subject"));
         content = content.replace("{message}", mailContext.get("message"));
-        content = content.replace("{additional_comment}", mailContext.get("additional_comment"));
+        content = content.replace("{additional_component}", mailContext.get("additional_component"));
         helper.setText(content, true);
 
         mailSender.send(message);

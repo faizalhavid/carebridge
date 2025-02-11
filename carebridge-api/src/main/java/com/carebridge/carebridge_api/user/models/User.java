@@ -35,7 +35,7 @@ public class User extends BaseEntity implements UserDetails {
     @JsonManagedReference
     private Role role;
 
-    @Column(name = "email", length = 100)
+    @Column(name = "email", length = 100, unique = true)
     private String email;
 
     @JsonIgnore
@@ -45,7 +45,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "login_attempt", columnDefinition = "int default 0")
     private Integer loginAttempt = 0;
 
-    @Column(name = "is_locked")
+    @Column(name = "is_locked", columnDefinition = "boolean default false")
     private Boolean isLocked = false;
 
     @Column(name = "last_login")

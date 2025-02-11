@@ -26,6 +26,7 @@ public class Biodata extends BaseEntity {
     @Column(name = "mobile_phone", length = 15)
     private String mobilePhone;
 
+
     @Column(name = "image_path", length = 255)
     private String imagePath;
 

@@ -8,6 +8,7 @@ import javax.crypto.SecretKey;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -17,10 +18,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
+@NoArgsConstructor
 public class JwtHelper {
 
-//    @Value("${jwt.secret}")
-    private final SecretKey secretKey = Jwts.SIG.HS256.key().build();
+    @Value("${jwt.secret}")
+    private String secret;
+
+    private SecretKey getSecretKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateToken(String email, Long userId, int expirationTime) {
         var now = Instant.now();
@@ -30,22 +36,22 @@ public class JwtHelper {
                 .add("user_id", userId)
                 .and()
                 .expiration(Date.from(now.plus(expirationTime, ChronoUnit.MILLIS)))
-                .signWith(secretKey)
+                .signWith(getSecretKey())
                 .compact();
     }
 
     public String extractUsername(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getSubject();
+        return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload().getSubject();
     }
 
     public Long extractUserId(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("user_id",
+        return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload().get("user_id",
                 Long.class);
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token);
+            Jwts.parser().setSigningKey(getSecretKey()).build().parseClaimsJws(token);
             return true;
         } catch (SignatureException | ExpiredJwtException e) {
             System.out.println("Invalid JWT token: " + e.getMessage());
@@ -56,12 +62,12 @@ public class JwtHelper {
     }
 
     private boolean isTokenExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration()
+        return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload().getExpiration()
                 .before(new Date());
     }
 
     public String expireToken(String token) {
-        Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+        Claims claims = Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
         claims.keySet().forEach(key -> {
             if (key.equals("exp")) {
                 claims.put(key, new Date());
@@ -69,7 +75,7 @@ public class JwtHelper {
         });
         return Jwts.builder()
                 .claims(claims)
-                .signWith(secretKey)
+                .signWith(getSecretKey())
                 .compact();
     }
 }
