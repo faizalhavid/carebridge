@@ -18,5 +18,4 @@ public class LoginResponse {
     private String refreshToken;
     private LocalDateTime expiredAt;
     private User user;
-    private Role role;
 }

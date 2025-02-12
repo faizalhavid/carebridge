@@ -20,8 +20,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Biodata extends BaseEntity {
 
-    @Column(name = "fullname", length = 255)
-    private String fullname;
+    @Column(name = "full_name", length = 255)
+    private String fullName;
 
     @Column(name = "mobile_phone", length = 15)
     private String mobilePhone;
@@ -41,4 +41,8 @@ public class Biodata extends BaseEntity {
     // @OneToMany(mappedBy="biodata", cascade= CascadeType.ALL)
     // @JsonBackReference
     // List<Doctor> doctor;
+
+    // @OneToMany(mappedBy="biodata", cascade= CascadeType.ALL)
+    // @JsonBackReference
+    // List<Medical> medical;
 }
