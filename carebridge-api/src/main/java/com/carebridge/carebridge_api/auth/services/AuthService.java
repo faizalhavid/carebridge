@@ -54,17 +54,17 @@ public class AuthService {
     private SenderMail senderMail;
 
     // private RedisTemplate<String, Object> redisTemplate;
-    final private JwtHelper jwtHelper = new JwtHelper();
+    final private JwtHelper jwtHelper;
 
-    final private int accessTokenExpiration = 3;
+    final private int accessTokenExpiration = 1;
 
-    final private int refreshTokenExpiration = 5;
+    final private int refreshTokenExpiration = 30;
 
     final private int TIME_EXPIRED_TOKEN = 5;
     final private int TIME_RESEND_TOKEN = 180;
     final private int MAX_LOGIN_ATTEMPT = 3;
 
-   public LoginResponse loginService(LoginRequest loginRequest) throws MessagingException, IOException {
+    public LoginResponse loginService(LoginRequest loginRequest) throws MessagingException, IOException {
         User user = userRepository.findByEmailAndIsDeletedFalse(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
         LoginResponse loginResponse = new LoginResponse();
@@ -95,7 +95,7 @@ public class AuthService {
                             + loginRequest.getDeviceInfo().getDeviceToken(),
                     "additional_component",
                     "<p style='color: red;font-weight: bold;'>If you did not login from this device, please contact us immediately or change your password</p>");
-            senderMail.sendMail(user.getEmail(), mailContent);
+//            senderMail.sendMail(user.getEmail(), mailContent);
         }
         user.setLoginAttempt(0);
         user.setLastLogin(LocalDateTime.now());
@@ -179,7 +179,7 @@ public class AuthService {
         Token token = tokenRepository.findFirstByTokenAndUsedForOrderByCreatedAtDesc(registerAccountRequest.getToken(), TokenUsedFor.REGISTRATION)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
 
-//        if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
+//        if (token.getExpiredAt().isBefore(LocalDateTime.now()) || token.getIsExpired()) {
 //            token.setIsExpired(true);
 //            tokenRepository.save(token);
 //            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
@@ -195,10 +195,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password does not match");
         user.setPassword(passwordEncoder.encode(registerAccountRequest.getPassword()));
 
-//     Biodata biodata = modelMapper.map(registerAccountRequest, Biodata.class);
-        Biodata biodata = new Biodata();
-        biodata.setFullname(registerAccountRequest.getFullname());
-        biodata.setImagePath(registerAccountRequest.getImagePath());
+        Biodata biodata = modelMapper.map(registerAccountRequest, Biodata.class);
         biodataRepository.save(biodata);
         user.setBiodata(biodata);
         userRepository.save(user);

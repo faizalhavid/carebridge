@@ -2,11 +2,16 @@ package com.carebridge.carebridge_api.core.helpers;
 
 import com.carebridge.carebridge_api.auth.services.ImplUserDetailService;
 import com.carebridge.carebridge_api.core.responses.ErrorResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,8 +26,10 @@ import java.util.List;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class TokenAuthFilter extends OncePerRequestFilter {
     private final ImplUserDetailService userDetailsService;
+    private final JwtHelper jwtHelper;
     private static final List<String> PUBLIC_URLS = List.of(
             "/api/v1/auth/.*",
             "/swagger-ui.html",
@@ -34,7 +41,6 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         try {
             String authHeader = request.getHeader("Authorization");
             String token = null, username = null;
-            JwtHelper jwtHelper = new JwtHelper();
             String requestURI = request.getRequestURI();
             boolean isPublic = PUBLIC_URLS.stream()
                     .anyMatch(requestURI::matches);
@@ -57,12 +63,30 @@ public class TokenAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             filterChain.doFilter(request, response);
-        } catch (AccessDeniedException e) {
-            System.out.println("Access Denied : " + e.getMessage());
-            ErrorResponse apiResponse = new ErrorResponse("Access Denied",
-                    "You are not authorized to access this resource", null, LocalDateTime.now());
+       } catch (JwtException e) {
+            log.error("Access Denied: {}", e.getMessage(), e);
+            ErrorResponse<String> apiResponse = new ErrorResponse<>(
+                    "fail",
+                    "You are not authorized to access this resource",
+                    e.getMessage(),
+                    LocalDateTime.now());
+            ErrorResponse<String> errorResponse = new ErrorResponse<>(
+                    "fail",
+                    "You are not authorized to access this resource",
+                    e.getMessage(),
+                    LocalDateTime.now());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write(apiResponse.toString());
+//            response.setContentType("application/json");
+            response.getWriter().write(convertObjectToJson(errorResponse));
         }
     }
+
+private String convertObjectToJson(Object object) throws JsonProcessingException {
+    if (object == null) {
+        return null;
+    }
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JavaTimeModule());
+    return mapper.writeValueAsString(object);
+}
 }

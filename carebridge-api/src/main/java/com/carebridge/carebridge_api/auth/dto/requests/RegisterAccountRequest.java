@@ -45,6 +45,4 @@ public class RegisterAccountRequest {
 
     private String imagePath;
 
-    private DeviceInfo deviceInfo;
-
 }

@@ -301,15 +301,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+@ExceptionHandler(ExpiredJwtException.class)
+public ResponseEntity<ErrorResponse<String>> handleExpiredJwtException(ExpiredJwtException e) {
+    log.error("An error occurred: {}", e.getMessage(), e);
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<ErrorResponse<String>> handleExpiredJwtException(ExpiredJwtException e) {
-        ErrorResponse<String> response = new ErrorResponse<>(
-                "fail",
-                "Token has expired",
-                e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-    }
+    ErrorResponse<String> response = new ErrorResponse<>(
+            "fail",
+            "Token has expired",
+            e.getMessage());
+    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+}
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<ErrorResponse<String>> handleMalformedJwtException(MalformedJwtException e) {
@@ -346,5 +347,7 @@ public class GlobalExceptionHandler {
                 e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+
 
 }
