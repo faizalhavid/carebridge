@@ -1,7 +1,8 @@
-package com.xa.b.miniproject.mini_project_xa.Entities;
+package com.carebridge.carebridge_api.auth.models;
 
 import java.util.List;
 
+import com.carebridge.carebridge_api.core.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,10 +24,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Menu extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
 
     @Column(name = "name", length = 20)
     private String name;

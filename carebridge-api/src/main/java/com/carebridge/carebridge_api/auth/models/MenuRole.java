@@ -1,5 +1,7 @@
-package com.xa.b.miniproject.mini_project_xa.Entities;
+package com.carebridge.carebridge_api.auth.models;
 
+import com.carebridge.carebridge_api.core.BaseEntity;
+import com.carebridge.carebridge_api.user.models.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,10 +22,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MenuRole extends BaseEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "menu_id", insertable = false, updatable = false)
