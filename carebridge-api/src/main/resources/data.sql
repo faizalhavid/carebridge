@@ -5,6 +5,11 @@ VALUES ('Admin', 'ROLE_ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
        ('Doctor', 'ROLE_DOCTOR', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
        ('Medic', 'ROLE_MEDIC', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
+-- Insert User Role admin
+INSERT INTO m_user (email, role_id, created_at, updated_at, is_deleted)
+VALUES ('nurfaizal966@gmail.com', (SELECT id FROM m_role WHERE name = 'Admin'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+
+
 -- data seed for registration flow
 -- create token otp for registration email
 INSERT INTO t_token (email, token, used_for, created_at, updated_at, expired_at, is_deleted)
