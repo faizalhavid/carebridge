@@ -1,29 +1,23 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router';
-import { RegisterComponent } from '../register/register.component';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { AuthRoutingModule } from './auth-route.module';
 import { LoginComponent } from './pages/login/login.component';
 import { AuthComponent } from './layouts/auth.component';
-
-
-const routes: Routes = [
-  {
-    path: 'auth',
-    component: AuthComponent,
-    children: [
-      { path: '', redirectTo: 'login', pathMatch: 'full' },
-      { path: 'login', component: LoginComponent },
-      { path: 'register', component: RegisterComponent },
-      { path: '**', redirectTo: 'login' }
-    ]
-  }
-];
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    LoginComponent,
+    AuthComponent
+  ],
   imports: [
     CommonModule,
-    RouterModule.forChild(routes)
+    FormsModule,
+    RouterModule,
+    AuthRoutingModule,
+    MatSlideToggleModule,
   ]
 })
 export class AuthModule { }

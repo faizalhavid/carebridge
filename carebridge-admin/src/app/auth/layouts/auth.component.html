@@ -1,1 +1,19 @@
-<p>auth works!</p>
+<div class="flex flex-col md:flex-row w-full">
+    <!-- Gambar dan Overlay -->
+    <div class="relative w-full md:w-1/2 h-screen">
+        <img src="/images/auth-hero-1.jpg" class="w-full h-full object-cover rounded-l-lg" alt="...">
+        <div class="absolute inset-0 flex items-center justify-center p-6">
+            <h5 class="text-2xl md:text-3xl text-gray-800 font-semibold text-center">
+                Our mission is to help companies develop health applications with the best tech talents,
+                on time and on budget.
+            </h5>
+        </div>
+    </div>
+
+    <!-- Bagian Router -->
+    <div class="w-full md:w-1/2 flex items-center justify-center p-6">
+        <div class="w-full max-w-md">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>
