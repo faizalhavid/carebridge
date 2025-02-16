@@ -31,12 +31,14 @@ public class OpenAPIConfig {
                                 .bearerFormat("JWT")));
     }
 
+    @Value("${env.api.version}")
+    private String apiVersion;
     @Bean
     public GroupedOpenApi adminApi() {
         return GroupedOpenApi.builder()
                 .group("admin")
                 .displayName("Admin API")
-                .pathsToMatch("/admin/**", "/auth/**")
+                .pathsToMatch("/admin/**", "/api/" + apiVersion + "/admin/**")
                 .build();
     }
 }
