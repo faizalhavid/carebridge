@@ -1,1 +1,27 @@
-<p>register works!</p>
+<section class="flex flex-col justify-between gap-8 p-4 h-full">
+    <div class="d-flex flex-column gap-0">
+        <img src="/images/logo.png" alt="Logo" class="d-inline-block align-self-start" style="width: 250px" />
+        <p class="paragraph-3">Please register to continue</p>
+    </div>
+
+    <form method="post" id="form-register" class="flex flex-col gap-5 grow w-100 needs-validation" novalidate>
+        <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input matInput type="text" id="username" name="username" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" id="password" name="password" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" id="email" name="email" required>
+        </mat-form-field>
+
+        <button mat-flat-button color="secondary" type="submit" class="btn btn-secondary"
+            style="width: 100%">Register</button>
+        <p class="mt-3 text-center">Already have an account? <a href="/auth/login" mat-button>Login</a></p>
+    </form>
+</section>

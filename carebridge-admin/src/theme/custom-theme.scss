@@ -4,6 +4,7 @@
 @use './_theme-colors' as theme-colors;
 
 html {
+  color-scheme: light dark;
   @include mat.theme((
     color: (
       primary: theme-colors.$primary-palette,
@@ -13,7 +14,7 @@ html {
       // neutral: theme-colors.$neutral-palette,
       // 'neutral-variant': theme-colors.$neutral-variant-palette,
     ),
-    typography: Roboto,
+    typography: Inter,
     density: -2,
   ));
 }

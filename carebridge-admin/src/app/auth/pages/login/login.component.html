@@ -1,2 +1,38 @@
-<p>login works!</p>
-<mat-slide-toggle>Toggle me!</mat-slide-toggle>
+<section class="flex flex-col justify-between gap-8 p-4 h-full">
+    <div class="d-flex flex-column gap-0">
+        <img src="/images/logo.png" alt="Logo" class="d-inline-block align-self-start" style="width: 250px" />
+        <p class="paragraph-3">Please login to continue</p>
+    </div>
+
+    <form method="post" id="form-login" class="flex flex-col gap-5 grow w-100 needs-validation" novalidate>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" id="email-login" name="email" required>
+            <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" id="password" name="password" autocomplete="false" required>
+            <button type="button" mat-icon-button matSuffix (click)="togglePassword($event)">
+                <mat-icon>remove_red_eye</mat-icon>
+            </button>
+        </mat-form-field>
+        <app-dialog-button [title]="'Custom Dialog Title'" [placeholder]="'Forgot Password ?'"
+            [message]="'This is a custom message for the dialog.'" (onConfirm)="handleConfirmForgotPassword($event)">
+            <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" id="email-login" name="email" required>
+                <mat-icon matSuffix>email</mat-icon>
+            </mat-form-field>
+        </app-dialog-button>
+
+        <button mat-flat-button color="secondary" type="submit" class="btn btn-secondary"
+            style="width: 100%">Login</button>
+        <p class="mt-3 text-center">Don't have an account? <a href="/auth/register" mat-button>Register Now </a>
+    </form>
+
+
+
+</section>
