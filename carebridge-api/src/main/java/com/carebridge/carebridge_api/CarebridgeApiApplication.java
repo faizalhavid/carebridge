@@ -24,6 +24,7 @@ public class CarebridgeApiApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		updateUserPassword("nurfaizal966@gmail.com", "Barakadut123@");
+		updateUserPassword("nurhavid123@gmail.com", "Barakadut123@");
 	}
 
 	public void updateUserPassword(String email, String newPassword) {

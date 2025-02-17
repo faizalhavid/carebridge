@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthRoutingModule } from './auth-route.module';
 import { LoginComponent } from './pages/login/login.component';
@@ -15,6 +15,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { RegisterComponent } from './pages/register/register.component';
 import { AppDialogButtonComponent } from '../components/dialog/button/dialog-button.component';
+import { DeviceDetectorService } from 'ngx-device-detector';
+import { HttpClient, provideHttpClient } from '@angular/common/http';
 @NgModule({
   declarations: [
     LoginComponent,
@@ -31,11 +33,14 @@ import { AppDialogButtonComponent } from '../components/dialog/button/dialog-but
     MatInputModule,
     MatSelectModule,
     MatButtonModule, MatDividerModule, MatIconModule,
-    AppDialogButtonComponent
+    AppDialogButtonComponent,
+    ReactiveFormsModule
   ],
   providers: [
     { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
+    provideHttpClient(),
+    DeviceDetectorService,
   ]
 })
 export class AuthModule { }

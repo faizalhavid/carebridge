@@ -72,14 +72,14 @@ public class AuthService {
             throw new RuntimeException("User is locked");
         }
 
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            user.setLoginAttempt(user.getLoginAttempt() + 1);
-            if (user.getLoginAttempt() >= MAX_LOGIN_ATTEMPT) {
-                user.setIsLocked(true);
-            }
-            userRepository.save(user);
-            throw new RuntimeException("Invalid password");
-        }
+       if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+           user.setLoginAttempt(user.getLoginAttempt() + 1);
+           if (user.getLoginAttempt() >= MAX_LOGIN_ATTEMPT) {
+               user.setIsLocked(true);
+           }
+           userRepository.save(user);
+           throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
+       }
 
         if (user.getDeviceInfos().stream().noneMatch(
                 deviceInfo -> deviceInfo.getDeviceToken().equals(loginRequest.getDeviceInfo().getDeviceToken()))) {
