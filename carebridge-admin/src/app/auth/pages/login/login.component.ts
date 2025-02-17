@@ -1,47 +1,54 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { LoginRequest } from '../../../models/dto/requests/login-req';
 import { AuthService } from '../../services/auth.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
-import { DeviceInfo } from '../../../models/device-info';
+import { LoginRequest } from '../../../../models/dto/requests/login-req';
+import { DeviceInfo } from '../../../../models/device-info';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   standalone: false,
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
   loginForm: FormGroup;
   deviceInfo: DeviceInfo;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private deviceService: DeviceDetectorService
+    private deviceService: DeviceDetectorService,
+    private http: HttpClient
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      email: [{ value: '', disabled: this.loading }, [Validators.required, Validators.email]],
+      password: [{ value: '', disabled: this.loading }, [Validators.required, Validators.minLength(6)]]
     });
 
     const deviceInfo = this.deviceService.getDeviceInfo();
     this.deviceInfo = {
-      deviceType: deviceInfo.device,
       operatingSystem: deviceInfo.os,
       osVersion: deviceInfo.os_version,
       browser: deviceInfo.browser,
       browserVersion: deviceInfo.browser_version,
       deviceToken: '',
-      ipAddress: ''
+      ipAddress: '',
+      deviceType: deviceInfo.browser ? 'Browser' : 'Mobile',
     };
+
+    this.getIpAddress();
   }
 
   hide = signal(true);
 
   login() {
     if (this.loginForm.valid) {
+      this.loading = true;
+      this.loginForm.disable(); // Disable the form controls
       const loginRequest: LoginRequest = {
         ...this.loginForm.value,
         deviceInfo: this.deviceInfo
@@ -49,9 +56,13 @@ export class LoginComponent {
       this.authService.login(loginRequest).subscribe({
         next: (response) => {
           console.log('Login successful:', response);
+          this.loading = false; // Set loading state to false
+          this.loginForm.enable(); // Enable the form controls
         },
         error: (error) => {
           console.error('Login failed:', error);
+          this.loading = false; // Set loading state to false
+          this.loginForm.enable(); // Enable the form controls
         },
       });
     } else {
@@ -72,5 +83,16 @@ export class LoginComponent {
   // Getters
   get f() {
     return this.loginForm.controls;
+  }
+
+  private getIpAddress() {
+    this.http.get<{ ip: string }>('https://api.ipify.org?format=json').subscribe({
+      next: (response) => {
+        this.deviceInfo.ipAddress = response.ip;
+      },
+      error: (error) => {
+        console.error('Failed to get IP address:', error);
+      }
+    });
   }
 }

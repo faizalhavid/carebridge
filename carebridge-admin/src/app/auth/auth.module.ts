@@ -14,9 +14,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { RegisterComponent } from './pages/register/register.component';
-import { AppDialogButtonComponent } from '../components/dialog/button/dialog-button.component';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { AppDialogButtonComponent } from '../../components/Dialog/button/dialog-button.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 @NgModule({
   declarations: [
     LoginComponent,
@@ -28,11 +30,7 @@ import { HttpClient, provideHttpClient } from '@angular/common/http';
     FormsModule,
     RouterModule,
     AuthRoutingModule,
-    MatSlideToggleModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule, MatDividerModule, MatIconModule,
+    MatSlideToggleModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatDividerModule, MatIconModule, MatProgressSpinnerModule,
     AppDialogButtonComponent,
     ReactiveFormsModule
   ],

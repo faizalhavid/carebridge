@@ -3,16 +3,10 @@
 
 html {
   color-scheme: light dark;
-  @include mat.core();
-  @include mat.theme(
-    (
+  @include mat.theme((
       color: (
-        primary: theme-colors.$primary-palette,
-        // secondary: theme-colors.$secondary-palette,
+        primary : theme-colors.$primary-palette,
         tertiary: theme-colors.$tertiary-palette,
-        // error: theme-colors.$error-palette,
-        // neutral: theme-colors.$neutral-palette,
-        // 'neutral-variant': theme-colors.$neutral-variant-palette,,
       ),
       typography: (
         plain-family: Inter,
@@ -22,6 +16,8 @@ html {
         regular-weight: 300,
       ),
       density: -2,
-    )
-  );
+    ));
+    @media (prefers-contrast: more) {
+      @include theme-colors.high-contrast-overrides(color-scheme);
+    }
 }

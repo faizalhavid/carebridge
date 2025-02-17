@@ -34,15 +34,24 @@
 
         <app-dialog-button [title]="'Custom Dialog Title'" [placeholder]="'Forgot Password ?'"
             [message]="'This is a custom message for the dialog.'" (onConfirm)="handleConfirmForgotPassword($event)">
-            <mat-form-field appearance="outline">
-                <mat-label>Email</mat-label>
-                <input matInput type="email" id="email-login" formControlName="email" required>
-                <mat-icon matSuffix>email</mat-icon>
-            </mat-form-field>
+            <ng-template #content>
+                <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" id="email-forgot-password" formControlName="email" required>
+                    <mat-icon matSuffix>email</mat-icon>
+                </mat-form-field>
+            </ng-template>
         </app-dialog-button>
 
-        <button mat-flat-button color="secondary" type="submit" class="btn btn-secondary"
-            style="width: 100%">Login</button>
-        <p class="mt-3 text-center">Don't have an account? <a href="/auth/register" mat-button>Register Now</a></p>
+        <button mat-flat-button mat-secondary type="submit" style="width: 100%" [disabled]="loading">
+            <div class="flex flex-row justify-between items-center gap-2 w-full">
+                Login
+                <ng-container *ngIf="loading">
+                    <mat-spinner diameter="20" class="ml-2"></mat-spinner>
+                </ng-container>
+            </div>
+        </button>
+        <p class="mt-3 text-center paragraph-3">Don't have an account? <a href="/auth/register" mat-button>Register
+                Now</a></p>
     </form>
 </section>
