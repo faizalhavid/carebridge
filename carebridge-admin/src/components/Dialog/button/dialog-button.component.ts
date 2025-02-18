@@ -36,19 +36,9 @@ export class AppDialogButtonComponent {
 
   openDialog() {
     const dialogRef = this.dialog.open(DialogContainerComponent, {
-      // width: '800px',
       data: { title: this.title, message: this.message, content: this.content, confirmText: this.confirmText, cancelText: this.cancelText },
       disableClose: true
     });
-
-    // dialogRef.afterOpened().subscribe(() => {
-    //   const container = dialogRef.componentInstance;
-    //   if (container) {
-    //     setTimeout(() => {
-    //       container.dialogRef.componentInstance.dialogRef.updateSize();
-    //     });
-    //   }
-    // });
 
     dialogRef.componentInstance.onConfirm.subscribe((result: any) => {
       this.onConfirm.emit(result);
@@ -61,6 +51,5 @@ export class AppDialogButtonComponent {
       this.onCancel.emit();
       dialogRef.close();
     });
-
   }
 }

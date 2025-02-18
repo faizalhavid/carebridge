@@ -77,14 +77,8 @@ export class LoginComponent {
     }
   }
 
-  handleConfirmForgotPassword(state: { result: any; shouldClose: boolean }): { result: any; shouldClose: boolean } {
+  handleConfirmForgotPassword() {
     this.forgotPasswordForm.markAllAsTouched();
-
-    if (!this.forgotPasswordForm.valid) {
-      this.forgotPasswordForm.markAllAsTouched();
-      return { result: null, shouldClose: false };
-    }
-
     this.loading = true;
     this.forgotPasswordForm.disable();
 
@@ -93,17 +87,21 @@ export class LoginComponent {
         console.log('Password reset email sent:', response);
         this.loading = false;
         this.forgotPasswordForm.enable();
-        return { result: this.forgotPasswordForm.value, shouldClose: true };
       },
       error: (error) => {
         console.error('Error sending reset email:', error);
         this.loading = false;
         this.forgotPasswordForm.enable();
-        return { result: null, shouldClose: false };
       }
     });
+  }
 
-    return state;
+  handleOnSubmit(event: Event) {
+    event.preventDefault();
+    console.log('Form submitted');
+    if (this.forgotPasswordForm.valid) {
+      this.handleConfirmForgotPassword();
+    }
   }
 
   togglePassword(event: Event) {

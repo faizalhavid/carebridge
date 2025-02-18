@@ -34,9 +34,10 @@
 
         <app-dialog-button [title]="'Forgot Password'" [placeholder]="'Forgot Password ?'"
             [message]="'Enter your email to reset your password'" [confirmText]="'Reset Password'"
-            (onConfirm)="handleConfirmForgotPassword($event)">
+            (onConfirm)="handleOnSubmit()">
             <ng-template dialogContent>
-                <form [formGroup]="forgotPasswordForm" id="form-forgot-password" novalidate>
+                <form [formGroup]="forgotPasswordForm" id="form-forgot-password" novalidate
+                    ngSubmit="handleConfirmForgotPassword($event)">
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-label>Email</mat-label>
                         <input matInput type="email" id="email-forgot-password" formControlName="email" required>

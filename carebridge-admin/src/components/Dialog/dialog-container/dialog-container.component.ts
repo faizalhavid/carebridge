@@ -2,7 +2,7 @@ import { Component, Inject, ViewChild, ViewContainerRef, AfterViewInit, Template
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
@@ -48,7 +48,6 @@ export class DialogContainerComponent implements AfterViewInit {
   }
 
   onConfirmClick(): void {
-    console.log('Content:', this.data);
     this.onConfirm.emit({ result: this.data, shouldClose: true });
   }
 }
