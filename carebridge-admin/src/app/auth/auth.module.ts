@@ -18,6 +18,8 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { AppDialogButtonComponent } from '../../components/Dialog/button/dialog-button.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DialogContainerComponent } from '../../components/Dialog/dialog-container/dialog-container.component';
+import { ContentDirective } from '../../components/Dialog/button/content.directive';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     AuthRoutingModule,
     MatSlideToggleModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatDividerModule, MatIconModule, MatProgressSpinnerModule,
     AppDialogButtonComponent,
-    ReactiveFormsModule
+    DialogContainerComponent,
+    ReactiveFormsModule,
+    ContentDirective
   ],
   providers: [
     { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },

@@ -1,8 +1,1 @@
-<button mat-button (click)="openDialog()" [disabled]="disabled">{{ title }}</button>
-<ng-template #content>
-    <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput type="email" id="email-forgot-password" required>
-        <mat-icon matSuffix>email</mat-icon>
-    </mat-form-field>
-</ng-template>
+<button type="button" mat-button [disabled]="disabledButton" (click)="openDialog()">{{ placeholder }}</button>

@@ -9,7 +9,7 @@
 
         <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
-            <input matInput type="email" id="email-login" formControlName="email">
+            <input matInput type="email" id="email-login" formControlName="email" autocomplete="email" required>
             <div *ngIf="f['email'].errors && (f['email'].dirty || f['email'].touched)">
                 <mat-error *ngIf="f['email'].errors['required']">Email is required.</mat-error>
                 <mat-error *ngIf="f['email'].errors['email']">Invalid email format.</mat-error>
@@ -20,7 +20,7 @@
         <mat-form-field appearance="outline">
             <mat-label>Enter your password</mat-label>
             <input matInput [type]="hide() ? 'password' : 'text'" id="password-login" formControlName="password"
-                required>
+                required autocomplete="current-password">
             <button mat-icon-button matSuffix type="button" (click)="togglePassword($event)"
                 [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide()" style="margin-right: 8px;">
                 <mat-icon>{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -32,14 +32,23 @@
             </div>
         </mat-form-field>
 
-        <app-dialog-button [title]="'Custom Dialog Title'" [placeholder]="'Forgot Password ?'"
-            [message]="'This is a custom message for the dialog.'" (onConfirm)="handleConfirmForgotPassword($event)">
-            <ng-template #content>
-                <mat-form-field appearance="outline">
-                    <mat-label>Email</mat-label>
-                    <input matInput type="email" id="email-forgot-password" formControlName="email" required>
-                    <mat-icon matSuffix>email</mat-icon>
-                </mat-form-field>
+        <app-dialog-button [title]="'Forgot Password'" [placeholder]="'Forgot Password ?'"
+            [message]="'Enter your email to reset your password'" [confirmText]="'Reset Password'"
+            (onConfirm)="handleConfirmForgotPassword($event)">
+            <ng-template dialogContent>
+                <form [formGroup]="forgotPasswordForm" id="form-forgot-password" novalidate>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Email</mat-label>
+                        <input matInput type="email" id="email-forgot-password" formControlName="email" required>
+                        <mat-icon matSuffix>email</mat-icon>
+                        <mat-error *ngIf="forgotPasswordForm.get('email')?.errors?.['required']">
+                            Email is required
+                        </mat-error>
+                        <mat-error *ngIf="forgotPasswordForm.get('email')?.errors?.['email']">
+                            Invalid email format
+                        </mat-error>
+                    </mat-form-field>
+                </form>
             </ng-template>
         </app-dialog-button>
 

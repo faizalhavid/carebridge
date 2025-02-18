@@ -1,11 +1,11 @@
-// filepath: /c:/Users/900902/Documents/Github/carebridge/carebridge-admin/src/components/Dialog/dialog-container/dialog-container.component.ts
-import { Component, Inject, ViewChild, ViewContainerRef, AfterViewInit, TemplateRef } from '@angular/core';
+import { Component, Inject, ViewChild, ViewContainerRef, AfterViewInit, TemplateRef, EventEmitter, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dialog-container',
@@ -19,30 +19,36 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
+    CommonModule
   ],
   templateUrl: './dialog-container.component.html',
-  styleUrls: ['./dialog-container.component.css']
+  styleUrls: ['./dialog-container.component.scss']
 })
 export class DialogContainerComponent implements AfterViewInit {
-  @ViewChild('dynamicContent', { read: ViewContainerRef }) dynamicContent!: ViewContainerRef;
+  @ViewChild('content', { read: ViewContainerRef })
+  contentContainer!: ViewContainerRef;
+
+  @Output() onConfirm = new EventEmitter<{ result: any; shouldClose: boolean }>();
+  @Output() onCancel = new EventEmitter<void>();
 
   constructor(
     public dialogRef: MatDialogRef<DialogContainerComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { title: string; message: string; content: TemplateRef<any> }
+    @Inject(MAT_DIALOG_DATA) public data: { title: string; message: string; content: TemplateRef<unknown>; confirmText: string; cancelText: string; }
   ) { }
 
   ngAfterViewInit() {
     if (this.data.content) {
-      this.dynamicContent.createEmbeddedView(this.data.content);
+      this.contentContainer.clear();
+      this.contentContainer.createEmbeddedView(this.data.content);
     }
   }
 
   onCancelClick(): void {
-    console.log('data :', this.data)
-    this.dialogRef.close();
+    this.onCancel.emit();
   }
 
   onConfirmClick(): void {
-    this.dialogRef.close();
+    console.log('Content:', this.data);
+    this.onConfirm.emit({ result: this.data, shouldClose: true });
   }
 }

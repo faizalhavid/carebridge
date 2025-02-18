@@ -15,4 +15,12 @@ export class AuthService {
   login(req: LoginRequest) {
     return this.http.post<LoginResponse>(`${this.BASE_URL}/auth/login`, req);
   }
+
+  register() {
+    return this.http.post(`${this.BASE_URL}/auth/register`, {});
+  }
+
+  forgotPassword(req: { email: string }) {
+    return this.http.post(`${this.BASE_URL}/auth/forgot-password`, req);
+  }
 }

@@ -5,6 +5,7 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import { LoginRequest } from '../../../../models/dto/requests/login-req';
 import { DeviceInfo } from '../../../../models/device-info';
 import { HttpClient } from '@angular/common/http';
+import { log } from 'node:console';
 
 @Component({
   standalone: false,
@@ -15,6 +16,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  forgotPasswordForm: FormGroup;
   deviceInfo: DeviceInfo;
   loading = false;
 
@@ -27,6 +29,10 @@ export class LoginComponent {
     this.loginForm = this.fb.group({
       email: [{ value: '', disabled: this.loading }, [Validators.required, Validators.email]],
       password: [{ value: '', disabled: this.loading }, [Validators.required, Validators.minLength(6)]]
+    });
+
+    this.forgotPasswordForm = this.fb.group({
+      email: [{ value: '', disabled: this.loading }, [Validators.required, Validators.email]]
     });
 
     const deviceInfo = this.deviceService.getDeviceInfo();
@@ -48,7 +54,7 @@ export class LoginComponent {
   login() {
     if (this.loginForm.valid) {
       this.loading = true;
-      this.loginForm.disable(); // Disable the form controls
+      this.loginForm.disable();
       const loginRequest: LoginRequest = {
         ...this.loginForm.value,
         deviceInfo: this.deviceInfo
@@ -56,13 +62,13 @@ export class LoginComponent {
       this.authService.login(loginRequest).subscribe({
         next: (response) => {
           console.log('Login successful:', response);
-          this.loading = false; // Set loading state to false
-          this.loginForm.enable(); // Enable the form controls
+          this.loading = false;
+          this.loginForm.enable();
         },
         error: (error) => {
           console.error('Login failed:', error);
-          this.loading = false; // Set loading state to false
-          this.loginForm.enable(); // Enable the form controls
+          this.loading = false;
+          this.loginForm.enable();
         },
       });
     } else {
@@ -71,8 +77,33 @@ export class LoginComponent {
     }
   }
 
-  handleConfirmForgotPassword(inputValue: string) {
-    console.log('Confirm forgot password with', inputValue);
+  handleConfirmForgotPassword(state: { result: any; shouldClose: boolean }): { result: any; shouldClose: boolean } {
+    this.forgotPasswordForm.markAllAsTouched();
+
+    if (!this.forgotPasswordForm.valid) {
+      this.forgotPasswordForm.markAllAsTouched();
+      return { result: null, shouldClose: false };
+    }
+
+    this.loading = true;
+    this.forgotPasswordForm.disable();
+
+    this.authService.forgotPassword(this.forgotPasswordForm.value).subscribe({
+      next: (response) => {
+        console.log('Password reset email sent:', response);
+        this.loading = false;
+        this.forgotPasswordForm.enable();
+        return { result: this.forgotPasswordForm.value, shouldClose: true };
+      },
+      error: (error) => {
+        console.error('Error sending reset email:', error);
+        this.loading = false;
+        this.forgotPasswordForm.enable();
+        return { result: null, shouldClose: false };
+      }
+    });
+
+    return state;
   }
 
   togglePassword(event: Event) {
