@@ -32,31 +32,29 @@
             </div>
         </mat-form-field>
 
-        <app-dialog-button [title]="'Forgot Password'" [placeholder]="'Forgot Password ?'"
-            [message]="'Enter your email to reset your password'" [confirmText]="'Reset Password'"
-            (onConfirm)="handleOnSubmit()">
-            <ng-template dialogContent>
-                <form [formGroup]="forgotPasswordForm" id="form-forgot-password" novalidate
-                    ngSubmit="handleConfirmForgotPassword($event)">
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-label>Email</mat-label>
-                        <input matInput type="email" id="email-forgot-password" formControlName="email" required>
-                        <mat-icon matSuffix>email</mat-icon>
-                        <mat-error *ngIf="forgotPasswordForm.get('email')?.errors?.['required']">
-                            Email is required
-                        </mat-error>
-                        <mat-error *ngIf="forgotPasswordForm.get('email')?.errors?.['email']">
-                            Invalid email format
-                        </mat-error>
-                    </mat-form-field>
-                </form>
-            </ng-template>
-        </app-dialog-button>
 
-        <button mat-flat-button mat-secondary type="submit" style="width: 100%" [disabled]="loading">
+        <button type="button" mat-button (click)="openDialogForgotPassword()">Forgot Password</button>
+        <ng-template #forgotPasswordTemplate>
+            <form [formGroup]="forgotPasswordForm" id="form-forgot-password" novalidate
+                (ngSubmit)="handleConfirmForgotPassword($event)">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" id="email-forgot-password" formControlName="email" required>
+                    <mat-icon matSuffix>email</mat-icon>
+                    <mat-error *ngIf="forgotPasswordForm.get('email')?.errors?.['required']">
+                        Email is required
+                    </mat-error>
+                    <mat-error *ngIf="forgotPasswordForm.get('email')?.errors?.['email']">
+                        Invalid email format
+                    </mat-error>
+                </mat-form-field>
+            </form>
+        </ng-template>
+
+        <button mat-flat-button mat-secondary type="submit" style="width: 100%" [disabled]="isLoading">
             <div class="flex flex-row justify-between items-center gap-2 w-full">
                 Login
-                <ng-container *ngIf="loading">
+                <ng-container *ngIf="isLoading">
                     <mat-spinner diameter="20" class="ml-2"></mat-spinner>
                 </ng-container>
             </div>

@@ -21,6 +21,6 @@ export class AuthService {
   }
 
   forgotPassword(req: { email: string }) {
-    return this.http.post(`${this.BASE_URL}/auth/forgot-password`, req);
+    return this.http.post<any>(`${this.BASE_URL}/auth/forgot-password`, req);
   }
 }
