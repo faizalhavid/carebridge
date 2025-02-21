@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, signal, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { LoginRequest } from '../../../../models/dto/requests/login-req';
 import { DeviceInfo } from '../../../../models/device-info';
 import { HttpClient } from '@angular/common/http';
-import { log } from 'node:console';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogContainerComponent } from '../../../../components/Dialog/dialog-container.component';
+import { ErrorResponse, SuccessResponse } from '../../../../models/dto/responses/server-res';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   standalone: false,
@@ -24,6 +25,7 @@ export class LoginComponent {
   deviceInfo: DeviceInfo;
   isLoading = false;
   timerResendOTP = 0;
+  serverResponse: { [key: string]: string } = {};
 
   constructor(
     private fb: FormBuilder,
@@ -55,9 +57,12 @@ export class LoginComponent {
     this.getIpAddress();
 
   }
-
-
   hide = signal(true);
+
+  private _snackBar = inject(MatSnackBar);
+  openSnackBar(message: string, action: string) {
+    this._snackBar.open(message, action);
+  }
 
   login() {
     if (this.loginForm.valid) {
@@ -68,15 +73,27 @@ export class LoginComponent {
         deviceInfo: this.deviceInfo
       };
       this.authService.login(loginRequest).subscribe({
-        next: (response) => {
+        next: (response: SuccessResponse) => {
           console.log('Login successful:', response);
           this.isLoading = false;
           this.loginForm.enable();
+          this.serverResponse = {
+            'success': response.message
+          }
+          this._snackBar.open(response.message, 'Close');
         },
-        error: (error) => {
-          console.error('Login failed:', error);
+        error: (response: ErrorResponse) => {
+          console.error('Login failed:', response);
+          console.error('Login failed:', response.error);
           this.isLoading = false;
           this.loginForm.enable();
+          if (response.error) {
+            response.error.errors.forEach((err: { field: string; message: string }) => {
+              console.log('err', err);
+              this.serverResponse[err.field] = err.message;
+            });
+          }
+          console.log('serverResponse', this.serverResponse);
         },
       });
     } else {
@@ -89,6 +106,7 @@ export class LoginComponent {
     console.log('content', this.forgotPasswordTemplate);
 
     const dialogRef = this.dialog.open(DialogContainerComponent, {
+      width: '400px',
       data: {
         title: 'Forgot Password',
         message: 'Enter your email address to reset your password',
@@ -107,8 +125,8 @@ export class LoginComponent {
       }
 
       const isFormValid = this.handleConfirmForgotPassword();
-      if (isFormValid) {
-        dialogRef.close();
+      if (!isFormValid) {
+        dialogRef.disableClose = true;
       }
     });
 
@@ -131,7 +149,7 @@ export class LoginComponent {
         console.log('Password reset email sent:', response);
         this.isLoading = false;
         this.forgotPasswordForm.enable();
-        this.timerResendOTP = Math.floor(Date(response.data).getTime() - Date.now()) / 1000;
+        this.timerResendOTP = Math.floor(new Date(response.data).getTime() - Date.now()) / 1000;
       },
       error: (error) => {
         console.error('Error sending reset email:', error);

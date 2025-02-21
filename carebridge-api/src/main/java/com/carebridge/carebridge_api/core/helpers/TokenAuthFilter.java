@@ -1,6 +1,7 @@
 package com.carebridge.carebridge_api.core.helpers;
 
 import com.carebridge.carebridge_api.auth.services.ImplUserDetailService;
+import com.carebridge.carebridge_api.core.responses.ErrorDetails;
 import com.carebridge.carebridge_api.core.responses.ErrorResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -65,15 +67,12 @@ public class TokenAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
        } catch (JwtException e) {
             log.error("Access Denied: {}", e.getMessage(), e);
-            ErrorResponse<String> apiResponse = new ErrorResponse<>(
-                    "fail",
-                    "You are not authorized to access this resource",
-                    e.getMessage(),
-                    LocalDateTime.now());
+            List<ErrorDetails> errors = new ArrayList<>();
+            errors.add(new ErrorDetails("authorization", e.getMessage()));
             ErrorResponse<String> errorResponse = new ErrorResponse<>(
                     "fail",
                     "You are not authorized to access this resource",
-                    e.getMessage(),
+                    errors,
                     LocalDateTime.now());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 //            response.setContentType("application/json");

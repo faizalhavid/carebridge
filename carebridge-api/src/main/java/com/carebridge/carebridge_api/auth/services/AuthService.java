@@ -9,6 +9,7 @@ import com.carebridge.carebridge_api.auth.models.Token;
 import com.carebridge.carebridge_api.auth.repositories.DeviceInfoRepository;
 import com.carebridge.carebridge_api.auth.repositories.TokenRepository;
 import com.carebridge.carebridge_api.core.enums.TokenUsedFor;
+import com.carebridge.carebridge_api.core.exceptions.ResourceNotFoundException;
 import com.carebridge.carebridge_api.core.helpers.JwtHelper;
 import com.carebridge.carebridge_api.core.utils.SenderMail;
 import com.carebridge.carebridge_api.user.dto.projections.RoleProjection;
@@ -18,6 +19,7 @@ import com.carebridge.carebridge_api.user.models.User;
 import com.carebridge.carebridge_api.user.repositories.BiodataRepository;
 import com.carebridge.carebridge_api.user.repositories.RoleRepository;
 import com.carebridge.carebridge_api.user.repositories.UserRepository;
+import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -66,7 +68,7 @@ public class AuthService {
 
     public LoginResponse loginService(LoginRequest loginRequest) throws MessagingException, IOException {
         User user = userRepository.findByEmailAndIsDeletedFalse(loginRequest.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+                .orElseThrow(() -> new ResourceNotFoundException("No user found"));
         LoginResponse loginResponse = new LoginResponse();
         if (user.getIsLocked()) {
             throw new RuntimeException("User is locked");
@@ -78,7 +80,7 @@ public class AuthService {
                user.setIsLocked(true);
            }
            userRepository.save(user);
-           throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
+           throw new AuthenticationFailedException("Invalid password");
        }
 
         if (user.getDeviceInfos().stream().noneMatch(

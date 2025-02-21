@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { LoginRequest } from '../../../models/dto/requests/login-req';
 import { LoginResponse } from '../../../models/dto/responses/login-res';
+import { SuccessResponse } from '../../../models/dto/responses/server-res';
+import { Observable } from 'rxjs/internal/Observable';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +14,8 @@ export class AuthService {
   private BASE_URL = 'http://localhost:8080/api/v1';
   constructor(private http: HttpClient) { }
 
-  login(req: LoginRequest) {
-    return this.http.post<LoginResponse>(`${this.BASE_URL}/auth/login`, req);
+  login(req: LoginRequest): Observable<SuccessResponse<LoginResponse>> {
+    return this.http.post<SuccessResponse<LoginResponse>>(`${this.BASE_URL}/auth/login`, req);
   }
 
   register() {

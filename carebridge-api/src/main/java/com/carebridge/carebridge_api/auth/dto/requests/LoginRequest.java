@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class LoginRequest {
 
     @Schema(description = "Email of the user", example = "nurhavid123@gmail.com")
+    @NotEmpty(message = "Email should not be empty")
     @Email(message = "Email should be valid")
     private String email;
 

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,10 +15,10 @@ import java.time.LocalDateTime;
 public class ErrorResponse<T> {
     private String status;
     private String message;
-    private T errors;
+    private List<ErrorDetails> errors;
     private LocalDateTime timestamp;
 
-    public ErrorResponse(String status, String message, T errors) {
+    public ErrorResponse(String status, String message, List<ErrorDetails> errors) {
         this.status = status;
         this.message = message;
         this.errors = errors;

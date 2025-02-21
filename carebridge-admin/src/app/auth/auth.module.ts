@@ -17,6 +17,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { DialogContainerComponent } from '../../components/Dialog/dialog-container.component';
 
 @NgModule({
@@ -31,6 +32,7 @@ import { DialogContainerComponent } from '../../components/Dialog/dialog-contain
     RouterModule,
     AuthRoutingModule,
     MatSlideToggleModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatDividerModule, MatIconModule, MatProgressSpinnerModule,
+    MatProgressBarModule,
     DialogContainerComponent,
     ReactiveFormsModule
   ],

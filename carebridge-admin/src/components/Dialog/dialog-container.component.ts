@@ -30,6 +30,7 @@ export class DialogContainerComponent implements AfterViewInit {
   @Output() onConfirm = new EventEmitter<void>();
   @Output() onCancel = new EventEmitter<void>();
 
+
   constructor(
     public dialogRef: MatDialogRef<DialogContainerComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { title: string; message: string; content: TemplateRef<unknown>; confirmText: string; cancelText: string; isDisabled: boolean }
