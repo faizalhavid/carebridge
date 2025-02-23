@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogContainerComponent } from '../../../../components/Dialog/dialog-container.component';
 import { ErrorResponse, SuccessResponse } from '../../../../models/dto/responses/server-res';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Component({
   standalone: false,
@@ -26,20 +26,21 @@ export class LoginComponent {
   isLoading = false;
   timerResendOTP = 0;
   serverResponse: { [key: string]: string } = {};
+  hidePassword = signal(true);
 
   constructor(
-    private fb: FormBuilder,
+    private _fb: FormBuilder,
     private authService: AuthService,
     private deviceService: DeviceDetectorService,
     private http: HttpClient,
     private dialog: MatDialog
   ) {
-    this.loginForm = this.fb.group({
+    this.loginForm = this._fb.group({
       email: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.email]],
       password: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.minLength(6)]]
     });
 
-    this.forgotPasswordForm = this.fb.group({
+    this.forgotPasswordForm = this._fb.group({
       email: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.email]]
     });
 
@@ -57,14 +58,19 @@ export class LoginComponent {
     this.getIpAddress();
 
   }
-  hide = signal(true);
+
 
   private _snackBar = inject(MatSnackBar);
+
   openSnackBar(message: string, action: string) {
-    this._snackBar.open(message, action);
+    const config = new MatSnackBarConfig();
+    config.panelClass = ['custom-class'];
+    config.duration = 2000;
+    config.direction = 'ltr';
+    this._snackBar.open(message, action, config);
   }
 
-  login() {
+  handleLogin() {
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.loginForm.disable();
@@ -162,7 +168,7 @@ export class LoginComponent {
   }
 
   togglePassword(event: Event) {
-    this.hide.set(!this.hide());
+    this.hidePassword.set(!this.hidePassword());
     event.stopPropagation();
   }
 

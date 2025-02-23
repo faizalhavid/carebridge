@@ -4,24 +4,137 @@
         <p class="paragraph-3">Please register to continue</p>
     </div>
 
-    <form method="post" id="form-register" class="flex flex-col gap-5 grow w-100 needs-validation" novalidate>
-        <mat-form-field appearance="outline">
-            <mat-label>Username</mat-label>
-            <input matInput type="text" id="username" name="username" required>
-        </mat-form-field>
+    <mat-stepper [linear]="isLinear" #stepper class="h-100">
+        <mat-step [stepControl]="registerAccountForm" [editable]="editableFormState.registerAccount">
+            <form [formGroup]="registerAccountForm" (ngSubmit)="handleRegisterAccount()"
+                class="flex flex-col gap-5 w-100" style="margin-top: 20px;">
+                <ng-template matStepLabel>Email</ng-template>
+                <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" id="email" formControlName="email" required>
+                    <div
+                        *ngIf="formControls.registerAccount['email'].errors && (formControls.registerAccount['email'].dirty || formControls.registerAccount['email'].touched)">
+                        <mat-error *ngIf="formControls.registerAccount['email'].errors['required']">Email is
+                            required.</mat-error>
+                        <mat-error *ngIf="formControls.registerAccount['email'].errors['email']">Invalid email
+                            format.</mat-error>
+                        <mat-error *ngIf="serverResponse['email']">{{ serverResponse['email'] }}</mat-error>
+                    </div>
+                    <mat-icon matSuffix>email</mat-icon>
+                </mat-form-field>
+                <button mat-flat-button color="primary" type="submit">Next</button>
+            </form>
+        </mat-step>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Password</mat-label>
-            <input matInput type="password" id="password" name="password" required>
-        </mat-form-field>
+        <mat-step [stepControl]="verifyAccountForm" [editable]="editableFormState.verifyAccount">
+            <form [formGroup]="verifyAccountForm" (ngSubmit)="handleVerifyAccount()" class="flex flex-col gap-5 w-100"
+                style="margin-top: 20px;">
+                <ng-template matStepLabel>OTP</ng-template>
+                <div class="otp-inputs">
+                    <mat-form-field appearance="outline">
+                        <input matInput type="text" maxlength="1" formControlName="token1"
+                            (input)="moveToNext($event, 'token2')" required>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <input matInput type="text" maxlength="1" formControlName="token2"
+                            (input)="moveToNext($event, 'token3')" required>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <input matInput type="text" maxlength="1" formControlName="token3"
+                            (input)="moveToNext($event, 'token4')" required>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <input matInput type="text" maxlength="1" formControlName="token4"
+                            (input)="moveToNext($event, 'token5')" required>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <input matInput type="text" maxlength="1" formControlName="token5"
+                            (input)="moveToNext($event, 'token6')" required>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <input matInput type="text" maxlength="1" formControlName="token6" required>
+                    </mat-form-field>
+                </div>
+                <div
+                    *ngIf="(formControls.verifyAccount['token1']?.errors || formControls.verifyAccount['token2']?.errors || formControls.verifyAccount['token3']?.errors || formControls.verifyAccount['token4']?.errors || formControls.verifyAccount['token5']?.errors || formControls.verifyAccount['token6']?.errors) && (formControls.verifyAccount['token1'].dirty || formControls.verifyAccount['token2'].dirty || formControls.verifyAccount['token3'].dirty || formControls.verifyAccount['token4'].dirty || formControls.verifyAccount['token5'].dirty || formControls.verifyAccount['token6'].touched)">
+                    <mat-error *ngIf="formControls.verifyAccount['token1']?.errors?.['required'] ">OTP is
+                        required.</mat-error>
+                    <mat-error *ngIf="serverResponse['token']">{{ serverResponse['token'] }}</mat-error>
+                </div>
+                <button mat-flat-button color="primary" type="submit">Next
+                    <ng-container *ngIf="isLoading">
+                        <mat-spinner diameter="20" class="ml-2"></mat-spinner>
+                    </ng-container>
+                </button>
+            </form>
+        </mat-step>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" id="email" name="email" required>
-        </mat-form-field>
+        <mat-step [stepControl]="registerUserDataForm" [editable]="editableFormState.registerUserData">
+            <form [formGroup]="registerUserDataForm" (ngSubmit)="handleRegisterUserData()"
+                class="flex flex-col gap-5 w-100" style="margin-top: 20px;">
+                <ng-template matStepLabel>Account</ng-template>
+                <input type="hidden" id="token" formControlName="token">
+                <mat-form-field appearance="outline">
+                    <mat-label>Full Name</mat-label>
+                    <input matInput type="text" id="fullName" formControlName="fullName" required>
+                    <div
+                        *ngIf="formControls.registerUserData['fullName'].errors && (formControls.registerUserData['fullName'].dirty || formControls.registerUserData['fullName'].touched)">
+                        <mat-error *ngIf="formControls.registerUserData['fullName'].errors['required']">Full Name is
+                            required.</mat-error>
+                        <mat-error *ngIf="serverResponse['fullName']">{{ serverResponse['fullName'] }}</mat-error>
+                    </div>
+                </mat-form-field>
 
-        <button mat-flat-button color="secondary" type="submit" class="btn btn-secondary"
-            style="width: 100%">Register</button>
-        <p class="mt-3 text-center">Already have an account? <a href="/auth/login" mat-button>Login</a></p>
-    </form>
+                <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" id="email" formControlName="email">
+                    <div
+                        *ngIf="formControls.registerUserData['email'].errors && (formControls.registerUserData['email'].dirty || formControls.registerUserData['email'].touched)">
+                        <mat-error *ngIf="formControls.registerUserData['email'].errors['required']">Email is
+                            required.</mat-error>
+                        <mat-error *ngIf="formControls.registerUserData['email'].errors['email']">Invalid email
+                            format.</mat-error>
+                        <mat-error *ngIf="serverResponse['email']">{{ serverResponse['email'] }}</mat-error>
+                    </div>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Password</mat-label>
+                    <input matInput type="password" id="password" formControlName="password">
+                    <button mat-icon-button matSuffix type="button" (click)="hidePasswordToggle($event)"
+                        [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword()"
+                        style="margin-right: 8px;">
+                        <mat-icon>{{hidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                    <div
+                        *ngIf="formControls.registerUserData['password'].errors && (formControls.registerUserData['password'].dirty || formControls.registerUserData['password'].touched)">
+                        <mat-error *ngIf="formControls.registerUserData['password'].errors['required']">Password is
+                            required.</mat-error>
+                        <mat-error *ngIf="formControls.registerUserData['password'].errors['minlength']">Password must
+                            be at least 6 characters long.</mat-error>
+                        <mat-error *ngIf="serverResponse['password']">{{ serverResponse['password'] }}</mat-error>
+                    </div>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Confirm Password</mat-label>
+                    <input matInput type="password" id="confirmPassword" formControlName="confirmPassword">
+                    <button mat-icon-button matSuffix type="button"
+                        (click)="hidePasswordToggle($event, 'confirmPassword')" [attr.aria-label]="'Hide password'"
+                        [attr.aria-pressed]="hideConfirmPassword()" style="margin-right: 8px;">
+                        <mat-icon>{{hideConfirmPassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                    <div
+                        *ngIf="formControls.registerUserData['confirmPassword'].errors && (formControls.registerUserData['confirmPassword'].dirty || formControls.registerUserData['confirmPassword'].touched)">
+                        <mat-error *ngIf="formControls.registerUserData['confirmPassword'].errors['required']">Confirm
+                            Password is required.</mat-error>
+                        <mat-error *ngIf="formControls.registerUserData['confirmPassword'].errors['mismatch']">Passwords
+                            must match.</mat-error>
+                    </div>
+                </mat-form-field>
+                <button mat-flat-button color="primary" type="submit">Register</button>
+            </form>
+        </mat-step>
+    </mat-stepper>
+    <p class="mt-3 text-center">Already have an account? <a href="/auth/login" mat-button>Login</a></p>
 </section>

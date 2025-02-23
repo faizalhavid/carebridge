@@ -19,6 +19,7 @@ import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { DialogContainerComponent } from '../../components/Dialog/dialog-container.component';
+import { MatStepperModule } from '@angular/material/stepper';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { DialogContainerComponent } from '../../components/Dialog/dialog-contain
     MatSlideToggleModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatDividerModule, MatIconModule, MatProgressSpinnerModule,
     MatProgressBarModule,
     DialogContainerComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatStepperModule,
   ],
   providers: [
     { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },
