@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthRoutingModule } from './auth-route.module';
 import { LoginComponent } from './pages/login/login.component';
-import { AuthComponent } from './layouts/auth.component';
+import { AuthLayout } from './layout/auth.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
@@ -25,7 +25,7 @@ import { MatStepperModule } from '@angular/material/stepper';
   declarations: [
     LoginComponent,
     RegisterComponent,
-    AuthComponent
+    AuthLayout
   ],
   imports: [
     CommonModule,
