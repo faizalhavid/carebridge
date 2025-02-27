@@ -1,109 +1,123 @@
-<div class="relative bg-cover bg-center max-w-full overflow-hidden  "
+<div class="relative bg-cover bg-center max-w-full overflow-hidden"
     style="background-image: url('/images/landing-hero-1.jpg');">
-    <div class="container flex flex-col">
-        <div class="text-gray-800 py-48">
-            <h2 class="header-1 max-w-2xl">
-                Your Health, Simplified. Access trusted doctors and essential health services—anytime, anywhere.
-                All in one easy-to-use platform.
-            </h2>
-            <p class="subtitle-1 max-w-2xl">
-                We are a platform-based technology consulting firm that helps deliver solutions for companies’
-                tech projects and software development outsource on demand.
-            </p>
-            <a href="/home" class="btn btn-primary w-1/2 no-underline">Get Started</a>
-        </div>
+    <div class="container flex flex-col gap-3" style="padding-block: 25vh ;">
+        <h2 class="header-1 max-w-2xl">
+            Your Health, Simplified. Access trusted doctors and essential health services—anytime, anywhere.
+            All in one easy-to-use platform.
+        </h2>
+        <p class="subtitle-1 max-w-2xl">
+            We are a platform-based technology consulting firm that helps deliver solutions for companies’
+            tech projects and software development outsource on demand.
+        </p>
+
+        <a href="/home" mat-flat-button class="btn btn-primary w-1/2 no-underline">Get Started</a>
     </div>
 </div>
 
 <!-- SERVICES -->
-<div class="flex flex-col items-center container gap-5 py-20">
+<div class="flex flex-col items-center container gap-5" style="padding-block: 5vh;">
     <h2 class="header-1">Our Services</h2>
     <div class="container">
-        <div class="flex flex-wrap justify-center items-stretch">
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="card flex flex-col py-3 px-2 h-full">
-                    <i class="fa-solid fa-user-doctor circle-icon mx-auto text-primary"></i>
-                    <div class="card-body flex-grow">
-                        <h5 class="card-title text-center">Online Medical Consultation</h5>
-                        <p class="card-text text-center">Access professional doctors easily anytime, anywhere.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="card flex flex-col py-3 px-2 h-full">
-                    <i class="fa-solid fa-calendar-alt circle-icon mx-auto text-primary"></i>
-                    <div class="card-body flex-grow">
-                        <h5 class="card-title text-center">Schedule Appointments</h5>
-                        <p class="card-text text-center">Arrange your doctor visits quickly and conveniently through the
-                            app.</p>
+            <mat-card class="h-full">
+                <mat-card-header>
+                    <div mat-card-avatar class="circle-icon mx-auto text-primary">
+                        <i class="fa-solid fa-user-doctor"></i>
                     </div>
-                </div>
-            </div>
+                </mat-card-header>
+                <mat-card-title class="text-center">Online Medical Consultation</mat-card-title>
+                <mat-card-content>
+                    <p class="text-center">Access professional doctors easily anytime, anywhere.</p>
+                </mat-card-content>
+            </mat-card>
 
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="card flex flex-col py-3 px-2 h-full">
-                    <i class="fa-solid fa-pills circle-icon mx-auto text-primary"></i>
-                    <div class="card-body flex-grow">
-                        <h5 class="card-title text-center">Medication Recommendations</h5>
-                        <p class="card-text text-center">Receive advice and information on medications tailored to your
-                            health needs.</p>
+            <mat-card class="h-full">
+                <mat-card-header>
+                    <div mat-card-avatar class="circle-icon mx-auto text-primary">
+                        <i class="fa-solid fa-calendar-alt"></i>
                     </div>
-                </div>
-            </div>
+                </mat-card-header>
+                <mat-card-title class="text-center">Schedule Appointments</mat-card-title>
+                <mat-card-content>
+                    <p class="text-center">Arrange your doctor visits quickly and conveniently through the app.</p>
+                </mat-card-content>
+            </mat-card>
 
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="card flex flex-col py-3 px-2 h-full">
-                    <i class="fa-solid fa-file-medical circle-icon mx-auto text-primary"></i>
-                    <div class="card-body flex-grow">
-                        <h5 class="card-title text-center">Digital Health Records</h5>
-                        <p class="card-text text-center">Store and manage your health history securely in one place.</p>
+            <mat-card class="h-full">
+                <mat-card-header>
+                    <div mat-card-avatar class="circle-icon mx-auto text-primary">
+                        <i class="fa-solid fa-pills"></i>
                     </div>
-                </div>
-            </div>
+                </mat-card-header>
+                <mat-card-title class="text-center">Medication Recommendations</mat-card-title>
+                <mat-card-content>
+                    <p class="text-center">Receive advice and information on medications tailored to your health
+                        needs.</p>
+                </mat-card-content>
+            </mat-card>
 
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="card flex flex-col py-3 px-2 h-full">
-                    <i class="fa-solid fa-heartbeat circle-icon mx-auto text-primary"></i>
-                    <div class="card-body flex-grow">
-                        <h5 class="card-title text-center">Health Monitoring</h5>
-                        <p class="card-text text-center">Track your health conditions with easy-to-use features.</p>
+            <mat-card class="h-full">
+                <mat-card-header>
+                    <div mat-card-avatar class="circle-icon mx-auto text-primary">
+                        <i class="fa-solid fa-file-medical"></i>
                     </div>
-                </div>
-            </div>
+                </mat-card-header>
+                <mat-card-title class="text-center">Digital Health Records</mat-card-title>
+                <mat-card-content>
+                    <p class="text-center">Store and manage your health history securely in one place.</p>
+                </mat-card-content>
+            </mat-card>
 
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="card flex flex-col py-3 px-2 h-full">
-                    <i class="fa-solid fa-user-nurse circle-icon mx-auto text-primary"></i>
-                    <div class="card-body flex-grow">
-                        <h5 class="card-title text-center">Specialist Consultations</h5>
-                        <p class="card-text text-center">Meet with specialists ready to help you with various health
-                            concerns.</p>
+            <mat-card class="h-full">
+                <mat-card-header>
+                    <div mat-card-avatar class="circle-icon mx-auto text-primary">
+                        <i class="fa-solid fa-heartbeat"></i>
                     </div>
-                </div>
-            </div>
+                </mat-card-header>
+                <mat-card-title class="text-center">Health Monitoring</mat-card-title>
+                <mat-card-content>
+                    <p class="text-center">Track your health conditions with easy-to-use features.</p>
+                </mat-card-content>
+            </mat-card>
 
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="card flex flex-col py-3 px-2 h-full">
-                    <i class="fa-solid fa-comment-dots circle-icon mx-auto text-primary"></i>
-                    <div class="card-body flex-grow">
-                        <h5 class="card-title text-center">Chat with Doctors</h5>
-                        <p class="card-text text-center">Consult with doctors via chat for quick and practical
-                            solutions.</p>
+            <mat-card class="h-full">
+                <mat-card-header>
+                    <div mat-card-avatar class="circle-icon mx-auto text-primary">
+                        <i class="fa-solid fa-user-nurse"></i>
                     </div>
-                </div>
-            </div>
+                </mat-card-header>
+                <mat-card-title class="text-center">Specialist Consultations</mat-card-title>
+                <mat-card-content>
+                    <p class="text-center">Meet with specialists ready to help you with various health concerns.</p>
+                </mat-card-content>
+            </mat-card>
 
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="card flex flex-col py-3 px-2 h-full">
-                    <i class="fa-solid fa-shield-alt circle-icon mx-auto text-primary"></i>
-                    <div class="card-body flex-grow">
-                        <h5 class="card-title text-center">Guaranteed Privacy</h5>
-                        <p class="card-text text-center">Your health data is safe and protected, accessible only by you
-                            and your doctors.</p>
+            <mat-card class="h-full">
+                <mat-card-header>
+                    <div mat-card-avatar class="circle-icon mx-auto text-primary">
+                        <i class="fa-solid fa-comment-dots"></i>
                     </div>
-                </div>
-            </div>
+                </mat-card-header>
+                <mat-card-title class="text-center">Chat with Doctors</mat-card-title>
+                <mat-card-content>
+                    <p class="text-center">Consult with doctors via chat for quick and practical solutions.</p>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="h-full">
+                <mat-card-header>
+                    <div mat-card-avatar class="circle-icon mx-auto text-primary">
+                        <i class="fa-solid fa-shield-alt"></i>
+                    </div>
+                </mat-card-header>
+                <mat-card-title class="text-center">Guaranteed Privacy</mat-card-title>
+                <mat-card-content>
+                    <p class="text-center">Your health data is safe and protected, accessible only by you and your
+                        doctors.</p>
+                </mat-card-content>
+            </mat-card>
+
         </div>
     </div>
 </div>
@@ -114,30 +128,22 @@
         <div class="text-center mb-20">
             <h2 class="header-1">Our Achievements</h2>
         </div>
-        <div class="flex flex-wrap justify-center">
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="flex flex-col items-center gap-1 w-full">
-                    <h5 class="header-2">100,000+</h5>
-                    <p class="paragraph-2 text-center text-primary">Successful Consultations</p>
-                </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="flex flex-col items-center gap-1">
+                <h5 class="header-2">100,000+</h5>
+                <p class="paragraph-2 text-center text-primary">Successful Consultations</p>
             </div>
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="flex flex-col items-center gap-1 w-full">
-                    <h5 class="header-2">1,000+</h5>
-                    <p class="paragraph-2 text-center text-primary">Partnering Healthcare Professionals</p>
-                </div>
+            <div class="flex flex-col items-center gap-1">
+                <h5 class="header-2">1,000+</h5>
+                <p class="paragraph-2 text-center text-primary">Partnering Healthcare Professionals</p>
             </div>
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="flex flex-col items-center gap-1 w-full">
-                    <h5 class="header-2">5,000+</h5>
-                    <p class="paragraph-2 text-center text-primary">Happy Patients</p>
-                </div>
+            <div class="flex flex-col items-center gap-1">
+                <h5 class="header-2">5,000+</h5>
+                <p class="paragraph-2 text-center text-primary">Happy Patients</p>
             </div>
-            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-4">
-                <div class="flex flex-col items-center gap-1 w-full">
-                    <h5 class="header-2">95%</h5>
-                    <p class="paragraph-2 text-center text-primary">Customer Satisfaction Rate</p>
-                </div>
+            <div class="flex flex-col items-center gap-1">
+                <h5 class="header-2">95%</h5>
+                <p class="paragraph-2 text-center text-primary">Customer Satisfaction Rate</p>
             </div>
         </div>
     </div>
@@ -146,7 +152,7 @@
 <!-- MEET OUR DOCTORS -->
 <div class="flex flex-col items-center container gap-5 py-20">
     <h2 class="header-1">Meet Our Doctors</h2>
-    <div class="flex flex-wrap justify-center">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div class="card-doctor">
             <img src="https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=600"
                 alt="Dr. John Doe">
@@ -184,9 +190,9 @@
 <div class="bg-gray-100">
     <div class="flex flex-col items-center container gap-5 py-20">
         <h2 class="text-gray-800 font-bold text-3xl">Testimonials</h2>
-        <div class="flex flex-wrap justify-center w-full gap-5">
-            <div class="list-group-item w-1/2 bg-secondary-2 p-4 rounded-lg">
-                <div class="flex gap-2 justify-center items-center gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+            <div class="list-group-item bg-secondary-2 p-4 rounded-lg">
+                <div class="flex gap-2 justify-center items-center">
                     <img src="https://i.pravatar.cc/300" class="rounded-full" alt="User Testimonial"
                         style="width: 50px; height: 50px;">
                     <div class="flex flex-col">
@@ -196,8 +202,8 @@
                     </div>
                 </div>
             </div>
-            <div class="list-group-item w-1/2 bg-secondary-2 p-4 rounded-lg">
-                <div class="flex gap-2 justify-center items-center gap-3">
+            <div class="list-group-item bg-secondary-2 p-4 rounded-lg">
+                <div class="flex gap-2 justify-center items-center">
                     <img src="https://i.pravatar.cc/300" class="rounded-full" alt="User Testimonial"
                         style="width: 50px; height: 50px;">
                     <div class="flex flex-col">
@@ -207,8 +213,8 @@
                     </div>
                 </div>
             </div>
-            <div class="list-group-item w-1/2 bg-secondary-2 p-4 rounded-lg">
-                <div class="flex gap-2 justify-center items-center gap-3">
+            <div class="list-group-item bg-secondary-2 p-4 rounded-lg">
+                <div class="flex gap-2 justify-center items-center">
                     <img src="https://i.pravatar.cc/300" class="rounded-full" alt="User Testimonial"
                         style="width: 50px; height: 50px;">
                     <div class="flex flex-col">
@@ -218,8 +224,8 @@
                     </div>
                 </div>
             </div>
-            <div class="list-group-item w-1/2 bg-secondary-2 p-4 rounded-lg">
-                <div class="flex gap-2 justify-center items-center gap-3">
+            <div class="list-group-item bg-secondary-2 p-4 rounded-lg">
+                <div class="flex gap-2 justify-center items-center">
                     <img src="https://i.pravatar.cc/300" class="rounded-full" alt="User Testimonial"
                         style="width: 50px; height: 50px;">
                     <div class="flex flex-col">
@@ -227,69 +233,6 @@
                         <p class="card-text">"Carebridge has transformed the way I access healthcare. Highly recommend
                             it to everyone!"</p>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL -->
-<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true"
-    data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="flex flex-row gap-5 items-center justify-center">
-                    <h5 class="modal-title" id="registerModalLabel">Registration</h5>
-                    <ul class="nav nav-tabs" id="stepper" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="step-register-1-tab" data-bs-toggle="tab"
-                                data-bs-target="#step-register-1" type="button" role="tab"
-                                aria-controls="step-register-1" aria-selected="true">Send Email</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link disabled" id="step-register-2-tab" data-bs-toggle="tab"
-                                data-bs-target="#step-register-2" type="button" role="tab"
-                                aria-controls="step-register-2" aria-selected="false">Verification</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link disabled" id="step-register-3-tab" data-bs-toggle="tab"
-                                data-bs-target="#step-register-3" type="button" role="tab"
-                                aria-controls="step-register-3" aria-selected="false">Set Password</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link disabled" id="step-register-4-tab" data-bs-toggle="tab"
-                                data-bs-target="#step-register-4" type="button" role="tab"
-                                aria-controls="step-register-4" aria-selected="false">Regist</button>
-                        </li>
-                    </ul>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="container my-2">
-                    <!-- Stepper -->
-                    <div class="registerFormAlert alert" style="display: none;"></div>
-                    <div class="tab-content" id="stepperContent">
-                        <div class="tab-pane fade show active" id="step-register-1" role="tabpanel"
-                            aria-labelledby="step-register-1-tab">
-                            <!-- Step 1 Form -->
-                        </div>
-                        <div class="tab-pane fade" id="step-register-2" role="tabpanel"
-                            aria-labelledby="step-register-2-tab">
-                            <!-- Step 2 Form -->
-                        </div>
-                        <div class="tab-pane fade" id="step-register-3" role="tabpanel"
-                            aria-labelledby="step-register-3-tab">
-                            <!-- Step 3 Form -->
-                        </div>
-                        <div class="tab-pane fade" id="step-register-4" role="tabpanel"
-                            aria-labelledby="step-register-4-tab">
-                            <!-- Step 4 Form -->
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
                 </div>
             </div>
         </div>

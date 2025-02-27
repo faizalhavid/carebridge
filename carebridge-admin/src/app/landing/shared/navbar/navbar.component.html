@@ -1,32 +1,22 @@
-<nav class="bg-gray-100 py-2">
-    <div class="container mx-auto flex items-center justify-between">
+<mat-toolbar color="primary">
+    <div class="container mx-auto flex items-center justify-between w-full">
         <a class="navbar-brand" href="/">
-            <img src="/assets/images/logo.png" alt="Logo" width="175" class="inline-block align-text-top" />
+            <img src="/images/logo.png" alt="Logo" width="175" class="inline-block align-text-top" />
         </a>
 
-        <button class="block lg:hidden p-2 border border-gray-400 rounded" id="navbar-toggler">
-            <span class="block w-6 h-0.5 bg-gray-600 mb-1"></span>
-            <span class="block w-6 h-0.5 bg-gray-600 mb-1"></span>
-            <span class="block w-6 h-0.5 bg-gray-600"></span>
+        <button mat-icon-button class="lg:hidden" (click)="toggleNavbar()">
+            <mat-icon>bars</mat-icon>
         </button>
 
-        <div class="hidden lg:flex lg:items-center lg:space-x-4" id="navbarSupportedContent">
-            <ul class="flex space-x-4 mx-auto">
+        <div class="hidden lg:flex  lg:items-center lg:space-x-4" [ngClass]="{'hidden': !navbarOpen}">
+            <ul class="flex gap-4 items-center space-x-4 mx-auto">
                 <li><a class="nav-link list-navbar" [ngClass]="{'active': title === 'Cari Dokter'}"
                         href="/search-doctor">Cari Dokter</a></li>
                 <li><a class="nav-link list-navbar" [ngClass]="{'active': title === 'Cari Obat'}"
                         href="/search-medicine">Cari Obat</a></li>
             </ul>
             <div class="flex flex-row justify-start items-center user-avatar p-2 rounded">
-                <!-- User avatar or other content can go here -->
             </div>
         </div>
     </div>
-</nav>
-
-<script>
-    document.getElementById('navbar-toggler').addEventListener('click', function () {
-        var navbar = document.getElementById('navbarSupportedContent');
-        navbar.classList.toggle('hidden');
-    });
-</script>
+</mat-toolbar>

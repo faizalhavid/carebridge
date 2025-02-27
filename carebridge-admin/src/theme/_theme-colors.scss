@@ -140,6 +140,10 @@ $tertiary-palette: map.merge(map.get($_palettes, tertiary), $_rest);
 // $neutral-variant-palette: map.merge(map.get($_palettes, neutral-variant), $_rest);
 // $error-palette: map.merge(map.get($_palettes, error), $_rest);
 
+@function get-palette-color($palette-name, $key) {
+  @return map.get(map.get($_palettes, $palette-name), $key);
+}
+
 
 @function _high-contrast-value($light, $dark, $theme-type) {
   @if ($theme-type == light) {
