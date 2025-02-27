@@ -7,6 +7,7 @@ import { SuccessResponse } from '../../../models/dto/responses/server-res';
 import { Observable } from 'rxjs/internal/Observable';
 import { RegisterRequest } from '../../../models/dto/requests/register-req';
 import { RegisterResponse } from '../../../models/dto/responses/register-res';
+import { tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,17 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   login(req: LoginRequest): Observable<SuccessResponse<LoginResponse>> {
-    return this.http.post<SuccessResponse<LoginResponse>>(`${this.BASE_URL}/auth/login`, req);
+
+    return this.http.post<SuccessResponse<LoginResponse>>(`${this.BASE_URL}/auth/login`, req).pipe(
+      tap((res) => {
+        if (res.status === 200) {
+          localStorage.setItem('access_token', res.data.accessToken);
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+          window.location.pathname = '/dashboard';
+        }
+      }
+      )
+    );
   }
 
   registerEmail(email: string) {

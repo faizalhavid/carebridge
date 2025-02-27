@@ -2,7 +2,7 @@ import e from "express";
 
 interface BaseServerResponse {
     timestamp: string;
-    status: number;
+    status: string | number;
     message: string;
 }
 
