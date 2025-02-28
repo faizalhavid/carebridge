@@ -7,15 +7,23 @@ import { Observable } from 'rxjs';
 })
 export class AuthInterceptorService implements HttpInterceptor {
 
-
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = localStorage.getItem('access_token');
-    if (token) {
-      const clone = req.clone({
+
+    const excludedUrls = [
+      '/auth',
+      '/guest'
+    ];
+
+    const shouldExclude = excludedUrls.some(url => req.url.includes(url));
+
+    if (token && !shouldExclude) {
+      const clonedReq = req.clone({
         setHeaders: { Authorization: `Bearer ${token}` }
-      })
-      return next.handle(clone);
+      });
+      return next.handle(clonedReq);
     }
+
     return next.handle(req);
   }
 }

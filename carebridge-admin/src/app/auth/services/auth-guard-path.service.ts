@@ -12,11 +12,22 @@ export class AuthGuardPathService implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     if (isPlatformBrowser(this.platformId)) {
       const token = localStorage.getItem('access_token');
+      const isAuthPath = state.url.includes('/auth');
+
+      if (token && isAuthPath) {
+        this.router.navigate([state.url]);
+        return false;
+      }
+
       if (token) {
         return true;
       }
-      this.router.navigate(['/auth/login']);
+
+      if (!token && !isAuthPath) {
+        this.router.navigate(['/auth/login']);
+        return false;
+      }
     }
-    return false;
+    return true;
   }
 }

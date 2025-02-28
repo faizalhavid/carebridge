@@ -1,1 +1,21 @@
-<p>sidebar works!</p>
+<div id="sidebar" class="flex flex-row gap-0 w-56">
+    <div class="flex-shrink-0 p-3 bg-white shadow-sm">
+        <link rel="stylesheet" href="/assets/css/sidebar.css" />
+        <div class="flex flex-col h-full">
+            <a href="/" class="flex items-center pb-3 mb-3 border-b border-gray-300">
+                <img src="/images/logo.png" alt="Logo" class="mx-auto w-44" />
+            </a>
+            <ul class="list-none pl-0 sidebar-list flex-grow">
+                <!-- Add your sidebar items here -->
+            </ul>
+            <button mat-raised-button color="warn" class="w-full mb-3 self-end" id="sign-out" type="button">Sign
+                Out</button>
+        </div>
+    </div>
+    <!-- button handler sidebar -->
+    <div class="flex flex-col flex-grow justify-center h-screen relative right-1.25 z-10">
+        <button mat-icon-button id="toggle-sidebar">
+            <mat-icon>arrow_right</mat-icon>
+        </button>
+    </div>
+</div>

@@ -4,7 +4,7 @@ import { HomeRoutingModule } from './landing-route.module';
 import { RouterModule } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { LandingLayout } from './layout/landing.component';
-import { FooterComponent } from "./shared/footer/footer.component";
+import { ComponentsModule } from '../../components/components.module';
 import { NavbarComponent } from './shared/navbar/navbar.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,12 +15,12 @@ import { MatCardModule } from '@angular/material/card';
   declarations: [
     LandingLayout,
     HomeComponent,
-    FooterComponent,
     NavbarComponent,
 
   ],
   imports: [
     CommonModule,
+    ComponentsModule,
     HomeRoutingModule,
     RouterModule,
     MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule
