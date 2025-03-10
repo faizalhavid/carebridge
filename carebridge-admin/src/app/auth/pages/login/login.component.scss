@@ -7,6 +7,16 @@
   @include mat.progress-spinner-overrides((
     active-indicator-color: white,
   ));
+  @include mat.snack-bar-overrides((
+    container-color: orange,
+    supporting-text-color: red,
+  ));
+}
+:root {
+  @include mat.snack-bar-overrides((
+    container-color: orange,
+    supporting-text-color: red,
+  ));
 }
 
 // ::ng-deep .mat-error {
@@ -15,4 +25,15 @@
 //   font-weight: bold; // Change this to your desired font weight
 // }
 
+
+.alert-success {
+  background-color: #4caf50; 
+  color: #fff;
+}
+
+.alert-error {
+  background-color: #f44336; 
+  container-color: orange;
+  color: #fff;
+}
 

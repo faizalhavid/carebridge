@@ -4,8 +4,13 @@ import { Component } from '@angular/core';
   selector: 'app-dashboard-navbar',
   standalone: false,
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss'
+  styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
+  isNavbarOpen = false;
+  title: any;
 
+  toggleNavbar() {
+    this.isNavbarOpen = !this.isNavbarOpen;
+  }
 }

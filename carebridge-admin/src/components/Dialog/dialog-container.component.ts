@@ -6,7 +6,6 @@ import { MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions } f
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
-import { log } from 'node:console';
 
 @Component({
   selector: 'app-dialog-container',

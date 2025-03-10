@@ -10,7 +10,6 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.ConstraintViolation;
-import org.apache.coyote.BadRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +50,7 @@ public class GlobalExceptionHandler {
         ErrorResponse<List<Map<String, String>>> response = new ErrorResponse<>(
                 "fail",
                 "Validation failed",
-                errors );
+                errors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -68,7 +67,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse<List<Map<String, String>>> response = new ErrorResponse<>(
                 "fail",
-                "Validation failed for arguments" , errors);
+                "Validation failed for arguments", errors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -276,7 +275,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse<String>> handleBadRequestException(BadRequestException e) {
         log.error("An error occurred: {}", e.getMessage(), e);
         List<ErrorDetails> errors = new ArrayList<>();
-        errors.add(new ErrorDetails("request", e.getMessage()));
+        errors.add(new ErrorDetails(e.getField(), e.getMessage()));
 
         ErrorResponse<String> response = new ErrorResponse<>(
                 "fail",
@@ -310,18 +309,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-@ExceptionHandler(ExpiredJwtException.class)
-public ResponseEntity<ErrorResponse<String>> handleExpiredJwtException(ExpiredJwtException e) {
-    log.error("An error occurred: {}", e.getMessage(), e);
-    List<ErrorDetails> errors = new ArrayList<>();
-    errors.add(new ErrorDetails("token", e.getMessage()));
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse<String>> handleExpiredJwtException(ExpiredJwtException e) {
+        log.error("An error occurred: {}", e.getMessage(), e);
+        List<ErrorDetails> errors = new ArrayList<>();
+        errors.add(new ErrorDetails("token", e.getMessage()));
 
-    ErrorResponse<String> response = new ErrorResponse<>(
-            "fail",
-            "Token has expired",
-            errors);
-    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-}
+        ErrorResponse<String> response = new ErrorResponse<>(
+                "fail",
+                "Token has expired",
+                errors);
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<ErrorResponse<String>> handleMalformedJwtException(MalformedJwtException e) {
@@ -343,7 +342,7 @@ public ResponseEntity<ErrorResponse<String>> handleExpiredJwtException(ExpiredJw
         ErrorResponse<String> response = new ErrorResponse<>(
                 "fail",
                 "Invalid token signature",
-                errors );
+                errors);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
@@ -355,7 +354,7 @@ public ResponseEntity<ErrorResponse<String>> handleExpiredJwtException(ExpiredJw
         ErrorResponse<String> response = new ErrorResponse<>(
                 "fail",
                 "Unsupported token",
-                errors );
+                errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -371,17 +370,17 @@ public ResponseEntity<ErrorResponse<String>> handleExpiredJwtException(ExpiredJw
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-//    ResponseStatusException
- @ExceptionHandler(ResponseStatusException.class)
- public ResponseEntity<ErrorResponse<String>> handleApiException(ResponseStatusException e) {
-     log.error("An error occurred: {}", e.getMessage(), e);
-     List<ErrorDetails> errors = new ArrayList<>();
-     errors.add(new ErrorDetails("response", e.getMessage()));
+    //    ResponseStatusException
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse<String>> handleApiException(ResponseStatusException e) {
+        log.error("An error occurred: {}", e.getMessage(), e);
+        List<ErrorDetails> errors = new ArrayList<>();
+        errors.add(new ErrorDetails("response", e.getMessage()));
 
-     ErrorResponse<String> response = new ErrorResponse<>(
-             e.getStatusCode().value() < 500 ? "fail" : "error",
-             e.getReason() != null ? e.getReason() : "Unexpected error", errors);
+        ErrorResponse<String> response = new ErrorResponse<>(
+                e.getStatusCode().value() < 500 ? "fail" : "error",
+                e.getReason() != null ? e.getReason() : "Unexpected error", errors);
 
-     return new ResponseEntity<>(response, e.getStatusCode());
- }
+        return new ResponseEntity<>(response, e.getStatusCode());
+    }
 }

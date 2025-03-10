@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { DeviceDetectorService } from 'ngx-device-detector';
@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DialogContainerComponent } from '../../../../components/Dialog/dialog-container.component';
 import { ErrorResponse, SuccessResponse } from '../../../../models/dto/responses/server-res';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { AppSnackbarComponent } from '../../../../components/Snackbar/snackbar.component';
 
 @Component({
   standalone: false,
@@ -33,7 +34,8 @@ export class LoginComponent {
     private authService: AuthService,
     private deviceService: DeviceDetectorService,
     private http: HttpClient,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef // Inject ChangeDetectorRef
   ) {
     this.loginForm = this._fb.group({
       email: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.email]],
@@ -56,24 +58,29 @@ export class LoginComponent {
     };
 
     this.getIpAddress();
-
   }
-
 
   private _snackBar = inject(MatSnackBar);
-
-  openSnackBar(message: string, action: string) {
-    const config = new MatSnackBarConfig();
-    config.panelClass = ['custom-class'];
-    config.duration = 2000;
-    config.direction = 'ltr';
-    this._snackBar.open(message, action, config);
+  openSnackBar(message: string, action: string, type: 'success' | 'error' = 'success') {
+    this._snackBar.openFromComponent(AppSnackbarComponent, {
+      data: {
+        message: message,
+        action: action,
+        panelClass: type === 'success' ? 'alert-success' : 'alert-error',
+        actionCallback: () => {
+          console.log(`${action} clicked`);
+        }
+      },
+      duration: 2000,
+      horizontalPosition: 'right',
+      verticalPosition: 'top'
+    });
   }
-
   handleLogin() {
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.loginForm.disable();
+      this.serverResponse = {};
       const loginRequest: LoginRequest = {
         ...this.loginForm.value,
         deviceInfo: this.deviceInfo
@@ -86,21 +93,25 @@ export class LoginComponent {
           this.serverResponse = {
             'success': response.message
           }
-          this._snackBar.open(response.message, 'Close');
+          this.openSnackBar('Login successful', 'Close');
+          this.cdr.markForCheck();
         },
         error: (response: ErrorResponse) => {
-          console.error('Login failed:', response);
-          console.error('Login failed:', response.error);
           this.isLoading = false;
           this.loginForm.enable();
-          if (response.error) {
+          if (response.error && response.error.errors) {
             response.error.errors.forEach((err: { field: string; message: string }) => {
-              console.log('err', err);
               this.serverResponse[err.field] = err.message;
             });
+            if (this.serverResponse['general']) {
+              this.openSnackBar(this.serverResponse['general'], 'Close', 'error');
+            }
+          } else {
+            console.error('Unexpected error format:', response);
           }
           console.log('serverResponse', this.serverResponse);
-        },
+          this.cdr.markForCheck();
+        }
       });
     } else {
       this.loginForm.markAllAsTouched();
@@ -142,7 +153,6 @@ export class LoginComponent {
   }
 
   handleConfirmForgotPassword(event?: Event) {
-
     if (this.forgotPasswordForm.invalid) {
       return false;
     }

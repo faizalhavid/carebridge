@@ -9,6 +9,7 @@ import com.carebridge.carebridge_api.auth.models.Token;
 import com.carebridge.carebridge_api.auth.repositories.DeviceInfoRepository;
 import com.carebridge.carebridge_api.auth.repositories.TokenRepository;
 import com.carebridge.carebridge_api.core.enums.TokenUsedFor;
+import com.carebridge.carebridge_api.core.exceptions.BadRequestException;
 import com.carebridge.carebridge_api.core.exceptions.ResourceNotFoundException;
 import com.carebridge.carebridge_api.core.helpers.JwtHelper;
 import com.carebridge.carebridge_api.core.utils.SenderMail;
@@ -22,7 +23,6 @@ import com.carebridge.carebridge_api.user.repositories.UserRepository;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 //import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -68,20 +68,20 @@ public class AuthService {
 
     public LoginResponse loginService(LoginRequest loginRequest) throws MessagingException, IOException {
         User user = userRepository.findByEmailAndIsDeletedFalse(loginRequest.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("No user found"));
+                .orElseThrow(() -> new BadRequestException("general", "No user found"));
         LoginResponse loginResponse = new LoginResponse();
         if (user.getIsLocked()) {
-            throw new RuntimeException("User is locked");
+            throw new BadRequestException("general", "User is locked");
         }
 
-       if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-           user.setLoginAttempt(user.getLoginAttempt() + 1);
-           if (user.getLoginAttempt() >= MAX_LOGIN_ATTEMPT) {
-               user.setIsLocked(true);
-           }
-           userRepository.save(user);
-           throw new AuthenticationFailedException("Invalid password");
-       }
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            user.setLoginAttempt(user.getLoginAttempt() + 1);
+            if (user.getLoginAttempt() >= MAX_LOGIN_ATTEMPT) {
+                user.setIsLocked(true);
+            }
+            userRepository.save(user);
+            throw new BadRequestException("password", "Invalid password");
+        }
 
         if (user.getDeviceInfos().stream().noneMatch(
                 deviceInfo -> deviceInfo.getDeviceToken().equals(loginRequest.getDeviceInfo().getDeviceToken()))) {
@@ -126,12 +126,12 @@ public class AuthService {
     public LocalDateTime registerEmailService(String email) throws MessagingException, IOException {
         Optional<User> user = userRepository.findByEmailAndIsDeletedFalse(email);
         if (user.isPresent())
-            throw new BadRequestException("User already verified");
+            throw new BadRequestException("general", "User already verified");
 
         Optional<Token> existingToken = tokenRepository.findTokenJustCreatedByEmailAndUsedFor(email,
                 TokenUsedFor.REGISTRATION);
         if (existingToken.isPresent() && LocalDateTime.now().isBefore(existingToken.get().getExpiredAt())) {
-            throw new BadRequestException("Token already sent. Please wait for " + TIME_RESEND_TOKEN
+            throw new BadRequestException("general", "Token already sent. Please wait for " + TIME_RESEND_TOKEN
                     + " seconds before requesting a new token.");
         }
 
@@ -284,7 +284,7 @@ public class AuthService {
         if (tokenJustCreated.isPresent()) {
             Token existingToken = tokenJustCreated.get();
             if (LocalDateTime.now().isBefore(existingToken.getCreatedAt().plusSeconds(TIME_RESEND_TOKEN))) {
-                throw new BadRequestException("Token already sent. Please wait for " + TIME_RESEND_TOKEN
+                throw new BadRequestException("general", "Token already sent. Please wait for " + TIME_RESEND_TOKEN
                         + " seconds before requesting a new token.");
             }
             existingToken.setExpiredAt(ChronoUnit.MINUTES.addTo(LocalDateTime.now(), TIME_EXPIRED_TOKEN));

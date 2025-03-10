@@ -18,7 +18,6 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   login(req: LoginRequest): Observable<SuccessResponse<LoginResponse>> {
-
     return this.http.post<SuccessResponse<LoginResponse>>(`${this.BASE_URL}/auth/login`, req).pipe(
       tap((res) => {
         if (res.status === 200) {
@@ -46,4 +45,14 @@ export class AuthService {
   verifyAccount(req: { email: string, token: string }) {
     return this.http.post<any>(`${this.BASE_URL}/auth/verify-account`, req);
   }
+
+  refreshAccessToken(req: { refreshToken: string }) {
+    return this.http.post<any>(`${this.BASE_URL}/auth/refresh-token`, req);
+  }
+
+  validateToken(req: { token: string }) {
+    return this.http.post<any>(`${this.BASE_URL}/auth/validate-token`, req);
+  }
+
+
 }
