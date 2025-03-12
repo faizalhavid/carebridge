@@ -30,7 +30,12 @@ html, body { height: 100%; }
     elevated-container-elevation : none,
     elevated-container-color: theme-colors.get-palette-color(primary, 98),
   ));
+  @include mat.stepper-overrides((
+    container-color : theme-colors.get-palette-color(primary, 98),
+  ));
 }
+
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;

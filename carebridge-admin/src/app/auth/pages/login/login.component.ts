@@ -1,15 +1,16 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
-import { DeviceDetectorService } from 'ngx-device-detector';
-import { LoginRequest } from '../../../../models/dto/requests/login-req';
-import { DeviceInfo } from '../../../../models/device-info';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogContainerComponent } from '../../../../components/Dialog/dialog-container.component';
-import { ErrorResponse, SuccessResponse } from '../../../../models/dto/responses/server-res';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DeviceDetectorService } from 'ngx-device-detector';
+
+import { LoginRequest } from '@models/dto/requests/login-req';
+import { DeviceInfo } from '@models/device-info';
+import { DialogContainerComponent } from '@components/Dialog/dialog-container.component';
+import { ErrorResponse, SuccessResponse } from '@models/dto/responses/server-res';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import { AppSnackbarComponent } from '../../../../components/Snackbar/snackbar.component';
+import { AppSnackbarComponent } from '@components/Snackbar/snackbar.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   standalone: false,
@@ -24,10 +25,13 @@ export class LoginComponent {
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   deviceInfo: DeviceInfo;
-  isLoading = false;
-  timerResendOTP = 0;
-  serverResponse: { [key: string]: string } = {};
+
+  isLoading = signal(false);
+  timerResendOTP = signal(0);
+  serverResponse = signal<{ [key: string]: string }>({});
   hidePassword = signal(true);
+
+  private _snackBar = inject(MatSnackBar);
 
   constructor(
     private _fb: FormBuilder,
@@ -35,15 +39,15 @@ export class LoginComponent {
     private deviceService: DeviceDetectorService,
     private http: HttpClient,
     private dialog: MatDialog,
-    private cdr: ChangeDetectorRef // Inject ChangeDetectorRef
+    private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this._fb.group({
-      email: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.email]],
-      password: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.minLength(6)]]
+      email: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.email]],
+      password: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.minLength(6)]]
     });
 
     this.forgotPasswordForm = this._fb.group({
-      email: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.email]]
+      email: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.email]]
     });
 
     const deviceInfo = this.deviceService.getDeviceInfo();
@@ -60,7 +64,6 @@ export class LoginComponent {
     this.getIpAddress();
   }
 
-  private _snackBar = inject(MatSnackBar);
   openSnackBar(message: string, action: string, type: 'success' | 'error' = 'success') {
     this._snackBar.openFromComponent(AppSnackbarComponent, {
       data: {
@@ -76,11 +79,10 @@ export class LoginComponent {
       verticalPosition: 'top'
     });
   }
+
   handleLogin() {
     if (this.loginForm.valid) {
-      this.isLoading = true;
-      this.loginForm.disable();
-      this.serverResponse = {};
+      this.isLoading.set(true);
       const loginRequest: LoginRequest = {
         ...this.loginForm.value,
         deviceInfo: this.deviceInfo
@@ -88,23 +90,22 @@ export class LoginComponent {
       this.authService.login(loginRequest).subscribe({
         next: (response: SuccessResponse) => {
           console.log('Login successful:', response);
-          this.isLoading = false;
-          this.loginForm.enable();
-          this.serverResponse = {
-            'success': response.message
-          }
+          this.isLoading.set(false);
           this.openSnackBar('Login successful', 'Close');
           this.cdr.markForCheck();
         },
         error: (response: ErrorResponse) => {
-          this.isLoading = false;
-          this.loginForm.enable();
+          this.isLoading.set(false);
           if (response.error && response.error.errors) {
             response.error.errors.forEach((err: { field: string; message: string }) => {
-              this.serverResponse[err.field] = err.message;
+              this.serverResponse.set({ [err.field]: err.message });
+              this.loginForm.get(err.field)?.setErrors({ serverError: err.message });
             });
-            if (this.serverResponse['general']) {
-              this.openSnackBar(this.serverResponse['general'], 'Close', 'error');
+
+            if (this.serverResponse()['general']) {
+              this.openSnackBar(this.serverResponse()['general'], 'Close', 'error');
+            } else {
+              this.loginForm.setErrors({ 'invalid': true });
             }
           } else {
             console.error('Unexpected error format:', response);
@@ -130,7 +131,7 @@ export class LoginComponent {
         content: this.forgotPasswordTemplate,
         confirmText: 'Send Email',
         cancelText: 'Cancel',
-        isDisabled: this.timerResendOTP > 0
+        isDisabled: this.timerResendOTP() > 0
       }
     });
 
@@ -157,19 +158,19 @@ export class LoginComponent {
       return false;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.forgotPasswordForm.disable();
 
     this.authService.forgotPassword(this.forgotPasswordForm.value).subscribe({
       next: (response) => {
         console.log('Password reset email sent:', response);
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.forgotPasswordForm.enable();
-        this.timerResendOTP = Math.floor(new Date(response.data).getTime() - Date.now()) / 1000;
+        this.timerResendOTP.set(Math.floor(new Date(response.data).getTime() - Date.now()) / 1000);
       },
       error: (error) => {
         console.error('Error sending reset email:', error);
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.forgotPasswordForm.enable();
       }
     });

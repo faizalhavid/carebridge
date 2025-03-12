@@ -1,10 +1,15 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
-import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
-import { SuccessResponse } from '../../../../models/dto/responses/server-res';
-import { RegisterResponse } from '../../../../models/dto/responses/register-res';
+
+import { ErrorResponse, SuccessResponse } from '@models/dto/responses/server-res';
+import { RegisterResponse } from '@models/dto/responses/register-res';
+import { MatchingPasswordValidator } from '@utils/validators/matching-password.validator';
+import { AuthService } from '../../services/auth.service';
+import { MatDialog } from '@angular/material/dialog';
+import { AppSnackbarComponent } from '@components/Snackbar/snackbar.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   standalone: false,
@@ -15,25 +20,24 @@ import { RegisterResponse } from '../../../../models/dto/responses/register-res'
 })
 export class RegisterComponent implements OnInit {
   @ViewChild('stepper') stepper: MatStepper | undefined;
+
   registerAccountForm: FormGroup;
   verifyAccountForm: FormGroup;
   registerUserDataForm: FormGroup;
-  timerResendOTP = 0;
-  isLoading = false;
-  isLinear = true;
+
+  timerResendOTP = signal(0);
+  isLoading = signal(false);
   hidePassword = signal(true);
   hideConfirmPassword = signal(true);
-  disabledFormState = {
-    registerAccount: false,
-    verifyAccount: false,
-    registerUserData: true
-  }
-  editableFormState = {
+
+  editableFormState = signal({
     registerAccount: true,
-    verifyAccount: true,
+    verifyAccount: false,
     registerUserData: false
-  }
-  serverResponse: { [key: string]: string } = {};
+  });
+  serverResponse = signal<{ [key: string]: string }>({});
+
+  private _snackBar = inject(MatSnackBar);
 
   get formControls() {
     return {
@@ -46,10 +50,12 @@ export class RegisterComponent implements OnInit {
   constructor(
     private _fb: FormBuilder,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {
     this.registerAccountForm = this._fb.group({
-      email: [{ value: '', disabled: this.isLoading || this.disabledFormState.registerAccount }, [Validators.required, Validators.email]]
+      email: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.email]]
     });
 
     this.verifyAccountForm = this._fb.group({
@@ -63,12 +69,12 @@ export class RegisterComponent implements OnInit {
 
     this.registerUserDataForm = this._fb.group({
       email: [{ value: this.registerAccountForm.get('email')?.value, disabled: true }],
-      token: [{ value: '', disabled: this.isLoading }, [Validators.required]],
-      fullName: [{ value: '', disabled: this.isLoading }, [Validators.required]],
-      mobilePhone: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.minLength(12), Validators.maxLength(14), Validators.pattern('^[0-9]{12,14}$')]],
-      password: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.minLength(6), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})')]],
-      confirmPassword: [{ value: '', disabled: this.isLoading }, [Validators.required, Validators.minLength(6)], this.passwordMatchValidator],
-      imagePath: [{ value: '', disabled: this.isLoading }]
+      token: [{ value: '', disabled: this.isLoading() }, [Validators.required]],
+      fullName: [{ value: '', disabled: this.isLoading() }, [Validators.required]],
+      mobilePhone: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.minLength(12), Validators.maxLength(14), Validators.pattern('^[0-9]{12,14}$')]],
+      password: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.minLength(6), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})')]],
+      confirmPassword: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.minLength(6)], MatchingPasswordValidator.validate],
+      imagePath: [{ value: '', disabled: this.isLoading() }]
     });
   }
 
@@ -78,27 +84,56 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  passwordMatchValidator(formGroup: FormGroup) {
-    const password = formGroup.get('password')?.value;
-    const confirmPassword = formGroup.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { mismatch: true };
+  openSnackBar(message: string, action: string, type: 'success' | 'error' = 'success') {
+    this._snackBar.openFromComponent(AppSnackbarComponent, {
+      data: {
+        message: message,
+        action: action,
+        panelClass: type === 'success' ? 'alert-success' : 'alert-error',
+        actionCallback: () => {
+          console.log(`${action} clicked`);
+        }
+      },
+      duration: 2000,
+      horizontalPosition: 'right',
+      verticalPosition: 'top'
+    });
   }
+
 
   handleRegisterAccount() {
     if (this.registerAccountForm.valid) {
-      this.isLoading = true;
+      this.isLoading.set(true);
       this.authService.registerEmail(this.registerAccountForm.value).subscribe({
         next: (response: SuccessResponse<RegisterResponse>) => {
-          this.isLoading = false;
-          this.serverResponse = {
-            'success': response.message,
-          }
+          this.isLoading.set(false);
+          this.serverResponse.set({ 'success': response.message });
           this.stepper?.next();
-          this.editableFormState.verifyAccount = true;
+          this.serverResponse.set({
+            'success': response.message
+          });
+          this.openSnackBar('A token has been sent to your email', 'Close');
+          this.cdr.markForCheck();
+          this.editableFormState.update(state => ({ ...state, verifyAccount: true }));
         },
-        error: (error) => {
-          this.isLoading = false;
-          console.error('Error registering account:', error);
+        error: (response: ErrorResponse) => {
+          this.isLoading.set(false);
+          if (response.error && response.error.errors) {
+            response.error.errors.forEach((err: { field: string; message: string }) => {
+              this.serverResponse.set({ [err.field]: err.message });
+              this.registerAccountForm.get(err.field)?.setErrors({ serverError: err.message });
+            });
+
+            if (this.serverResponse()['general']) {
+              this.openSnackBar(this.serverResponse()['general'], 'Close', 'error');
+            } else {
+              this.registerAccountForm.setErrors({ 'invalid': true });
+            }
+          } else {
+            console.error('Unexpected error format:', response);
+          }
+          console.log('serverResponse', this.serverResponse);
+          this.cdr.markForCheck();
         }
       });
     } else {
@@ -108,21 +143,38 @@ export class RegisterComponent implements OnInit {
 
   handleVerifyAccount() {
     if (this.verifyAccountForm.valid) {
-      this.isLoading = true;
+      this.isLoading.set(true);
       const token = `${this.verifyAccountForm.get('token1')?.value}${this.verifyAccountForm.get('token2')?.value}${this.verifyAccountForm.get('token3')?.value}${this.verifyAccountForm.get('token4')?.value}${this.verifyAccountForm.get('token5')?.value}${this.verifyAccountForm.get('token6')?.value}`;
-      const email = this.registerAccountForm.get('email')?.value
+      const email = this.registerAccountForm.get('email')?.value;
       this.authService.verifyAccount({ email, token }).subscribe({
         next: (response: SuccessResponse<any>) => {
-          this.isLoading = false;
-          this.serverResponse = {
-            'success': response.message,
-          }
+          this.isLoading.set(false);
+          this.serverResponse.set({ 'success': response.message });
           this.stepper?.next();
-          this.editableFormState.registerUserData = true;
+          this.editableFormState.update(state => ({ ...state, registerUserData: true }));
+          this.editableFormState.update(state => ({ ...state, verifyAccount: false }));
+          this.openSnackBar('Account verified successfully', 'Close');
+          this.cdr.markForCheck();
         },
-        error: (error) => {
-          this.isLoading = false;
-          console.error('Error verifying account:', error);
+        error: (response: ErrorResponse) => {
+          this.isLoading.set(false);
+          if (response.error && response.error.errors) {
+            response.error.errors.forEach((err: { field: string; message: string }) => {
+              this.serverResponse.set({ [err.field]: err.message });
+              this.verifyAccountForm.get(err.field)?.setErrors({ serverError: err.message });
+            });
+
+            if (this.serverResponse()['general']) {
+              this.openSnackBar(this.serverResponse()['general'], 'Close', 'error');
+            } else {
+              this.verifyAccountForm.setErrors({ 'invalid': true });
+            }
+          }
+          else {
+            console.error('Unexpected error format:', response);
+          }
+          console.log('serverResponse', this.serverResponse);
+          this.cdr.markForCheck();
         }
       });
     } else {
@@ -132,17 +184,35 @@ export class RegisterComponent implements OnInit {
 
   handleRegisterUserData() {
     if (this.registerUserDataForm.valid) {
-      this.isLoading = true;
+      this.isLoading.set(true);
       this.authService.registerUserData(this.registerUserDataForm.value).subscribe({
         next: (response: SuccessResponse<any>) => {
-          this.isLoading = false;
-          this.serverResponse = {
-            'success': response.message,
-          }
+          this.isLoading.set(false);
+          this.serverResponse.set({ 'success': response.message });
+          this.openSnackBar('Account created successfully', 'Close');
+          this.cdr.markForCheck();
+          this.dialog.closeAll();
+          window.location.pathname = '/auth/login';
         },
-        error: (error) => {
-          this.isLoading = false;
-          console.error('Error registering user data:', error);
+        error: (response: ErrorResponse) => {
+          this.isLoading.set(false);
+          if (response.error && response.error.errors) {
+            response.error.errors.forEach((err: { field: string; message: string }) => {
+              this.serverResponse.set({ [err.field]: err.message });
+              this.registerUserDataForm.get(err.field)?.setErrors({ serverError: err.message });
+            });
+
+            if (this.serverResponse()['general']) {
+              this.openSnackBar(this.serverResponse()['general'], 'Close', 'error');
+            } else {
+              this.registerUserDataForm.setErrors({ 'invalid': true });
+            }
+          } else {
+            console.error('Unexpected error format:', response);
+          }
+          console.log('serverResponse', this.serverResponse);
+          this.cdr.markForCheck();
+
         }
       });
     } else {
@@ -152,9 +222,9 @@ export class RegisterComponent implements OnInit {
 
   hidePasswordToggle(event: Event, type: string = 'password') {
     if (type === 'password') {
-      this.hidePassword = signal(!this.hidePassword());
+      this.hidePassword.set(!this.hidePassword());
     } else {
-      this.hideConfirmPassword = signal(!this.hideConfirmPassword());
+      this.hideConfirmPassword.set(!this.hideConfirmPassword());
     }
     event.stopPropagation();
   }

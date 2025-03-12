@@ -21,8 +21,8 @@ import { MatButtonModule } from '@angular/material/button';
     </div>
   `,
   styles: [`
-    .alert-success { @apply bg-green-500 text-white flex justify-between; }
-    .alert-error { @apply bg-red-500 text-white flex justify-between; }
+    .app-snackbar .alert-success { @apply bg-green-500 text-white flex justify-between; }
+    .app-snackbar .alert-error { @apply bg-red-500 text-white flex justify-between; }
   `]
 })
 export class AppSnackbarComponent {

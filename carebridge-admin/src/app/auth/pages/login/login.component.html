@@ -11,7 +11,7 @@
             <div *ngIf="f['email'].errors && (f['email'].dirty || f['email'].touched)">
                 <mat-error *ngIf="f['email'].errors['required']">Email is required.</mat-error>
                 <mat-error *ngIf="f['email'].errors['email']">Invalid email format.</mat-error>
-                <mat-error *ngIf="serverResponse['email']">{{ serverResponse['email'] }}</mat-error>
+                <mat-error *ngIf="serverResponse()['email']">{{ serverResponse()['email'] }}</mat-error>
             </div>
             <mat-icon matSuffix>email</mat-icon>
         </mat-form-field>
@@ -29,7 +29,7 @@
                 <mat-error *ngIf="f['password'].errors['required']">Password is required.</mat-error>
                 <mat-error *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters
                     long.</mat-error>
-                <mat-error *ngIf="serverResponse['password']">{{ serverResponse['password'] }}</mat-error>
+                <mat-error *ngIf="serverResponse()['password']">{{ serverResponse()['password'] }}</mat-error>
 
             </div>
         </mat-form-field>
@@ -52,16 +52,16 @@
                         Invalid email format
                     </mat-error>
                 </mat-form-field>
-                <div *ngIf="isLoading">
+                <div *ngIf="isLoading()">
                     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
                 </div>
             </form>
         </ng-template>
 
-        <button mat-flat-button mat-secondary type="submit" style="width: 100%" [disabled]="isLoading">
+        <button mat-flat-button mat-secondary type="submit" style="width: 100%" [disabled]="isLoading()">
             <div class="flex flex-row justify-between items-center gap-2 w-full">
                 Login
-                <ng-container *ngIf="isLoading">
+                <ng-container *ngIf="isLoading()">
                     <mat-spinner diameter="20" class="ml-2"></mat-spinner>
                 </ng-container>
             </div>

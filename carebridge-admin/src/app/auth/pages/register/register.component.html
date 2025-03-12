@@ -4,8 +4,8 @@
         <p class="paragraph-3">Please register to continue</p>
     </div>
 
-    <mat-stepper [linear]="isLinear" #stepper class="h-100">
-        <mat-step [stepControl]="registerAccountForm" [editable]="editableFormState.registerAccount">
+    <mat-stepper #stepper class="h-100">
+        <mat-step [stepControl]="registerAccountForm" [editable]="editableFormState().registerAccount">
             <form [formGroup]="registerAccountForm" (ngSubmit)="handleRegisterAccount()"
                 class="flex flex-col gap-5 w-100" style="margin-top: 20px;">
                 <ng-template matStepLabel>Email</ng-template>
@@ -18,7 +18,7 @@
                             required.</mat-error>
                         <mat-error *ngIf="formControls.registerAccount['email'].errors['email']">Invalid email
                             format.</mat-error>
-                        <mat-error *ngIf="serverResponse['email']">{{ serverResponse['email'] }}</mat-error>
+                        <mat-error *ngIf="serverResponse()['email']">{{ serverResponse()['email'] }}</mat-error>
                     </div>
                     <mat-icon matSuffix>email</mat-icon>
                 </mat-form-field>
@@ -26,7 +26,7 @@
             </form>
         </mat-step>
 
-        <mat-step [stepControl]="verifyAccountForm" [editable]="editableFormState.verifyAccount">
+        <mat-step [stepControl]="verifyAccountForm" [editable]="editableFormState().verifyAccount">
             <form [formGroup]="verifyAccountForm" (ngSubmit)="handleVerifyAccount()" class="flex flex-col gap-5 w-100"
                 style="margin-top: 20px;">
                 <ng-template matStepLabel>OTP</ng-template>
@@ -59,7 +59,7 @@
                     *ngIf="(formControls.verifyAccount['token1']?.errors || formControls.verifyAccount['token2']?.errors || formControls.verifyAccount['token3']?.errors || formControls.verifyAccount['token4']?.errors || formControls.verifyAccount['token5']?.errors || formControls.verifyAccount['token6']?.errors) && (formControls.verifyAccount['token1'].dirty || formControls.verifyAccount['token2'].dirty || formControls.verifyAccount['token3'].dirty || formControls.verifyAccount['token4'].dirty || formControls.verifyAccount['token5'].dirty || formControls.verifyAccount['token6'].touched)">
                     <mat-error *ngIf="formControls.verifyAccount['token1']?.errors?.['required'] ">OTP is
                         required.</mat-error>
-                    <mat-error *ngIf="serverResponse['token']">{{ serverResponse['token'] }}</mat-error>
+                    <mat-error *ngIf="serverResponse()['token']">{{ serverResponse()['token'] }}</mat-error>
                 </div>
                 <button mat-flat-button color="primary" type="submit">Next
                     <ng-container *ngIf="isLoading">
@@ -69,7 +69,7 @@
             </form>
         </mat-step>
 
-        <mat-step [stepControl]="registerUserDataForm" [editable]="editableFormState.registerUserData">
+        <mat-step [stepControl]="registerUserDataForm" [editable]="editableFormState().registerUserData">
             <form [formGroup]="registerUserDataForm" (ngSubmit)="handleRegisterUserData()"
                 class="flex flex-col gap-5 w-100" style="margin-top: 20px;">
                 <ng-template matStepLabel>Account</ng-template>
@@ -81,7 +81,7 @@
                         *ngIf="formControls.registerUserData['fullName'].errors && (formControls.registerUserData['fullName'].dirty || formControls.registerUserData['fullName'].touched)">
                         <mat-error *ngIf="formControls.registerUserData['fullName'].errors['required']">Full Name is
                             required.</mat-error>
-                        <mat-error *ngIf="serverResponse['fullName']">{{ serverResponse['fullName'] }}</mat-error>
+                        <mat-error *ngIf="serverResponse()['fullName']">{{ serverResponse()['fullName'] }}</mat-error>
                     </div>
                 </mat-form-field>
 
@@ -94,7 +94,7 @@
                             required.</mat-error>
                         <mat-error *ngIf="formControls.registerUserData['email'].errors['email']">Invalid email
                             format.</mat-error>
-                        <mat-error *ngIf="serverResponse['email']">{{ serverResponse['email'] }}</mat-error>
+                        <mat-error *ngIf="serverResponse()['email']">{{ serverResponse()['email'] }}</mat-error>
                     </div>
                 </mat-form-field>
 
@@ -112,7 +112,7 @@
                             required.</mat-error>
                         <mat-error *ngIf="formControls.registerUserData['password'].errors['minlength']">Password must
                             be at least 6 characters long.</mat-error>
-                        <mat-error *ngIf="serverResponse['password']">{{ serverResponse['password'] }}</mat-error>
+                        <mat-error *ngIf="serverResponse()['password']">{{ serverResponse()['password'] }}</mat-error>
                     </div>
                 </mat-form-field>
 
