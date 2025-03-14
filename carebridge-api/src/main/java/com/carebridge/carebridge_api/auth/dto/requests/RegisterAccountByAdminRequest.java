@@ -1,7 +1,7 @@
 package com.carebridge.carebridge_api.auth.dto.requests;
 
 
-import com.carebridge.carebridge_api.user.models.Role;
+import com.carebridge.carebridge_api.access.models.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

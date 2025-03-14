@@ -1,8 +1,8 @@
 package com.carebridge.carebridge_api.auth.services;
 
 import com.carebridge.carebridge_api.auth.dto.requests.*;
+import com.carebridge.carebridge_api.auth.dto.responses.ClaimTokenResponse;
 import com.carebridge.carebridge_api.auth.dto.responses.LoginResponse;
-import com.carebridge.carebridge_api.auth.dto.responses.RegisterAccountByAdminResponse;
 import com.carebridge.carebridge_api.auth.dto.responses.RegisterAccountResponse;
 import com.carebridge.carebridge_api.auth.models.DeviceInfo;
 import com.carebridge.carebridge_api.auth.models.Token;
@@ -13,14 +13,12 @@ import com.carebridge.carebridge_api.core.exceptions.BadRequestException;
 import com.carebridge.carebridge_api.core.exceptions.ResourceNotFoundException;
 import com.carebridge.carebridge_api.core.helpers.JwtHelper;
 import com.carebridge.carebridge_api.core.utils.SenderMail;
-import com.carebridge.carebridge_api.user.dto.projections.RoleProjection;
 import com.carebridge.carebridge_api.user.models.Biodata;
-import com.carebridge.carebridge_api.user.models.Role;
+import com.carebridge.carebridge_api.access.models.Role;
 import com.carebridge.carebridge_api.user.models.User;
 import com.carebridge.carebridge_api.user.repositories.BiodataRepository;
-import com.carebridge.carebridge_api.user.repositories.RoleRepository;
+import com.carebridge.carebridge_api.access.repositories.RoleRepository;
 import com.carebridge.carebridge_api.user.repositories.UserRepository;
-import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -117,8 +115,7 @@ public class AuthService {
                         loginRequest.getEmail(),
                         loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        loginResponse.setAccessToken(accessToken);
-        loginResponse.setRefreshToken(refreshToken);
+        loginResponse.setToken(new ClaimTokenResponse(accessToken, refreshToken));
         loginResponse.setUser(user);
         return loginResponse;
     }
@@ -276,6 +273,25 @@ public class AuthService {
         tokenUser.setDeleteAt(LocalDateTime.now());
         tokenUser.setIsDeleted(true);
         tokenRepository.save(tokenUser);
+    }
+
+    public ClaimTokenResponse refreshToken(String token) throws BadRequestException {
+        Token tokenUser = tokenRepository.findTokenByTokenAndUsedFor(token, TokenUsedFor.REFRESH_TOKEN.toString())
+                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+        if (tokenUser.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("general", "Token has expired");
+        }
+        String accessToken = jwtHelper.generateToken(tokenUser.getEmail(), tokenUser.getUserId(), accessTokenExpiration);
+        String refreshToken = jwtHelper.generateToken(tokenUser.getEmail(), tokenUser.getUserId(), refreshTokenExpiration);
+        tokenUser.setIsExpired(true);
+        tokenUser.setExpiredAt(LocalDateTime.now());
+        tokenRepository.save(tokenUser);
+        Token newToken = new Token();
+        newToken.setToken(refreshToken);
+        newToken.setUserId(tokenUser.getUserId());
+        newToken.setUsedFor(TokenUsedFor.REFRESH_TOKEN);
+        tokenRepository.save(newToken);
+        return new ClaimTokenResponse(accessToken, refreshToken);
     }
 
     private Token generateTokenOtp(String email, TokenUsedFor usedFor, Optional<User> user) throws BadRequestException {

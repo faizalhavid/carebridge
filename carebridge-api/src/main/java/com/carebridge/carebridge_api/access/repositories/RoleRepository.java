@@ -1,7 +1,6 @@
-package com.carebridge.carebridge_api.user.repositories;
+package com.carebridge.carebridge_api.access.repositories;
 
-import com.carebridge.carebridge_api.user.dto.projections.RoleProjection;
-import com.carebridge.carebridge_api.user.models.Role;
+import com.carebridge.carebridge_api.access.models.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
