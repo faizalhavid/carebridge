@@ -12,9 +12,10 @@ import { tap } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
-  // private BASE_URL = environment.API_URL ;
-  private BASE_URL = 'http://localhost:8080/api/v1';
+  private BASE_URL = environment.apiUrl;
+  // private BASE_URL = 'http://localhost:8080/api/v1';
   constructor(private http: HttpClient) { }
 
   login(req: LoginRequest): Observable<SuccessResponse<LoginResponse>> {
