@@ -1,8 +1,16 @@
 import { Authority } from "./authority";
+import { BaseEntity } from "./base-entity";
 import { Biodata } from "./biodata";
 import { DeviceInfo } from "./device-info";
 
-export interface User {
+
+export interface Role extends BaseEntity {
+    id: number;
+    name: string;
+    description: string;
+}
+
+export interface User extends BaseEntity {
     id: number;
     name: string;
     email: string;
@@ -10,13 +18,9 @@ export interface User {
     loginAttempt: number;
     isLocked: boolean;
     lastLogin: Date;
-    isDeleted: boolean;
-    createdAt: Date;
     deviceInfo: DeviceInfo[];
     authority: Authority[];
-
-
-    role: string;
+    role: Role;
     biodata: Biodata;
-
 }
+

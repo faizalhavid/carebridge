@@ -1,6 +1,7 @@
 package com.carebridge.carebridge_api.access.models;
 
 import com.carebridge.carebridge_api.core.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,8 +25,6 @@ public class MenuRole extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "role_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Role role;
-
-    @Column(name = "role_id")
-    private Long roleId;
 }

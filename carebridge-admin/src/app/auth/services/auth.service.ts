@@ -15,14 +15,14 @@ import { tap } from 'rxjs';
 
 export class AuthService {
   private BASE_URL = environment.apiUrl;
-  // private BASE_URL = 'http://localhost:8080/api/v1';
   constructor(private http: HttpClient) { }
 
   login(req: LoginRequest): Observable<SuccessResponse<LoginResponse>> {
     return this.http.post<SuccessResponse<LoginResponse>>(`${this.BASE_URL}/auth/login`, req).pipe(
       tap((res) => {
         if (res.status === 200) {
-          localStorage.setItem('access_token', res.data.accessToken);
+          localStorage.setItem('access_token', res.data.token.accessToken);
+          console.log(res.data.token);
           localStorage.setItem('user', JSON.stringify(res.data.user));
           window.location.pathname = '/dashboard';
         }

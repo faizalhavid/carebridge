@@ -7,7 +7,7 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class AuthGuardPathService implements CanActivate {
 
-  constructor(private router: Router, @Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(@Inject(Router) private router: Router, @Inject(PLATFORM_ID) private platformId: Object) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     if (isPlatformBrowser(this.platformId)) {
