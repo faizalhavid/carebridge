@@ -12,21 +12,10 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-@RepositoryRestResource(collectionResourceRel = "menuRoles", path = "menuRoles")
 public interface MenuRoleRepository extends JpaRepository<MenuRole, Long> {
+    @Query("SELECT m FROM MenuRole m WHERE m.role.code = :role")
+    List<MenuRole> findByRole(String role);
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Override
-    <S extends MenuRole> S save(S entity);
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Override
-    void deleteById(Long id);
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Override
-    void delete(MenuRole entity);
-
-    @Query("SELECT mr FROM MenuRole mr WHERE mr.menuId = :menuId")
-    List<MenuRole> findByMenuId(@Param("menuId") Long menuId);
+    @Query("SELECT m FROM MenuRole m WHERE m.role.name = :role AND m.menuId = :menuId")
+    MenuRole findByRoleAndMenuId(String role, Long menuId);
 }

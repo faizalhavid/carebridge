@@ -20,9 +20,6 @@ public class MenuRole extends BaseEntity {
     @JoinColumn(name = "menu_id", insertable = false, updatable = false)
     private Menu menu;
 
-    @Column(name = "menu_id")
-    private Long menuId;
-
     @ManyToOne
     @JoinColumn(name = "role_id", insertable = false, updatable = false)
     @JsonIgnore
