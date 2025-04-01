@@ -1,0 +1,18 @@
+<div class="flex flex-col md:flex-row w-full">
+    <!-- Gambar dan Overlay -->
+    <div class="relative w-full md:w-1/2 h-screen">
+        <img src="/images/auth-hero-1.jpg" class="w-full h-full object-cover rounded-l-lg" alt="...">
+        <div class="absolute bottom-7 left-0 px-6 text-center ">
+            <h5 class="text-xl md:text-3xl text-gray-800 font-semibold">
+                Our mission is to help companies develop health applications with the best tech talents,
+                on time and on budget.
+            </h5>
+        </div>
+    </div>
+
+    <div class="w-full md:w-1/2 flex items-center justify-center p-6 container-auth">
+        <div class="w-full max-w-md">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

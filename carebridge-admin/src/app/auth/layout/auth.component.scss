@@ -1,0 +1,6 @@
+@use "../../../theme/_theme-colors.scss" as theme-colors;
+@use '@angular/material' as mat;
+
+.container-auth{
+    background-color : theme-colors.get-palette-color(primary, 98),
+}

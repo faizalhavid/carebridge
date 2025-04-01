@@ -1,0 +1,11 @@
+<div class="flex flex-row h-screen">
+    <app-sidebar [isSidebarOpen]="isSidebarOpen" [menus]="menuRoles" [activeMenu]="activeMenu"
+        [activeSubMenu]="activeSubMenu" [activeSubSubMenu]="activeSubSubMenu"></app-sidebar>
+    <div class="flex flex-col overflow-y-auto flex-grow">
+        <div id="content-dashboard" class="flex flex-col">
+            <app-dashboard-navbar />
+            <div class="p-8 min-h-screen" layout:fragment="container"></div>
+        </div>
+        <app-footer />
+    </div>
+</div>

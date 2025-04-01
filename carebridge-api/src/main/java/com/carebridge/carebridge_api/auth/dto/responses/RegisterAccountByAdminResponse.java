@@ -1,7 +1,7 @@
 package com.carebridge.carebridge_api.auth.dto.responses;
 
 
-import com.carebridge.carebridge_api.user.models.Role;
+import com.carebridge.carebridge_api.access.models.Role;
 import com.carebridge.carebridge_api.user.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;

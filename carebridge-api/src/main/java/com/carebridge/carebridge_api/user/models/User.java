@@ -1,5 +1,6 @@
 package com.carebridge.carebridge_api.user.models;
 
+import com.carebridge.carebridge_api.access.models.Role;
 import com.carebridge.carebridge_api.auth.models.DeviceInfo;
 import com.carebridge.carebridge_api.core.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;

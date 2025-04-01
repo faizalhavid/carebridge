@@ -2,6 +2,7 @@ package com.carebridge.carebridge_api.auth;
 
 import com.carebridge.carebridge_api.auth.dto.requests.*;
 import com.carebridge.carebridge_api.auth.services.AuthService;
+import com.carebridge.carebridge_api.core.exceptions.BadRequestException;
 import com.carebridge.carebridge_api.core.responses.SuccessResponse;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -49,6 +50,11 @@ public class AuthController {
     @PostMapping("/register-account")
     public ResponseEntity<SuccessResponse<?, Object>> registerAccountController(@Valid @RequestBody RegisterAccountRequest registerAccountRequest) throws MessagingException, IOException {
         return ResponseEntity.ok(new SuccessResponse<>(authService.registerAccountService(registerAccountRequest), "Register account successful", 200));
+    }
+
+    @PostMapping("refresh-token")
+    public ResponseEntity<SuccessResponse<?, Object>> refreshTokenController(@Valid @RequestBody String accessToken) throws BadRequestException {
+        return ResponseEntity.ok(new SuccessResponse<>(authService.refreshToken(accessToken), "Refresh token successful", 200));
     }
 
 

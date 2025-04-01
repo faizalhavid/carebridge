@@ -1,0 +1,10 @@
+@use "../../../../theme/_theme-colors.scss" as theme-colors;
+@use "@angular/material" as mat;
+
+:host {
+    @include mat.button-overrides((
+        filled-container-shape: 0,
+        filled-container-color: theme-colors.get-palette-color(primary, 60),
+        filled-container-height: 40px,
+    ));
+  }

@@ -1,26 +1,26 @@
 package com.carebridge.carebridge_api.auth.services;
 
 import com.carebridge.carebridge_api.auth.dto.requests.*;
+import com.carebridge.carebridge_api.auth.dto.responses.ClaimTokenResponse;
 import com.carebridge.carebridge_api.auth.dto.responses.LoginResponse;
-import com.carebridge.carebridge_api.auth.dto.responses.RegisterAccountByAdminResponse;
 import com.carebridge.carebridge_api.auth.dto.responses.RegisterAccountResponse;
 import com.carebridge.carebridge_api.auth.models.DeviceInfo;
 import com.carebridge.carebridge_api.auth.models.Token;
 import com.carebridge.carebridge_api.auth.repositories.DeviceInfoRepository;
 import com.carebridge.carebridge_api.auth.repositories.TokenRepository;
 import com.carebridge.carebridge_api.core.enums.TokenUsedFor;
+import com.carebridge.carebridge_api.core.exceptions.BadRequestException;
+import com.carebridge.carebridge_api.core.exceptions.ResourceNotFoundException;
 import com.carebridge.carebridge_api.core.helpers.JwtHelper;
 import com.carebridge.carebridge_api.core.utils.SenderMail;
-import com.carebridge.carebridge_api.user.dto.projections.RoleProjection;
 import com.carebridge.carebridge_api.user.models.Biodata;
-import com.carebridge.carebridge_api.user.models.Role;
+import com.carebridge.carebridge_api.access.models.Role;
 import com.carebridge.carebridge_api.user.models.User;
 import com.carebridge.carebridge_api.user.repositories.BiodataRepository;
-import com.carebridge.carebridge_api.user.repositories.RoleRepository;
+import com.carebridge.carebridge_api.access.repositories.RoleRepository;
 import com.carebridge.carebridge_api.user.repositories.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 //import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -56,9 +56,9 @@ public class AuthService {
     // private RedisTemplate<String, Object> redisTemplate;
     final private JwtHelper jwtHelper;
 
-    final private int accessTokenExpiration = 1;
+    final private int accessTokenExpiration = 30;
 
-    final private int refreshTokenExpiration = 30;
+    final private int refreshTokenExpiration = 800;
 
     final private int TIME_EXPIRED_TOKEN = 5;
     final private int TIME_RESEND_TOKEN = 180;
@@ -66,20 +66,20 @@ public class AuthService {
 
     public LoginResponse loginService(LoginRequest loginRequest) throws MessagingException, IOException {
         User user = userRepository.findByEmailAndIsDeletedFalse(loginRequest.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+                .orElseThrow(() -> new BadRequestException("general", "No user found"));
         LoginResponse loginResponse = new LoginResponse();
         if (user.getIsLocked()) {
-            throw new RuntimeException("User is locked");
+            throw new BadRequestException("general", "User is locked");
         }
 
-       if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-           user.setLoginAttempt(user.getLoginAttempt() + 1);
-           if (user.getLoginAttempt() >= MAX_LOGIN_ATTEMPT) {
-               user.setIsLocked(true);
-           }
-           userRepository.save(user);
-           throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
-       }
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            user.setLoginAttempt(user.getLoginAttempt() + 1);
+            if (user.getLoginAttempt() >= MAX_LOGIN_ATTEMPT) {
+                user.setIsLocked(true);
+            }
+            userRepository.save(user);
+            throw new BadRequestException("password", "Invalid password");
+        }
 
         if (user.getDeviceInfos().stream().noneMatch(
                 deviceInfo -> deviceInfo.getDeviceToken().equals(loginRequest.getDeviceInfo().getDeviceToken()))) {
@@ -115,8 +115,7 @@ public class AuthService {
                         loginRequest.getEmail(),
                         loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        loginResponse.setAccessToken(accessToken);
-        loginResponse.setRefreshToken(refreshToken);
+        loginResponse.setToken(new ClaimTokenResponse(accessToken, refreshToken));
         loginResponse.setUser(user);
         return loginResponse;
     }
@@ -124,12 +123,12 @@ public class AuthService {
     public LocalDateTime registerEmailService(String email) throws MessagingException, IOException {
         Optional<User> user = userRepository.findByEmailAndIsDeletedFalse(email);
         if (user.isPresent())
-            throw new BadRequestException("User already verified");
+            throw new BadRequestException("general", "User already verified");
 
         Optional<Token> existingToken = tokenRepository.findTokenJustCreatedByEmailAndUsedFor(email,
                 TokenUsedFor.REGISTRATION);
         if (existingToken.isPresent() && LocalDateTime.now().isBefore(existingToken.get().getExpiredAt())) {
-            throw new BadRequestException("Token already sent. Please wait for " + TIME_RESEND_TOKEN
+            throw new BadRequestException("general", "Token already sent. Please wait for " + TIME_RESEND_TOKEN
                     + " seconds before requesting a new token.");
         }
 
@@ -276,13 +275,32 @@ public class AuthService {
         tokenRepository.save(tokenUser);
     }
 
+    public ClaimTokenResponse refreshToken(String token) throws BadRequestException {
+        Token tokenUser = tokenRepository.findTokenByTokenAndUsedFor(token, TokenUsedFor.REFRESH_TOKEN.toString())
+                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+        if (tokenUser.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("general", "Token has expired");
+        }
+        String accessToken = jwtHelper.generateToken(tokenUser.getEmail(), tokenUser.getUserId(), accessTokenExpiration);
+        String refreshToken = jwtHelper.generateToken(tokenUser.getEmail(), tokenUser.getUserId(), refreshTokenExpiration);
+        tokenUser.setIsExpired(true);
+        tokenUser.setExpiredAt(LocalDateTime.now());
+        tokenRepository.save(tokenUser);
+        Token newToken = new Token();
+        newToken.setToken(refreshToken);
+        newToken.setUserId(tokenUser.getUserId());
+        newToken.setUsedFor(TokenUsedFor.REFRESH_TOKEN);
+        tokenRepository.save(newToken);
+        return new ClaimTokenResponse(accessToken, refreshToken);
+    }
+
     private Token generateTokenOtp(String email, TokenUsedFor usedFor, Optional<User> user) throws BadRequestException {
         Optional<Token> tokenJustCreated = tokenRepository.findTokenJustCreatedByEmailAndUsedFor(email,
                 usedFor);
         if (tokenJustCreated.isPresent()) {
             Token existingToken = tokenJustCreated.get();
             if (LocalDateTime.now().isBefore(existingToken.getCreatedAt().plusSeconds(TIME_RESEND_TOKEN))) {
-                throw new BadRequestException("Token already sent. Please wait for " + TIME_RESEND_TOKEN
+                throw new BadRequestException("general", "Token already sent. Please wait for " + TIME_RESEND_TOKEN
                         + " seconds before requesting a new token.");
             }
             existingToken.setExpiredAt(ChronoUnit.MINUTES.addTo(LocalDateTime.now(), TIME_EXPIRED_TOKEN));
