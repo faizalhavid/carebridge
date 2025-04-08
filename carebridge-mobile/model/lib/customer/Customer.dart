@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -17,8 +15,8 @@ class Customer extends Equatable {
   final String gender;
   final BloodGroup bloodGroup;
   final String rhesusType;
-  final Float height;
-  final Float weight;
+  final double height;
+  final double weight;
   final List<CustomerMember> customerMember;
 
   const Customer(

@@ -1,7 +1,7 @@
 name: model
 description: Carebridge Mobile module
 version: 0.0.1
-homepage:
+homepage: https://github.com/faizalhavid/carebridge/tree/master/carebridge-mobile/models
 
 environment:
   sdk: '>=2.19.0-146.2.beta <3.0.0'
