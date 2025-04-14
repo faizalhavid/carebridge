@@ -25,7 +25,9 @@ export class DashboardLayout implements OnInit {
   getMenus() {
     this.landingService.getMenus().subscribe({
       next: (res) => {
-        this.menuRoles = res._embedded['menuRoles'];
+        console.log(res);
+        this.menuRoles = res.data;
+        console.log(this.menuRoles);
       },
       error: (err) => {
         console.error(err);

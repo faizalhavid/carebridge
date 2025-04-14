@@ -56,9 +56,8 @@ public class AuthService {
     // private RedisTemplate<String, Object> redisTemplate;
     final private JwtHelper jwtHelper;
 
-    final private int accessTokenExpiration = 30;
-
-    final private int refreshTokenExpiration = 800;
+    final private long accessTokenExpiration = 24 * 60 * 60 * 1000;
+    final private long refreshTokenExpiration = 7 * 24 * 60 * 60 * 1000;
 
     final private int TIME_EXPIRED_TOKEN = 5;
     final private int TIME_RESEND_TOKEN = 180;

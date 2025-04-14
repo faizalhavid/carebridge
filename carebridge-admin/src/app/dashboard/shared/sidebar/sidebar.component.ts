@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import { MenuRole } from '@models/menu';
 
 @Component({
@@ -16,7 +16,6 @@ export class SidebarComponent {
   @Input() activeSubMenu: string = '';
   @Input() activeSubSubMenu: string = '';
 
-  constructor() { }
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;

@@ -1,55 +1,29 @@
 <div id="sidebar" [class.closed]="!isSidebarOpen" class="flex flex-row gap-0 w-56">
     <div class="flex-shrink-0 p-3 bg-white shadow-sm">
-        <link rel="stylesheet" href="/assets/css/sidebar.css" />
-        <div class="flex flex-col h-full">
+        <div class="flex flex-col h-full justify-between" style="padding: 40px 10px;">
             <!-- Logo -->
             <a href="/" class="flex items-center pb-3 mb-3 border-b border-gray-300">
-                <img src="/images/logo.png" alt="Logo" class="mx-auto w-44" />
+                <img src="/images/logo.png" alt="Logo" class="w-44 self-center" />
             </a>
 
-            <!-- Sidebar Menu -->
-            <ul class="list-none pl-0 sidebar-list flex-grow">
-                <li *ngFor="let menuRole of menus" class="sidebar-item">
-                    <a href="javascript:void(0)" class="flex items-center gap-2 p-2 hover:bg-gray-100"
-                        [class.active]="menuRole.menu?.name === activeMenu">
-                        <mat-icon *ngIf="menuRole.menu?.smallIcon">{{ menuRole.menu?.smallIcon }}</mat-icon>
-                        <span>{{ menuRole.menu?.name }}</span>
-                    </a>
-
-                    <!-- Submenus -->
-                    <ul *ngIf="menuRole.menu?.children?.length" class="list-none pl-4">
-                        <li *ngFor="let subMenu of menuRole.menu?.children" class="sidebar-sub-item">
-                            <a href="javascript:void(0)" class="flex items-center gap-2 p-2 hover:bg-gray-100"
-                                [class.active]="subMenu.name === activeSubMenu">
-                                <mat-icon *ngIf="subMenu.smallIcon">{{ subMenu.smallIcon }}</mat-icon>
-                                <span>{{ subMenu.name }}</span>
-                            </a>
-
-                            <!-- Sub-Submenus -->
-                            <ul *ngIf="subMenu.children?.length" class="list-none pl-4">
-                                <li *ngFor="let subSubMenu of subMenu.children" class="sidebar-sub-sub-item">
-                                    <a href="javascript:void(0)" class="flex items-center gap-2 p-2 hover:bg-gray-100"
-                                        [class.active]="subSubMenu.name === activeSubSubMenu">
-                                        <mat-icon *ngIf="subSubMenu.smallIcon">{{ subSubMenu.smallIcon }}</mat-icon>
-                                        <span>{{ subSubMenu.name }}</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+            <mat-selection-list class="flex-grow overflow-y-auto" style="margin-top: 20px;">
+                @for (menu of menus; track menu){
+                <mat-list-item>
+                    <mat-icon matListItemIcon>{{menu.menu?.smallIcon}}</mat-icon>
+                    <h3 matLine>{{menu.menu?.name}}</h3>
+                </mat-list-item>
+                }
+            </mat-selection-list>
 
             <!-- Sign Out Button -->
-            <button mat-raised-button color="warn" class="w-full mb-3 self-end" id="sign-out" type="button">
+            <button mat-raised-button id="sign-out">
                 Sign Out
             </button>
         </div>
     </div>
 
-    <!-- Sidebar Toggle Button -->
     <div class="flex flex-col flex-grow justify-center h-screen relative right-1.25 z-10">
-        <button mat-icon-button id="toggle-sidebar" (click)="toggleSidebar()">
+        <button mat-fab id="toggle-sidebar" (click)="toggleSidebar()">
             <mat-icon>{{ isSidebarOpen ? 'arrow_left' : 'arrow_right' }}</mat-icon>
         </button>
     </div>

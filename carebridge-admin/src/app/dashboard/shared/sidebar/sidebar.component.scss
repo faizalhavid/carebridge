@@ -1,67 +1,5 @@
+@use '@angular/material' as mat;s
 
-ol, ul {
-    padding-left: 0.8rem !important;
-}
-
-p{
-    font-size: 14px;
-    text-align: left;
-}
-.toggle-arrow {
-    transition: transform 0.3s ease;
-}
-
-a.btn-toggle:hover {
-    background-color: var(--bs-secondary-2);
-}
-
-
-a.btn-toggle.active:hover{
-    background-color: var(--bs-primary-2);
-    color: var(--bs-primary);
-}
-
-i.btn-toggle:hover {
-    background-color: var(--bs-secondary);
-}
-
-.btn-toggle.collapsed .toggle-arrow {
-    transform: rotate(-180deg);
-}
-
-.btn-toggle:not(.collapsed) .toggle-arrow {
-    transform: rotate(0deg);
-}
-.btn-toggle.active {
-    background-color: var(--bs-primary);
-    color: var(--bs-light);
-}
-
-.btn-toggle {
-    background-color: var(--bs-light);
-    color: var(--bs-dark);
-}
-.btn-toggle-nav {
-    list-style-type: disc; 
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.btn-toggle-nav li {
-    margin-bottom: 0.5rem; 
-}
-.btn-toggle-nav a {
-    color: var(--bs-dark);
-    text-decoration: none;
-    display: block;
-    padding: 0.5rem 1rem;
-}
-
-.btn-toggle-nav a:hover {
-    background-color: var(--bs-light);
-    color: var(--bs-primary);
-    text-decoration: none;
-}
 #sidebar {
   transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -69,4 +7,11 @@ i.btn-toggle:hover {
 #content-dashboard,
 nav#content-dashboard {
   transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), width 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+
+button#sign-out {
+  @include mat.button-overrides((
+    filled-container-color: red
+  ));
 }

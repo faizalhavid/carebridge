@@ -41,11 +41,18 @@ VALUES ('Dashboard', '/dashboard', 'dashboard_small', 'dashboard_big', NULL, CUR
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
        ('Payment Management', '/payment-management', 'payment_small', 'payment_big', NULL, CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP, 0),
+       ('News Management', '/news-management', 'news_small', 'news_big', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+       ('Author Management', '/author-management', 'author_small', 'author_big', NULL, CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP, 0),
        ('Setting', '/setting', 'setting_small', 'setting_big', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 -- data seed menu role
 -- insert menu role for admin
 INSERT INTO m_menu_role (menu_id, role_id, created_at, updated_at, is_deleted)
 VALUES ((SELECT id FROM m_menu WHERE name = 'Dashboard'), (SELECT id FROM m_role WHERE name = 'Admin'),
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+       ((SELECT id FROM m_menu WHERE name = 'News Management'), (SELECT id FROM m_role WHERE name = 'Admin'),
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+       ((SELECT id FROM m_menu WHERE name = 'Author Management'), (SELECT id FROM m_role WHERE name = 'Admin'),
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
        ((SELECT id FROM m_menu WHERE name = 'User Management'), (SELECT id FROM m_role WHERE name = 'Admin'),
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),

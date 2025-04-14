@@ -7,6 +7,7 @@ import { DashboardLayout } from './layout/dashboard.component';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from './shared/navbar/navbar.component';
 import { ComponentsModule } from '../../components/components.module';
+import { MatListModule } from '@angular/material/list';
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { ComponentsModule } from '../../components/components.module';
     RouterModule,
     ComponentsModule,
     DashboardRouteModule,
+    MatListModule,
     MatIcon
   ]
 })
