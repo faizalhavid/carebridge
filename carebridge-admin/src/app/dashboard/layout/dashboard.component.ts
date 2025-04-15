@@ -12,22 +12,24 @@ import { LandingService } from 'src/app/landing/services/landing.service';
 export class DashboardLayout implements OnInit {
   isSidebarOpen: boolean = true;
   menuRoles: MenuRole[] = [];
-  activeMenu: string = 'Dashboard';
-  activeSubMenu: string = 'Reports';
-  activeSubSubMenu: string = 'Monthly Reports';
+  activeMenu: string;
+  activeSubMenu: string;
 
-  constructor(private http: HttpClient, private landingService: LandingService) { }
+
+  constructor(private http: HttpClient, private landingService: LandingService) {
+    this.activeMenu = window.location.pathname.split('/')[2] || 'Dashboard';
+    this.activeSubMenu = window.location.pathname.split('/')[3] || 'Reports';
+  }
 
   ngOnInit(): void {
     this.getMenus();
   }
 
   getMenus() {
+    console.log('test', this.activeMenu, this.activeSubMenu);
     this.landingService.getMenus().subscribe({
       next: (res) => {
-        console.log(res);
         this.menuRoles = res.data;
-        console.log(this.menuRoles);
       },
       error: (err) => {
         console.error(err);

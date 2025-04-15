@@ -26,7 +26,4 @@ public class Admin extends BaseEntity {
     @JoinColumn(name = "biodata_id", insertable = false, updatable = false)
     @JsonManagedReference
     private Biodata biodata;
-
-    @Column(name = "biodata_id")
-    private Long biodataId;
 }

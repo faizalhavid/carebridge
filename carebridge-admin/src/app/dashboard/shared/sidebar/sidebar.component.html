@@ -2,21 +2,24 @@
     <div class="flex-shrink-0 p-3 bg-white shadow-sm">
         <div class="flex flex-col h-full justify-between" style="padding: 40px 10px;">
             <!-- Logo -->
-            <a href="/" class="flex items-center pb-3 mb-3 border-b border-gray-300">
+            <a href="/" class="flex items-center pb-3" style="margin: 10px 0">
                 <img src="/images/logo.png" alt="Logo" class="w-44 self-center" />
             </a>
+            <mat-divider></mat-divider>
 
-            <mat-selection-list class="flex-grow overflow-y-auto" style="margin-top: 20px;">
-                @for (menu of menus; track menu){
-                <mat-list-item>
-                    <mat-icon matListItemIcon>{{menu.menu?.smallIcon}}</mat-icon>
-                    <h3 matLine>{{menu.menu?.name}}</h3>
-                </mat-list-item>
-                }
-            </mat-selection-list>
+            <ul class="flex flex-col gap-2" style="margin-top: 50px;">
+                <li *ngFor="let menuRole of menus"
+                    class="menu-item transition duration-400 ease-in-out {{menuRole.menu?.name?.toLowerCase() === activeMenu ? 'active' : ''}}">
+                    <a href="/dashboard{{menuRole.menu?.url}}" (click)="onclickMenu(menuRole.menu?.name)"
+                        class="flex items-center gap-3 p-2">
+                        <mat-icon matListItemIcon>{{ menuRole.menu?.smallIcon }}</mat-icon>
+                        <span class="menu-text">{{menuRole.menu?.name}}</span>
+                    </a>
+                </li>
+            </ul>
 
             <!-- Sign Out Button -->
-            <button mat-raised-button id="sign-out">
+            <button mat-raised-button id="sign-out" style="margin-top: 50px;">
                 Sign Out
             </button>
         </div>

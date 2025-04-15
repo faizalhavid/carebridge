@@ -1,4 +1,5 @@
-@use '@angular/material' as mat;s
+@use "@theme/_theme-colors.scss" as theme-colors;
+@use '@angular/material' as mat;
 
 #sidebar {
   transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -10,8 +11,36 @@ nav#content-dashboard {
 }
 
 
-button#sign-out {
+button#sign-out { 
   @include mat.button-overrides((
-    filled-container-color: red
+    filled-container-color: theme-colors.get-palette-color('primary', 50), // Use a color from your theme
   ));
 }
+
+// menu
+li.menu-item {
+  padding: 0.5rem 1rem;
+  background-color: theme-colors.get-palette-color('neutral', 100);
+  &:hover {
+    background-color: theme-colors.get-palette-color('primary', 98);
+  }
+  border-radius: 0.5rem;
+}
+
+li.menu-item.active {
+  background-color: theme-colors.get-palette-color('primary', 60);
+  color: theme-colors.get-palette-color('primary', 100);
+}
+
+// mat-list-item.active:hover {
+//   background-color: theme-colors.get-palette-color('primary', 100);
+//   color: theme-colors.get-palette-color('primary', 900);
+// }
+
+// mat-list-item.active .mat-list-text {
+//   color: theme-colors.get-palette-color('primary', 900);
+// }
+
+// mat-list-item.active .mat-list-text:hover {
+//   color: theme-colors.get-palette-color('primary', 900);
+// }
