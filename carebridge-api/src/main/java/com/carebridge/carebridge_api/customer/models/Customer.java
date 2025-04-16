@@ -26,8 +26,6 @@ public class Customer extends BaseEntity {
     @JsonManagedReference
     private Biodata biodata;
 
-    @Column(name = "biodata_id")
-    private Long biodataId;
 
     @Column(name = "dob")
     private LocalDate dob;
@@ -39,9 +37,6 @@ public class Customer extends BaseEntity {
     @JoinColumn(name = "blood_group_id", insertable = false, updatable = false)
     @JsonManagedReference
     public BloodGroup bloodGroup;
-
-    @Column(name = "blood_group_id")
-    private Long bloodGroupId;
 
     @Column(name = "rhesus_type", length = 5)
     private String rhesusType;
