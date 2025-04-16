@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { RepositoryRestResource } from '@models/dto/responses/server-res';
+import { RepositoryRestResource, SuccessResponse } from '@models/dto/responses/server-res';
 import { MenuRole } from '@models/menu';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -15,8 +15,8 @@ export class LandingService {
   constructor(private http: HttpClient) { }
 
 
-  getMenus(): Observable<RepositoryRestResource<MenuRole>> {
-    return this.http.get<RepositoryRestResource<MenuRole>>(`${this.BASE_URL}/menus/roles`);
+  getMenus(): Observable<SuccessResponse<MenuRole[]>> {
+    return this.http.get<SuccessResponse<MenuRole[]>>(`${this.BASE_URL}/menu-role/getMenusByRoleId`);
   }
 
 }

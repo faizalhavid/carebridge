@@ -1,20 +1,20 @@
-<nav class="flex items-center justify-between py-2 px-3 shadow-sm w-full">
-    <div class="container-fluid flex items-center justify-between">
-        <div th:replace="~{components/breadcrumb :: breadcrumb}"></div>
+<nav class="flex items-center justify-between shadow-sm w-full">
 
-        <button mat-icon-button class="lg:hidden" aria-label="Toggle navigation" (click)="toggleNavbar()">
-            <mat-icon>menu</mat-icon>
-        </button>
-        <div class="hidden lg:flex items-center" [ngClass]="{'flex': isNavbarOpen, 'hidden': !isNavbarOpen}">
-            <ul class="flex space-x-4">
-                <li><a class="nav-link list-navbar" [ngClass]="{'active': title === 'Cari Dokter'}"
-                        href="/search-doctor">Cari Dokter</a></li>
-                <li><a class="nav-link list-navbar" [ngClass]="{'active': title === 'Cari Obat'}"
-                        href="/search-medicine">Cari Obat</a></li>
-            </ul>
-            <div class="flex items-center user-avatar p-2 rounded">
-                <img src="/images/user-avatar.png" alt="User Avatar" class="w-10 h-10 rounded-full">
-            </div>
+    <!-- <div th:replace="~{components/breadcrumb :: breadcrumb}"></div> -->
+
+    <button mat-icon-button class="lg:hidden" aria-label="Toggle navigation" (click)="toggleNavbar()">
+        <mat-icon>menu</mat-icon>
+    </button>
+    <div class="hidden lg:flex items-center justify-between flex-grow-1" [ngClass]=" {'flex': isNavbarOpen, 'hidden' :
+            !isNavbarOpen}" style="padding:10px 15px;">
+        <ul class="flex gap-4 list-none">
+            <li><a class="nav-link list-navbar" [ngClass]="{'active': title === 'Cari Dokter'}"
+                    href="/search-doctor">Cari Dokter</a></li>
+            <li><a class="nav-link list-navbar" [ngClass]="{'active': title === 'Cari Obat'}"
+                    href="/search-medicine">Cari Obat</a></li>
+        </ul>
+        <div class="flex items-center user-avatar p-2 rounded">
+            <img src="/images/user-avatar.png" alt="User Avatar" class="w-10 h-10 rounded-full">
         </div>
     </div>
 </nav>

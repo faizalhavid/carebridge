@@ -3,6 +3,7 @@ package com.carebridge.carebridge_api.access.controllers;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +25,9 @@ public class MenuRoleController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String role = authentication.getAuthorities().stream()
                 .findFirst()
-                .map(auth -> auth.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .orElse(null);
+        System.out.println("Role :" + role);
         return new SuccessResponse<>(menuRoleService.getMenusByRoleId(role), "Menus retrieved successfully", 200);
     }
 
@@ -34,7 +36,7 @@ public class MenuRoleController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String role = authentication.getAuthorities().stream()
                 .findFirst()
-                .map(auth -> auth.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .orElse(null);
         return new SuccessResponse<>(menuRoleService.getMenusByRoleIdAndMenuId(role, menuId),
                 "Menus retrieved successfully", 200);

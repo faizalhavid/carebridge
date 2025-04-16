@@ -42,8 +42,8 @@ export class LoginComponent {
     private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this._fb.group({
-      email: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.email]],
-      password: [{ value: '', disabled: this.isLoading() }, [Validators.required, Validators.minLength(6)]]
+      email: [{ value: 'nurfaizal966@gmail.com', disabled: this.isLoading() }, [Validators.required, Validators.email]],
+      password: [{ value: 'Barakadut123@', disabled: this.isLoading() }, [Validators.required, Validators.minLength(6)]]
     });
 
     this.forgotPasswordForm = this._fb.group({
