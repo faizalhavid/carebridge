@@ -1,3 +1,12 @@
+import 'package:carebridge_app/features/auth/AuthCubit.dart';
+import 'package:carebridge_app/shared/bloc/authentification_bloc.dart';
+import 'package:carebridge_app/shared/bloc/state_controller.dart';
+import 'package:carebridge_commons/helper/snackbar_helper.dart';
+import 'package:carebridge_theme/themes/app_button.dart';
+import 'package:carebridge_theme/themes/app_colors.dart';
+import 'package:carebridge_theme/themes/app_fonts.dart';
+import 'package:carebridge_theme/themes/app_hyperlink.dart';
+import 'package:carebridge_theme/themes/app_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -10,7 +19,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  late final RegisterCubit _registerCubit;
+  late final AuthCubit _authCubit;
 
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -21,19 +30,19 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    _registerCubit = RegisterCubit();
+    _authCubit = AuthCubit(context.read<AuthenticationBloc>());
   }
 
   @override
   void dispose() {
-    _registerCubit.close();
+    _authCubit.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<RegisterCubit, StateController<bool>>(
-      bloc: _registerCubit,
+    return BlocListener<AuthCubit, StateController<bool>>(
+      bloc: _authCubit,
       listener: (context, state) {
         if (state is Success) {
           // _authenticationBloc.add(
@@ -150,19 +159,19 @@ class _RegisterPageState extends State<RegisterPage> {
                       );
                       return;
                     }
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder:
-                            (context) => RegisterProfilePage(
-                              name: _usernameController.text,
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                              passwordConfirmation:
-                                  _confirmPasswordController.text,
-                            ),
-                      ),
-                    );
-                    // _registerCubit.register(
+                    // Navigator.of(context).push(
+                    //   MaterialPageRoute(
+                    //     builder:
+                    //         (context) => RegisterProfilePage(
+                    //           name: _usernameController.text,
+                    //           email: _emailController.text,
+                    //           password: _passwordController.text,
+                    //           passwordConfirmation:
+                    //               _confirmPasswordController.text,
+                    //         ),
+                    //   ),
+                    // );
+                    // _AuthCubit.register(
                     //   name: _usernameController.text,
                     //   email: _emailController.text,
                     //   password: _passwordController.text,

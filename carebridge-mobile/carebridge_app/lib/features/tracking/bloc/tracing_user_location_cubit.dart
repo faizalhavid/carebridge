@@ -52,19 +52,19 @@ class TracingUserLocationCubit extends Cubit<TrackingState> {
       TrackingUserLocationService();
   TracingUserLocationCubit() : super(const InitialTrackingState());
 
-  void startTracking(int orderId) {
-    emit(LoadingTrackingState(orderId));
+  void startTracking(int usedId) {
+    emit(LoadingTrackingState(usedId));
     try {
       // BackgroundService.start();
       // _trackingService.startTracking(orderId);
-      emit(StartTrackingState(orderId));
+      emit(StartTrackingState(usedId));
     } catch (e, s) {
       LoggerService.logger.e(
         "Failed to start tracking",
         error: e,
         stackTrace: s,
       );
-      emit(ErrorTrackingState(orderId, e.toString()));
+      emit(ErrorTrackingState(usedId, e.toString()));
     }
   }
 

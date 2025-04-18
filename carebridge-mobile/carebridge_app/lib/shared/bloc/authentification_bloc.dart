@@ -1,3 +1,7 @@
+import 'package:carebridge_app/features/auth/AuthService.dart';
+import 'package:carebridge_app/shared/exception/api_exception.dart';
+import 'package:carebridge_app/shared/service/hive_service.dart';
+import 'package:carebridge_app/shared/service/logger_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -66,11 +70,11 @@ class AuthenticationBloc
     on<AuthCheck>((event, emit) async {
       emit(AuthLoading());
       try {
-        final result = await LoginService.isLoggedIn();
+        final result = await AuthService.isLoggedIn();
         if (result) {
           emit(LoggedIn());
         } else {
-          await LogoutService.resetAll();
+          await AuthService.resetAll();
           emit(LoggedOut());
         }
       } catch (e) {
@@ -82,20 +86,20 @@ class AuthenticationBloc
     on<LogIn>((event, emit) async {
       emit(AuthLoading());
       try {
-        final result = await LoginService.login(event.email, event.password);
+        final result = await AuthService.login(event.email, event.password);
         if (result) {
           emit(LoggedIn());
         } else {
-          await LogoutService.resetAll();
+          await AuthService.resetAll();
           emit(AuthFailed(message: "Login Failed"));
         }
       } on ApiException catch (e, s) {
         LoggerService.logger.e("Failed Login", error: e, stackTrace: s);
-        await LogoutService.resetAll();
+        await AuthService.resetAll();
         emit(AuthFailed(message: e.message, code: e.code));
       } catch (e, s) {
         LoggerService.logger.e("Failed Login", error: e, stackTrace: s);
-        await LogoutService.resetAll();
+        await AuthService.resetAll();
         emit(AuthFailed(message: e.toString()));
       }
     });
@@ -103,7 +107,7 @@ class AuthenticationBloc
     on<LogOut>((event, emit) async {
       emit(AuthLoading());
       try {
-        final result = await LogoutService.logout();
+        final result = await AuthService.logout();
         if (result) {
           await HiveService.clearAll();
           emit(LoggedOut());
@@ -122,7 +126,7 @@ class AuthenticationBloc
     on<LogOutAfterDelete>((event, emit) async {
       emit(AuthLoading());
       try {
-        await LogoutService.resetAll();
+        await AuthService.resetAll();
         await HiveService.clearAll();
         emit(LoggedOut());
       } on ApiException catch (e, s) {

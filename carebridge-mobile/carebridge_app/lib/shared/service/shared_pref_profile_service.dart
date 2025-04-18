@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:carebridge_app/features/auth/model/user.dart';
+import 'package:carebridge_models/carebridge_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefProfileService {
