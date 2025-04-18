@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:my_chauffeur_driver/features/auth/model/user.dart';
+import 'package:carebridge_app/features/auth/model/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefProfileService {
@@ -21,7 +21,7 @@ class SharedPrefProfileService {
 
   static Future<int?> getCustomerId() async {
     final user = await getProfile();
-    return user?.driver?.id;
+    return user?.id;
   }
 
   static Future<void> removeProfile() async {

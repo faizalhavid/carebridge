@@ -1,6 +1,6 @@
-import 'package:carebridge_models/Biodata/Biodata.dart';
-import 'package:carebridge_models/BloodGroup/BloodGroup.dart';
-import 'package:carebridge_models/Customer/CustomerMember.dart';
+import 'package:carebridge_models/accounts/Biodata/Biodata.dart';
+import 'package:carebridge_models/accounts/BloodGroup/BloodGroup.dart';
+import 'package:carebridge_models/accounts/Customer/CustomerMember.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';

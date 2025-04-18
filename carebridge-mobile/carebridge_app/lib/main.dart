@@ -1,51 +1,143 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
 
-void main() {
-  runApp(const MyApp());
+import 'package:carebridge_app/features/auth/ui/page/login_page.dart';
+import 'package:carebridge_app/features/tracking/bloc/tracing_user_location_cubit.dart';
+import 'package:carebridge_app/shared/bloc/authentification_bloc.dart';
+import 'package:carebridge_commons/helper/snackbar_helper.dart';
+import 'package:carebridge_models/carebridge_models.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+  await _initHive();
+
+  /* 
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+   */
+
+  await _initNotification();
+
+  runApp(const MainApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+Future<void> _initHive() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(AppNotificationAdapter());
+}
 
-  // This widget is the root of your application.
+Future<void> _initNotification() async {
+  //  await FirebaseService.init();
+
+  // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //   if (kDebugMode) {
+  //     print('Handling a foreground message: ${message.messageId}');
+  //     print('Message data: ${message.data}');
+  //     print('Message notification: ${message.notification?.title}');
+  //     print('Message notification: ${message.notification?.body}');
+  //   }
+
+  //   _messageStreamController.sink.add(message);
+  // });
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // const InitializationSettings initializationSettings = InitializationSettings(
+  //   android: AndroidInitializationSettings('@mipmap/launcher_icon'),
+  //   iOS: DarwinInitializationSettings(),
+  // );
+
+  //await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+}
+
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late final AuthenticationBloc _authenticationBloc;
+  late final TracingUserLocationCubit _tracingUserLocation;
+  @override
+  void initState() {
+    super.initState();
+    _authenticationBloc = AuthenticationBloc();
+    _tracingUserLocation = TracingUserLocationCubit();
+  }
+
+  @override
+  void dispose() {
+    _authenticationBloc.close();
+    _tracingUserLocation.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    return GlobalLoaderOverlay(
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthenticationBloc>.value(value: _authenticationBloc),
+        ],
+        child: MaterialApp(
+          home: BlocListener<TracingUserLocationCubit, TrackingState>(
+            bloc: _tracingUserLocation,
+            listener: (context, state) {
+              if (state is ErrorTrackingState) {
+                SnackbarHelper.showSnackbarError(context, state.errorMessage);
+              }
+              // if (state is StartTrackingState) {
+              //   BackgroundService.init(state.orderId);
+              //   // TrackingService().startTracking(state.orderId);
+              // }
+              // if (state is StopTrackingState) {
+              //   BackgroundService.stop();
+              //   // TrackingService().stopTracking();
+              // }
+            },
+            child: BlocConsumer<AuthenticationBloc, AuthenticationState>(
+              listener: (context, state) {
+                if (state is AuthFailed) {
+                  SnackbarHelper.showSnackbarError(
+                    context,
+                    state.message ?? "Auth Failed",
+                  );
+                }
+                if (state is AuthLoading) {
+                  context.loaderOverlay.show();
+                } else {
+                  context.loaderOverlay.hide();
+                }
+
+                if (state is LoggedOut) {
+                  WidgetsBinding.instance.addPersistentFrameCallback((_) {
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  });
+                }
+              },
+              builder: (context, state) {
+                if (state is LoggedIn) {
+                  return const MyHomePage(title: 'CareBridge App');
+                } else {
+                  return const LoginPage();
+                }
+              },
+            ),
+          ),
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 

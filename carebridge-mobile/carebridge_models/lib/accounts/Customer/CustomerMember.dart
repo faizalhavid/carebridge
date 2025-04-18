@@ -1,5 +1,5 @@
-import 'package:carebridge_models/Customer/Customer.dart';
-import 'package:carebridge_models/Customer/CustomerRelation.dart';
+import 'package:carebridge_models/accounts/Customer/Customer.dart';
+import 'package:carebridge_models/accounts/Customer/CustomerRelation.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
