@@ -34,21 +34,17 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 100),
-                    Image.asset("assets/icons/ic_logo.png", width: 200),
-                    // SvgPicture.asset(
-                    //   'assets/icons/ic_logo.svg',
-                    //   width: 200,
-                    //   // colorFilter: ColorFilter.mode(
-                    //   //   appColors.white,
-                    //   //   BlendMode.srcIn,
-                    //   // ),
-                    // ),
+                    Image.asset("assets/icons/ic_logo_2.png", width: 200),
                     const SizedBox(height: 50),
-                    Text("Welcome,", style: appFonts.title.bold.white.ts),
+                    Text(
+                      "Welcome to Carebridge,",
+                      style: appFonts.titleSmall.bold.white.ts,
+                    ),
                     const SizedBox(height: 10),
                     Text(
-                      "Reliable drivers are comfortable",
+                      "Your trusted partner in health and wellness.",
                       style: appFonts.white.ts,
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
                     AppTextField(
@@ -56,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _emailController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Email is required";
+                          return "Please enter your email address.";
                         }
                         return null;
                       },
@@ -68,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Password is required";
+                          return "Please enter your password.";
                         }
                         return null;
                       },
@@ -81,7 +77,9 @@ class _LoginPageState extends State<LoginPage> {
                           AppHyperlink(
                             text: "Forgot Password?",
                             style: appFonts.white.ts,
-                            onTap: () {},
+                            onTap: () {
+                              // Add forgot password functionality
+                            },
                           ),
                         ),
                       ],
@@ -91,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
               AppButton(
-                text: "Login Driver",
+                text: "Login to Carebridge",
                 isFitParent: true,
                 color: appColors.white,
                 textStyle: appFonts.semibold.primary.ts,
@@ -107,40 +105,12 @@ class _LoginPageState extends State<LoginPage> {
                 },
               ),
               const SizedBox(height: 50),
-              // Text("or Login with", style: appFonts.white.ts),
-              // const SizedBox(height: 20),
-              // Row(
-              //   children: [
-              //     Expanded(
-              //       child: LoginWithButton(
-              //         onPressed: () {},
-              //         child: SvgPicture.asset(
-              //           'assets/icons/ic_google.svg',
-              //           width: 30,
-              //           height: 30,
-              //         ),
-              //       ),
-              //     ),
-              //     const SizedBox(width: 8),
-              //     Expanded(
-              //       child: LoginWithButton(
-              //         onPressed: () {},
-              //         child: SvgPicture.asset(
-              //           'assets/icons/ic_facebook.svg',
-              //           width: 30,
-              //           height: 30,
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(height: 50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text.rich(
                     TextSpan(
-                      text: "Don't have an account? ",
+                      text: "New to Carebridge? ",
                       style: appFonts.white.ts,
                       children: [
                         AppHyperlink(

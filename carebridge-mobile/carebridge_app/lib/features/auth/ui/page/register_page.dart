@@ -45,16 +45,22 @@ class _RegisterPageState extends State<RegisterPage> {
       bloc: _authCubit,
       listener: (context, state) {
         if (state is Success) {
-          // _authenticationBloc.add(
-          //   LogIn(
-          //     email: _emailController.text,
-          //     password: _passwordController.text,
-          //   ),
-          // );
-          // Navigator.of(context).push(MaterialPageRoute(
-          //   builder: (context) => const RegisterProfilePage(),
-          // ));
-          // SnackbarHelper.showSnackbarSuccess(context, "Registration Success");
+          if (state is Success) {
+            // _authenticationBloc.add(
+            //   LogIn(
+            //     email: _emailController.text,
+            //     password: _passwordController.text,
+            //   ),
+            // );
+            // Navigator.of(context).push(MaterialPageRoute(
+            //   builder: (context) => const RegisterProfilePage(),
+            // ));
+            // SnackbarHelper.showSnackbarSuccess(context, "Registration Success");
+          }
+          SnackbarHelper.showSnackbarSuccess(
+            context,
+            "Registration Successful",
+          );
         }
 
         if (state is Loading) {
@@ -82,26 +88,29 @@ class _RegisterPageState extends State<RegisterPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 100),
+                    Image.asset("assets/icons/ic_logo.png", width: 200),
+                    const SizedBox(height: 100),
                     Center(
                       child: Text(
-                        "Register Driver Account",
-                        style: appFonts.primary.bold.titleSmall.ts,
+                        "Create Your Carebridge Account",
+                        style: appFonts.titleSmall.bold.primary.ts,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 10),
                     Center(
                       child: Text(
-                        "to get started now!",
+                        "Join us to take control of your health and wellness.",
                         style: appFonts.primary.ts,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     const SizedBox(height: 50),
                     AppTextField(
                       controller: _usernameController,
-                      label: "Username",
+                      label: "Full Name",
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Username is required";
+                          return "Full Name is required.";
                         }
                         return null;
                       },
@@ -112,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       label: "Email",
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Email is required";
+                          return "Email is required.";
                         }
                         return null;
                       },
@@ -124,7 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Password is required";
+                          return "Password is required.";
                         }
                         return null;
                       },
@@ -136,7 +145,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Confirm Password is required";
+                          return "Confirm Password is required.";
+                        }
+                        if (value != _passwordController.text) {
+                          return "Passwords do not match.";
                         }
                         return null;
                       },
@@ -146,37 +158,21 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               AppButton(
-                text: "Next Register",
+                text: "Register Now",
                 isFitParent: true,
-                textStyle: appFonts.white.ts,
+                color: appColors.white,
+                textStyle: appFonts.semibold.primary.ts,
                 onTap: () {
                   if (_formKey.currentState!.validate()) {
-                    if (_passwordController.text !=
-                        _confirmPasswordController.text) {
-                      SnackbarHelper.showSnackbarError(
-                        context,
-                        "Password and Confirm Password not match",
-                      );
-                      return;
-                    }
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder:
-                    //         (context) => RegisterProfilePage(
-                    //           name: _usernameController.text,
-                    //           email: _emailController.text,
-                    //           password: _passwordController.text,
-                    //           passwordConfirmation:
-                    //               _confirmPasswordController.text,
-                    //         ),
-                    //   ),
-                    // );
-                    // _AuthCubit.register(
-                    //   name: _usernameController.text,
-                    //   email: _emailController.text,
-                    //   password: _passwordController.text,
-                    //   passwordConfirmation: _confirmPasswordController.text,
-                    // );
+                    _authCubit.registerAccount(
+                      fullName: _usernameController.text,
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                      confirmPassword: _confirmPasswordController.text,
+                      token: "",
+                      mobilePhone: "",
+                      fcmToken: "",
+                    );
                   }
                 },
               ),
@@ -187,9 +183,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   Text.rich(
                     TextSpan(
                       text: "Already have an account? ",
+                      style: appFonts.primary.ts,
                       children: [
                         AppHyperlink(
-                          text: "Login now",
+                          text: "Login Now",
                           style: appFonts.primary.bold.ts,
                           onTap: () {
                             Navigator.pop(context);
