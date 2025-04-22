@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:carebridge_app/features/auth/ui/page/login_page.dart';
 import 'package:carebridge_app/features/tracking/bloc/tracing_user_location_cubit.dart';
 import 'package:carebridge_app/shared/bloc/authentification_bloc.dart';
+import 'package:carebridge_commons/carebridge_commons.dart';
 import 'package:carebridge_commons/helper/snackbar_helper.dart';
 import 'package:carebridge_models/carebridge_models.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,6 +65,7 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   late final AuthenticationBloc _authenticationBloc;
   late final TracingUserLocationCubit _tracingUserLocation;
+
   @override
   void initState() {
     super.initState();

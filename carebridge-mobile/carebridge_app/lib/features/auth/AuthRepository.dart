@@ -7,7 +7,7 @@ class AuthRepository {
   static Future<(String, User)> login(String email, String password) async {
     try {
       final response = await DioService.dio.post(
-        "auth/login",
+        "/auth/login",
         data: {"email": email, "password": password},
       );
       final token = response.data["data"]["access_token"] as String?;
@@ -21,6 +21,7 @@ class AuthRepository {
       throw ApiException(
         e.response?.statusCode ?? 500,
         e.response?.data['message'] ?? "Something went wrong",
+        e.requestOptions.uri.toString() ?? "",
       );
     } catch (e) {
       throw Exception(e.toString());
@@ -36,10 +37,18 @@ class AuthRepository {
       if (response.statusCode == 200) {
         return true;
       } else {
-        throw ApiException(response.data['code'], response.data['message']);
+        throw ApiException(
+          response.data['code'],
+          response.data['message'],
+          response.realUri.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw ApiException(e.response?.data['code'], e.response?.data['message']);
+      throw ApiException(
+        e.response?.data['code'],
+        e.response?.data['message'],
+        e.requestOptions.uri.toString() ?? "",
+      );
     } catch (e) {
       throw Exception(e);
     }
@@ -71,10 +80,18 @@ class AuthRepository {
       if (response.statusCode == 200) {
         return true;
       } else {
-        throw ApiException(response.data['code'], response.data['message']);
+        throw ApiException(
+          response.data['code'],
+          response.data['message'],
+          response.realUri.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw ApiException(e.response?.data['code'], e.response?.data['message']);
+      throw ApiException(
+        e.response?.data['code'],
+        e.response?.data['message'],
+        e.requestOptions.uri.toString() ?? "",
+      );
     } catch (e) {
       throw Exception(e);
     }
@@ -87,10 +104,18 @@ class AuthRepository {
       if (result) {
         return true;
       } else {
-        throw ApiException(response.data['code'], response.data['message']);
+        throw ApiException(
+          response.data['code'],
+          response.data['message'],
+          response.realUri.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw ApiException(e.response?.data['code'], e.response?.data['message']);
+      throw ApiException(
+        e.response?.data['code'],
+        e.response?.data['message'],
+        e.requestOptions.uri.toString() ?? "",
+      );
     } catch (e) {
       throw Exception(e);
     }
@@ -104,12 +129,17 @@ class AuthRepository {
       if (result) {
         return true;
       } else {
-        throw ApiException(response.data["code"], response.data["message"]);
+        throw ApiException(
+          response.data["code"],
+          response.data["message"],
+          response.realUri.toString(),
+        );
       }
     } on DioException catch (e) {
       throw ApiException(
         e.response?.statusCode,
         e.response?.data['message'] ?? e.response?.statusMessage,
+        e.requestOptions.uri.toString() ?? "",
       );
     } catch (e) {
       throw Exception(e);

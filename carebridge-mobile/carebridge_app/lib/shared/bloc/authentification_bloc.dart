@@ -4,6 +4,7 @@ import 'package:carebridge_app/shared/service/hive_service.dart';
 import 'package:carebridge_app/shared/service/logger_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 abstract class AuthenticationEvent extends Equatable {}
 
@@ -67,6 +68,7 @@ class LoggedOut extends AuthenticationState {
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   AuthenticationBloc() : super(AuthInital()) {
+    final _secureStorage = FlutterSecureStorage();
     on<AuthCheck>((event, emit) async {
       emit(AuthLoading());
       try {
@@ -75,6 +77,7 @@ class AuthenticationBloc
           emit(LoggedIn());
         } else {
           await AuthService.resetAll();
+          await _secureStorage.deleteAll();
           emit(LoggedOut());
         }
       } catch (e) {
@@ -91,6 +94,7 @@ class AuthenticationBloc
           emit(LoggedIn());
         } else {
           await AuthService.resetAll();
+          await _secureStorage.deleteAll();
           emit(AuthFailed(message: "Login Failed"));
         }
       } on ApiException catch (e, s) {
@@ -100,6 +104,7 @@ class AuthenticationBloc
       } catch (e, s) {
         LoggerService.logger.e("Failed Login", error: e, stackTrace: s);
         await AuthService.resetAll();
+        await _secureStorage.deleteAll();
         emit(AuthFailed(message: e.toString()));
       }
     });

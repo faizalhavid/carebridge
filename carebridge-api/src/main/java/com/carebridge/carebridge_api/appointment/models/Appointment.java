@@ -1,5 +1,11 @@
+package com.carebridge.carebridge_api.appointment.models;
+
 import java.time.LocalDate;
 
+import com.carebridge.carebridge_api.core.BaseEntity;
+import com.carebridge.carebridge_api.customer.models.Customer;
+import com.carebridge.carebridge_api.doctor.models.DoctorOffice;
+import com.carebridge.carebridge_api.doctor.models.DoctorOfficeSchedule;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -42,9 +48,9 @@ public class Appointment extends BaseEntity {
     @Column(name = "doctor_office_schedule_id")
     private Long doctorOfficeScheduleId;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_office_treatment_id", insertable = false, updatable = false)
-    private DoctorOfficeTreatment doctorOfficeTreatment;
+//    @ManyToOne
+//    @JoinColumn(name = "doctor_office_treatment_id", insertable = false, updatable = false)
+//    private DoctorOfficeTreatment doctorOfficeTreatment;
 
     @Column(name = "doctor_office_treatment_id")
     private Long doctorOfficeTreatmentId;

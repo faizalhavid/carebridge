@@ -10,6 +10,7 @@ class DioService {
   }
 
   static void init() {
+    print("API ENDPOINT: ${AppConfig.apiEndpoint}");
     dio.options.baseUrl = AppConfig.apiEndpoint;
     dio.options.connectTimeout = const Duration(seconds: 500);
     dio.options.receiveTimeout = const Duration(seconds: 500);
