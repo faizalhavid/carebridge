@@ -16,10 +16,12 @@ class AuthService {
     DioService.reset();
     try {
       final token = await SharedPrefTokenService.getToken();
+      print("debug token: $token");
       if (token != null) {
         await DioService.initWithToken();
         return true;
       } else {
+        print("dio service init");
         DioService.init();
         return false;
       }

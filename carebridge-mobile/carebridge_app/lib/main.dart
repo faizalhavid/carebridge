@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:carebridge_app/features/auth/ui/page/login_page.dart';
 import 'package:carebridge_app/features/tracking/bloc/tracing_user_location_cubit.dart';
 import 'package:carebridge_app/shared/bloc/authentification_bloc.dart';
+import 'package:carebridge_app/shared/service/dio_service.dart';
 import 'package:carebridge_commons/carebridge_commons.dart';
 import 'package:carebridge_commons/helper/snackbar_helper.dart';
 import 'package:carebridge_models/carebridge_models.dart';
@@ -10,17 +11,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
   await _initHive();
 
-  /* 
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-   */
+  await Firebase.initializeApp();
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await _initNotification();
 
@@ -69,7 +68,7 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
-    _authenticationBloc = AuthenticationBloc();
+    _authenticationBloc = AuthenticationBloc()..add(AuthCheck());
     _tracingUserLocation = TracingUserLocationCubit();
   }
 
@@ -85,7 +84,12 @@ class _MainAppState extends State<MainApp> {
     return GlobalLoaderOverlay(
       child: MultiBlocProvider(
         providers: [
-          BlocProvider<AuthenticationBloc>.value(value: _authenticationBloc),
+          BlocProvider<AuthenticationBloc>(
+            create: (context) => _authenticationBloc,
+          ),
+          BlocProvider<TracingUserLocationCubit>(
+            create: (context) => _tracingUserLocation,
+          ),
         ],
         child: MaterialApp(
           home: BlocListener<TracingUserLocationCubit, TrackingState>(
@@ -104,7 +108,9 @@ class _MainAppState extends State<MainApp> {
               // }
             },
             child: BlocConsumer<AuthenticationBloc, AuthenticationState>(
+              bloc: _authenticationBloc,
               listener: (context, state) {
+                print("debug state: $state");
                 if (state is AuthFailed) {
                   SnackbarHelper.showSnackbarError(
                     context,
@@ -198,7 +204,10 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
+            const Text(
+              'You have pushed the button this many times:',
+              style: TextStyle(color: Colors.white),
+            ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,

@@ -13,14 +13,14 @@ class User extends Equatable {
   final int id;
   final String name;
   final String email;
-  final Biodata biodata;
+  final Biodata? biodata;
   final UserType userType;
 
   const User({
     required this.id,
     required this.name,
     required this.email,
-    required this.biodata,
+    this.biodata,
     required this.userType,
   });
 

@@ -1,14 +1,22 @@
 import 'package:carebridge_app/shared/exception/api_exception.dart';
+import 'package:carebridge_app/shared/helpers/devices_info_helper.dart';
 import 'package:carebridge_app/shared/service/dio_service.dart';
+import 'package:carebridge_models/accounts/DeviceInfo/DeviceInfo.dart';
 import 'package:dio/dio.dart';
 import 'package:carebridge_models/carebridge_models.dart';
 
 class AuthRepository {
   static Future<(String, User)> login(String email, String password) async {
     try {
+      final DeviceInfo deviceInfo = await DeviceInfoHelper.getDeviceInfo();
+      print(deviceInfo);
       final response = await DioService.dio.post(
         "/auth/login",
-        data: {"email": email, "password": password},
+        data: {
+          "email": email,
+          "password": password,
+          "deviceInfo": deviceInfo.toJson(),
+        },
       );
       final token = response.data["data"]["access_token"] as String?;
       final user = User.fromJson(response.data["data"]["user"]);
@@ -21,7 +29,8 @@ class AuthRepository {
       throw ApiException(
         e.response?.statusCode ?? 500,
         e.response?.data['message'] ?? "Something went wrong",
-        e.requestOptions.uri.toString() ?? "",
+        "${DioService.dio.options.baseUrl} asu ${e.requestOptions.uri.toString()}" ??
+            "",
       );
     } catch (e) {
       throw Exception(e.toString());
