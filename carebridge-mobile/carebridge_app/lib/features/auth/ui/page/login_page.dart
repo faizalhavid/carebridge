@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                           keyboardType: TextInputType.visiblePassword,
                           label: "Password",
                           controller: _passwordController,
-                          obscureText: true,
+                          obscureText: !isShowPassword,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Please enter your password.";

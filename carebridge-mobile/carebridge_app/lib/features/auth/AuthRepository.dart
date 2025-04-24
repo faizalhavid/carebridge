@@ -18,7 +18,7 @@ class AuthRepository {
           "deviceInfo": deviceInfo.toJson(),
         },
       );
-      final token = response.data["data"]["access_token"] as String?;
+      final token = response.data["data"]["token"]["accessToken"] as String?;
       final user = User.fromJson(response.data["data"]["user"]);
       if (token != null && token.isNotEmpty) {
         return (token, user);
@@ -29,8 +29,7 @@ class AuthRepository {
       throw ApiException(
         e.response?.statusCode ?? 500,
         e.response?.data['message'] ?? "Something went wrong",
-        "${DioService.dio.options.baseUrl} asu ${e.requestOptions.uri.toString()}" ??
-            "",
+        "${e.requestOptions.uri.toString()}" ?? "",
       );
     } catch (e) {
       throw Exception(e.toString());

@@ -7,13 +7,11 @@ class DioService {
 
   static void reset() {
     dio = Dio();
-    print("debug uri after setting: ${dio.options.baseUrl}");
   }
 
   static void init() {
     print("AppConfig.apiEndpoint: ${AppConfig.apiEndpoint}"); // Debug print
     dio.options.baseUrl = AppConfig.apiEndpoint;
-    print("debug uri after setting: ${dio.options.baseUrl}");
     dio.options.connectTimeout = const Duration(seconds: 500);
     dio.options.receiveTimeout = const Duration(seconds: 500);
     dio.options.headers = {'Content-Type': 'application/json'};
@@ -23,7 +21,6 @@ class DioService {
   static Future<void> initWithToken() async {
     final token = await SharedPrefTokenService.getToken();
     dio.options.baseUrl = AppConfig.apiEndpoint;
-    dio.options.baseUrl = '192.168.137.1:8080/api/v1';
     dio.options.connectTimeout = const Duration(seconds: 500);
     dio.options.receiveTimeout = const Duration(seconds: 500);
     dio.options.headers = {
