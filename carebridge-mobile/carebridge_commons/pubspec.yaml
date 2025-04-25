@@ -13,12 +13,14 @@ dependencies:
     path: ../carebridge_models
   carebridge_theme:
     path: ../carebridge_theme
+
   dio: ^5.8.0+1
   flutter:
     sdk: flutter
   http: ^1.3.0
   image_picker: ^1.1.2
   intl: ^0.20.2
+  local_auth: ^2.3.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0

@@ -100,6 +100,17 @@ class AppColors {
     end: Alignment.topRight,
     colors: [gradient.surface, gradient.splash],
   );
+Gradient get imageBackgroundGradient => LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  stops: [0.0, 0.57, 0.84],
+  colors: [
+    Color(0x66B9F6CA), // 40% opacity
+    Color(0x6634A853), // 40% opacity
+    primary
+  ],
+);
+
 
   ThemeData get primaryDatePicker => ThemeData.light().copyWith(
     primaryColor: primary,

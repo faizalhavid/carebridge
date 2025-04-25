@@ -1,16 +1,24 @@
 import 'package:carebridge_app/shared/exception/api_exception.dart';
+import 'package:carebridge_app/shared/helpers/devices_info_helper.dart';
 import 'package:carebridge_app/shared/service/dio_service.dart';
+import 'package:carebridge_models/accounts/DeviceInfo/DeviceInfo.dart';
 import 'package:dio/dio.dart';
 import 'package:carebridge_models/carebridge_models.dart';
 
 class AuthRepository {
   static Future<(String, User)> login(String email, String password) async {
     try {
+      final DeviceInfo deviceInfo = await DeviceInfoHelper.getDeviceInfo();
+      print(deviceInfo);
       final response = await DioService.dio.post(
-        "auth/login",
-        data: {"email": email, "password": password},
+        "/auth/login",
+        data: {
+          "email": email,
+          "password": password,
+          "deviceInfo": deviceInfo.toJson(),
+        },
       );
-      final token = response.data["data"]["access_token"] as String?;
+      final token = response.data["data"]["token"]["accessToken"] as String?;
       final user = User.fromJson(response.data["data"]["user"]);
       if (token != null && token.isNotEmpty) {
         return (token, user);
@@ -21,6 +29,7 @@ class AuthRepository {
       throw ApiException(
         e.response?.statusCode ?? 500,
         e.response?.data['message'] ?? "Something went wrong",
+        "${e.requestOptions.uri.toString()}" ?? "",
       );
     } catch (e) {
       throw Exception(e.toString());
@@ -36,10 +45,18 @@ class AuthRepository {
       if (response.statusCode == 200) {
         return true;
       } else {
-        throw ApiException(response.data['code'], response.data['message']);
+        throw ApiException(
+          response.data['code'],
+          response.data['message'],
+          response.realUri.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw ApiException(e.response?.data['code'], e.response?.data['message']);
+      throw ApiException(
+        e.response?.data['code'],
+        e.response?.data['message'],
+        e.requestOptions.uri.toString() ?? "",
+      );
     } catch (e) {
       throw Exception(e);
     }
@@ -71,10 +88,18 @@ class AuthRepository {
       if (response.statusCode == 200) {
         return true;
       } else {
-        throw ApiException(response.data['code'], response.data['message']);
+        throw ApiException(
+          response.data['code'],
+          response.data['message'],
+          response.realUri.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw ApiException(e.response?.data['code'], e.response?.data['message']);
+      throw ApiException(
+        e.response?.data['code'],
+        e.response?.data['message'],
+        e.requestOptions.uri.toString() ?? "",
+      );
     } catch (e) {
       throw Exception(e);
     }
@@ -87,10 +112,18 @@ class AuthRepository {
       if (result) {
         return true;
       } else {
-        throw ApiException(response.data['code'], response.data['message']);
+        throw ApiException(
+          response.data['code'],
+          response.data['message'],
+          response.realUri.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw ApiException(e.response?.data['code'], e.response?.data['message']);
+      throw ApiException(
+        e.response?.data['code'],
+        e.response?.data['message'],
+        e.requestOptions.uri.toString() ?? "",
+      );
     } catch (e) {
       throw Exception(e);
     }
@@ -104,12 +137,17 @@ class AuthRepository {
       if (result) {
         return true;
       } else {
-        throw ApiException(response.data["code"], response.data["message"]);
+        throw ApiException(
+          response.data["code"],
+          response.data["message"],
+          response.realUri.toString(),
+        );
       }
     } on DioException catch (e) {
       throw ApiException(
         e.response?.statusCode,
         e.response?.data['message'] ?? e.response?.statusMessage,
+        e.requestOptions.uri.toString() ?? "",
       );
     } catch (e) {
       throw Exception(e);

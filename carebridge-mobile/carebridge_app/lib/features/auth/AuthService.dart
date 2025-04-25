@@ -12,14 +12,39 @@ class AuthService {
     return true;
   }
 
+  static Future<bool> refreshToken() async {
+    try {
+      final refreshToken = await SharedPrefTokenService.getRefreshToken();
+      if (refreshToken == null) {
+        throw Exception("Refresh token not found");
+      }
+
+      final response = await DioService.dio.post('/auth/refresh', data: {
+        'refresh_token': refreshToken,
+      });
+
+      final newAccessToken = response.data['access_token'];
+      final newRefreshToken = response.data['refresh_token'];
+
+      await SharedPrefTokenService.setToken(newAccessToken);
+      await SharedPrefTokenService.setRefreshToken(newRefreshToken);
+      DioService.initWithToken();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static Future<bool> isLoggedIn() async {
     DioService.reset();
     try {
       final token = await SharedPrefTokenService.getToken();
+      print("debug token: $token");
       if (token != null) {
         await DioService.initWithToken();
         return true;
       } else {
+        print("dio service init");
         DioService.init();
         return false;
       }
