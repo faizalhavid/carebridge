@@ -54,6 +54,8 @@ Future<void> _initNotification() async {
   //await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 }
 
+final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
@@ -92,6 +94,7 @@ class _MainAppState extends State<MainApp> {
           ),
         ],
         child: MaterialApp(
+          navigatorKey: _navigatorKey,
           home: BlocListener<TracingUserLocationCubit, TrackingState>(
             bloc: _tracingUserLocation,
             listener: (context, state) {
