@@ -81,6 +81,7 @@ class _RegisterPageState extends State<RegisterPage> {
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Form(
                 key: _formKey,

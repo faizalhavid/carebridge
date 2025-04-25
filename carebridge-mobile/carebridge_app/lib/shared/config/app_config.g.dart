@@ -10,5 +10,5 @@ part of 'app_config.dart';
 // ignore_for_file: type=lint
 // generated_from: .env
 final class _AppConfig {
-  static const String apiEndpoint = '127.0.0.1:8000/api';
+  static const String apiEndpoint = 'http://192.168.31.215:8080/api/v1';
 }

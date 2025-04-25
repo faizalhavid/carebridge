@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_fonts.dart';
 
+enum LabelPosition {
+  top,
+  hint,
+}
+
 class AppTextField extends StatelessWidget {
   final String? label;
+  final TextStyle? labelStyle;
   final Widget? suffixLabel;
   final String? hint;
   final bool obscureText;
@@ -15,9 +21,12 @@ class AppTextField extends StatelessWidget {
   final bool? enable;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
+  final LabelPosition labelPosition;
+
   const AppTextField({
     Key? key,
     this.label,
+    this.labelStyle,
     this.suffixLabel,
     this.hint,
     this.obscureText = false,
@@ -29,6 +38,7 @@ class AppTextField extends StatelessWidget {
     this.enable,
     this.validator,
     this.keyboardType,
+    this.labelPosition = LabelPosition.hint,
   }) : super(key: key);
 
   @override
@@ -37,6 +47,14 @@ class AppTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (labelPosition == LabelPosition.top && label != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
+              label!,
+              style: labelStyle ?? appFonts.primary.ts,
+            ),
+          ),
         TextFormField(
           enabled: enable,
           controller: controller,
@@ -48,10 +66,7 @@ class AppTextField extends StatelessWidget {
           decoration: InputDecoration(
             filled: true,
             fillColor: appColors.white,
-            label:
-                label != null ? Text(label!, style: appFonts.primary.ts) : null,
-            labelStyle: appFonts.primary.ts,
-            hintText: label,
+            hintText: labelPosition == LabelPosition.hint ? label : hint,
             hintStyle: appFonts.caption.primary.ts,
             contentPadding: const EdgeInsets.symmetric(
               vertical: 12,
@@ -72,14 +87,14 @@ class AppTextField extends StatelessWidget {
   InputBorder get border {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(multiLines ? 25 : 100),
-      borderSide: BorderSide(color: appColors.primary),
+      borderSide: BorderSide(color: Colors.transparent),
     );
   }
 
   InputBorder get focusedBorder {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(multiLines ? 25 : 100),
-      borderSide: BorderSide(color: appColors.info),
+      borderSide: BorderSide(color: appColors.primary[400]!),
     );
   }
 
