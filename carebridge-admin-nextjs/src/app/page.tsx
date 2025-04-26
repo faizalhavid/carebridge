@@ -1,3 +1,4 @@
+import Button from "@mui/material/Button";
 import Image from "next/image";
 
 export default function Home() {
@@ -23,11 +24,11 @@ export default function Home() {
           <li className="tracking-[-.01em]">
             Save and see your changes instantly.
           </li>
-          <div className="bg-primary text-white p-4">
-            Test Warna Primary!
-          </div>
-
         </ol>
+
+        <Button variant="text">Text</Button>
+        <Button variant="contained">Contained</Button>
+        <Button variant="outlined">Outlined</Button>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
