@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Tailwind theme configuration */
+@theme {
+  /* Primary Colors */
+  --color-primary-50: #F0FDF4;
+  --color-primary-100: #DCFCE7;
+  --color-primary-200: #BBF7D0;
+  --color-primary-300: #86EFAC;
+  --color-primary-400: #59C877;
+  --color-primary-500: #22C55E;
+  --color-primary-600: #16A34A;
+  --color-primary-700: #15803D;
+  --color-primary-800: #166534;
+  --color-primary-900: #14532D;
+
+  /* Secondary Colors */
+  --color-secondary-50: #E8FFF3;
+  --color-secondary-100: #C4FFCB;
+  --color-secondary-200: #76E192;
+  --color-secondary-300: #59C877;
+  --color-secondary-400: #32A558;
+  --color-secondary-500: #008A41;
+
+  /* Neutral Colors */
+  --color-neutral-0: #FFFFFF;
+  --color-neutral-10: #F6F8FC;
+  --color-neutral-20: #F1F4F9;
+  --color-neutral-30: #E9EBEF;
+  --color-neutral-40: #CBD4E1;
+  --color-neutral-50: #94A3B8;
+  --color-neutral-60: #64748B;
+  --color-neutral-70: #475569;
+  --color-neutral-80: #27364B;
+  --color-neutral-90: #1E2A3B;
+  --color-neutral-100: #0F1A2A;
+
+  /* Info Colors */
+  --color-info-0: #F0F3FF;
+  --color-info-10: #B1C5F6;
+  --color-info-20: #3267E3;
+  --color-info-30: #114CD6;
+  --color-info-40: #11317D;
+
+  /* Success Colors */
+  --color-success-0: #E1F9F2;
+  --color-success-10: #B6EADC;
+  --color-success-20: #25C196;
+  --color-success-30: #1FA17D;
+  --color-success-40: #20563C;
+
+  /* Warning Colors */
+  --color-warning-0: #FFF9F2;
+  --color-warning-10: #EECEB0;
+  --color-warning-20: #CD7B2E;
+  --color-warning-30: #BF6919;
+  --color-warning-40: #734011;
+
+  /* Error Colors */
+  --color-error-0: #FFF5F9;
+  --color-error-10: #FFAACD;
+  --color-error-20: #FF006C;
+  --color-error-30: #D42A72;
+  --color-error-40: #800036;
+
+  /* Gradients */
+  --app-gradient-primary: linear-gradient(to bottom right, var(--color-gradient-0), var(--color-gradient-10));
+  --app-gradient-secondary: linear-gradient(to right, var(--color-gradient-0), var(--color-gradient-10));
+  --app-gradient-image-background: linear-gradient(to bottom, rgba(185, 246, 202, 0.4) 0%, rgba(52, 168, 83, 0.4) 57%, var(--color-primary-500) 84%);
+
+  /* Background and Foreground Colors */
+  --color-background: var(--color-neutral-10);
+  --color-foreground: var(--color-neutral-80);
+  
+
+
+}
