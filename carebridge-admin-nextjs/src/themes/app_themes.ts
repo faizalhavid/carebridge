@@ -1,10 +1,7 @@
 import { createTheme } from '@mui/material/styles';
 import { AppColors } from './app_colors';
-import { appFonts } from './app_fonts';
-import appTypography from './mui_components/app_typhography';
-import { AppButton } from './mui_components/app_button';
 
-const theme = createTheme({
+const appThemes = createTheme({
     palette: {
         primary: {
             light: AppColors.primary[300],
@@ -52,19 +49,22 @@ const theme = createTheme({
             disabled: AppColors.neutral[40],
         },
     },
-    // typography: {
-    //     fontFamily: 'Inter, Arial, sans-serif',
-    //     h1: appFonts.title.copyWith({ fontSize: 32 }).ts,
-    //     h2: appFonts.titleSmall.copyWith({ fontSize: 24 }).ts,
-    //     subtitle1: appFonts.subtitle.ts,
-    //     body1: appFonts.body.ts,
-    //     caption: appFonts.caption.ts,
-    //     button: appFonts.body.bold.ts,
-    // },
     components: {
-        MuiTypography: appTypography,
-        MuiButton: AppButton,
+        MuiAppBar: {
+            defaultProps: {
+                position: 'static',
+                color: 'primary',
+            },
+            styleOverrides: {
+                root: {
+                    backgroundColor: AppColors.primary[500],
+                    color: AppColors.neutral[0],
+                    boxShadow: 'none',
+                    padding: '0 16px',
+                },
+            },
+        },
     },
 });
 
-export default theme;
+export default appThemes;
