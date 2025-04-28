@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, ButtonProps, Icon, Typography } from "@mui/material";
 import { appFonts } from "../app_fonts";
-import { AppColors } from "../app_colors";
+import { appColors } from "../app_colors";
 
 enum AppButtonType {
     normal = "normal",
@@ -81,7 +81,7 @@ const AppButton: React.FC<AppButtonProps> = function AppButton({
 
     // Icon color
     const getIconColor = (): string => {
-        return isDisabled ? AppColors.neutral[40] : AppColors.neutral[0];
+        return isDisabled ? appColors.neutral[40] : appColors.neutral[0];
     };
 
     // Text style
@@ -89,16 +89,16 @@ const AppButton: React.FC<AppButtonProps> = function AppButton({
         if (isDisabled) {
             switch (buttonType) {
                 case AppButtonType.small:
-                    return { ...appFonts.caption.ts, color: AppColors.neutral[40] };
+                    return { ...appFonts.caption.ts, color: appColors.neutral[40] };
                 default:
-                    return { ...appFonts.body.ts, color: AppColors.neutral[40] };
+                    return { ...appFonts.body.ts, color: appColors.neutral[40] };
             }
         } else {
             switch (buttonType) {
                 case AppButtonType.small:
-                    return { ...appFonts.caption.ts, color: AppColors.primary[500] };
+                    return { ...appFonts.caption.ts, color: appColors.primary[500] };
                 default:
-                    return { ...appFonts.body.ts, color: AppColors.primary[500] };
+                    return { ...appFonts.body.ts, color: appColors.primary[500] };
             }
         }
     };
@@ -158,8 +158,8 @@ const AppButton: React.FC<AppButtonProps> = function AppButton({
             disabled={isDisabled}
             style={{
                 backgroundColor: isDisabled
-                    ? AppColors.neutral[40]
-                    : backgroundColor || AppColors.primary[500],
+                    ? appColors.neutral[40]
+                    : backgroundColor || appColors.primary[500],
                 borderRadius,
                 padding: 0,
                 width: isFitParent ? "100%" : "auto",
