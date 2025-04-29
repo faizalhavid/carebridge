@@ -3,11 +3,7 @@ import { Button, ButtonProps, Icon, Typography } from "@mui/material";
 import { appFonts } from "../app_fonts";
 import { appColors } from "../app_colors";
 
-enum AppButtonType {
-    normal = "normal",
-    big = "big",
-    small = "small",
-}
+
 
 interface AppButtonProps extends Omit<ButtonProps, "color" | "onClick"> {
     customColor?: string;
@@ -18,13 +14,14 @@ interface AppButtonProps extends Omit<ButtonProps, "color" | "onClick"> {
     icon?: React.ReactNode;
     suffixIcon?: React.ReactNode;
     adjustIconSize?: number;
-    buttonType?: AppButtonType;
+    buttonType?: "normal" | "big" | "small";
     isFitParent?: boolean;
     backgroundColor?: string;
     children?: React.ReactNode;
+    variant?: "text" | "outlined" | "contained";
 }
 
-const AppButton: React.FC<AppButtonProps> = function AppButton({
+export const AppButton: React.FC<AppButtonProps> = function AppButton({
     customColor: color,
     onTap,
     isDisabled = false,
@@ -33,35 +30,34 @@ const AppButton: React.FC<AppButtonProps> = function AppButton({
     icon,
     suffixIcon,
     adjustIconSize = 0,
-    buttonType = AppButtonType.normal,
+    buttonType = "normal",
     isFitParent = false,
     backgroundColor,
+    variant = "contained",
     children,
     ...props
 }): React.ReactElement {
-    // Border radius
     const borderRadius = 100;
 
-    // Padding based on button type
     const getPadding = (): React.CSSProperties["padding"] => {
         if (icon && !text) {
             switch (buttonType) {
-                case AppButtonType.normal:
+                case "normal":
                     return "8px";
-                case AppButtonType.big:
+                case "big":
                     return "10px";
-                case AppButtonType.small:
+                case "small":
                     return "8px";
                 default:
                     return undefined;
             }
         } else {
             switch (buttonType) {
-                case AppButtonType.normal:
+                case "normal":
                     return "16px 30px";
-                case AppButtonType.big:
+                case "big":
                     return "8px 18px";
-                case AppButtonType.small:
+                case "small":
                     return "6px 12px";
                 default:
                     return undefined;
@@ -72,7 +68,7 @@ const AppButton: React.FC<AppButtonProps> = function AppButton({
     // Icon size
     const getIconSize = (): number => {
         switch (buttonType) {
-            case AppButtonType.small:
+            case "small":
                 return (appFonts.caption.ts.fontSize ?? 12) + 1 + adjustIconSize;
             default:
                 return (appFonts.body.ts.fontSize ?? 14) + 1 + adjustIconSize;
@@ -88,14 +84,14 @@ const AppButton: React.FC<AppButtonProps> = function AppButton({
     const getTextStyle = (): React.CSSProperties => {
         if (isDisabled) {
             switch (buttonType) {
-                case AppButtonType.small:
+                case "small":
                     return { ...appFonts.caption.ts, color: appColors.neutral[40] };
                 default:
                     return { ...appFonts.body.ts, color: appColors.neutral[40] };
             }
         } else {
             switch (buttonType) {
-                case AppButtonType.small:
+                case "small":
                     return { ...appFonts.caption.ts, color: appColors.primary[500] };
                 default:
                     return { ...appFonts.body.ts, color: appColors.primary[500] };
@@ -148,7 +144,7 @@ const AppButton: React.FC<AppButtonProps> = function AppButton({
                     </Icon>
                 )
             }
-        </div>
+        </div >
     );
 
     return (
@@ -157,18 +153,13 @@ const AppButton: React.FC<AppButtonProps> = function AppButton({
             onClick={onTap}
             disabled={isDisabled}
             style={{
-                backgroundColor: isDisabled
-                    ? appColors.neutral[40]
-                    : backgroundColor || appColors.primary[500],
-                borderRadius,
-                padding: 0,
-                width: isFitParent ? "100%" : "auto",
+                // width: isFitParent ? "100%" : "auto",
                 ...props.style,
             }}
+            variant={variant}
         >
             {children || renderButtonChild()}
+
         </Button>
     );
 };
-
-export { AppButton, AppButtonType };

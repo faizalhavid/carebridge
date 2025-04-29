@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import ThemeRegistry from "@/themes/theme_registery";
+import ThemeRegistry from "@/themes/mui_components/theme_registery";
 
 import "./globals.css";
 

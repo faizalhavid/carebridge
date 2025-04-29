@@ -64,6 +64,17 @@ const appThemes = createTheme({
                 },
             },
         },
+        MuiButton: {
+            styleOverrides: {
+                root: {
+                    textTransform: "none",
+                    shadow: "none",
+                    boxShadow: "none",
+                },
+            },
+        },
+
+
     },
 });
 

@@ -17,10 +17,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <img
                 src="/images/auth-hero-1.jpg"
                 alt="Logo"
-                className="object-cover h-full w-1/2"
+                className="object-cover w-1/2 h-full"
             />
-            <main className="flex flex-col items-center justify-center flex-1">
-
+            <main
+                className="flex flex-col justify-center flex-1 px-12 py-28 h-full gap-3"
+            >
                 {children}
             </main>
         </div>
