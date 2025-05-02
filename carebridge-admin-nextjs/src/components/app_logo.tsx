@@ -13,7 +13,7 @@ interface AppLogoProps {
 const AppLogo = ({
     colors = {
         primaryText: "text-primary-500",
-        secondaryText: "text-neutral-800",
+        secondaryText: "text-neutral-700",
         dotColor: "bg-yellow-400",
         dotHoverColor: "bg-yellow-500",
     },
