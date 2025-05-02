@@ -4,6 +4,7 @@ import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { Mail, Visibility } from "@mui/icons-material";
 import { IconButton, Typography } from "@mui/material";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 
 
@@ -18,7 +19,7 @@ export default function RegisterPage() {
     return (
         <>
 
-            <div className="flex flex-col gap-2 mb-10">
+            <div className="flex flex-col gap-2 mb-10 items-center md:items-start">
                 <AppLogo size="large" />
                 <p>Welcome to CareBridge</p>
             </div>
@@ -40,12 +41,12 @@ export default function RegisterPage() {
                     Forgot Password ?
                 </AppButton>
             </div> */}
-            <AppButton>
+            <AppButton onTap={() => { redirect('/auth/verification'); }}>
                 Register
             </AppButton>
             <Typography variant="body2" className="text-center mt-4">
                 Already have an account?{" "}
-                <AppButton variant="text" isFitParent>
+                <AppButton variant="text" isFitParent onTap={() => { redirect('/auth/login'); }}>
                     Sign In
                 </AppButton>
             </Typography>

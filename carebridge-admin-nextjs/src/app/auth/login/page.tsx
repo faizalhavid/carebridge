@@ -2,18 +2,66 @@
 import AppLogo from "@/components/app_logo";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
-import { Mail, Visibility } from "@mui/icons-material";
-import { IconButton, Typography } from "@mui/material";
+import { Mail, Send, Visibility } from "@mui/icons-material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, TextField, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [openForm, setOpenForm] = useState(false);
+
+
+    const renderResendMailForm = () => {
+        const handleClose = () => setOpenForm(false);
+
+        return (
+            <Dialog
+                open={openForm}
+                onClose={handleClose}
+                slotProps={{
+                    paper: {
+                        component: 'form',
+                        onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+                            event.preventDefault();
+                            const formData = new FormData(event.currentTarget);
+                            const formJson = Object.fromEntries(formData.entries());
+                            const email = formJson.email as string;
+                            console.log("Resend OTP to:", email);
+                            handleClose();
+                        },
+                    },
+                }}
+            >
+                <DialogTitle>Resend OTP</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Enter a your email address to send the OTP.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        required
+                        margin="dense"
+                        id="email"
+                        name="email"
+                        label="Email Address"
+                        type="email"
+                        fullWidth
+                        variant="standard"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button type="submit" endIcon={<Send />} variant="contained">Send</Button>
+                </DialogActions>
+            </Dialog>
+        );
+    };
 
     return (
         <>
-            <div className="flex flex-col gap-2 mb-10">
+            <div className="flex flex-col gap-2 mb-10 items-center md:items-start">
                 <AppLogo size="large" />
                 <p>Please login to continue</p>
             </div>
@@ -41,7 +89,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
             />
             <div className="flex flex-row justify-end gap-2 mt-2 mb-4">
-                <AppButton variant="text" isFitParent>
+                <AppButton variant="text" isFitParent onTap={() => { setOpenForm(!openForm); }}>
                     Forgot Password ?
                 </AppButton>
             </div>
@@ -54,6 +102,7 @@ export default function LoginPage() {
                     Sign Up
                 </AppButton>
             </Typography>
+            {renderResendMailForm()}
         </>
     );
 }

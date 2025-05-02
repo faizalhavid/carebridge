@@ -109,19 +109,6 @@ export const AppButton: React.FC<AppButtonProps> = function AppButton({
                 padding: getPadding(),
             }}
         >
-            {icon && (
-                <Icon
-                    style={
-                        {
-                            fontSize: getIconSize(),
-                            color: getIconColor(),
-                            marginRight: text ? 4 : 0,
-                        }
-                    }
-                >
-                    {icon}
-                </Icon>
-            )}
             {
                 text && (
                     <Typography style={{ ...getTextStyle(), ...textStyle }}>
@@ -129,21 +116,7 @@ export const AppButton: React.FC<AppButtonProps> = function AppButton({
                     </Typography>
                 )
             }
-            {
-                suffixIcon && (
-                    <Icon
-                        style={
-                            {
-                                fontSize: getIconSize() - 2,
-                                color: getIconColor(),
-                                marginLeft: text ? 4 : 0,
-                            }
-                        }
-                    >
-                        {suffixIcon}
-                    </Icon>
-                )
-            }
+
         </div >
     );
 
@@ -152,6 +125,8 @@ export const AppButton: React.FC<AppButtonProps> = function AppButton({
             {...props}
             onClick={onTap}
             disabled={isDisabled}
+            startIcon={icon && <Icon style={{ fontSize: getIconSize(), color: getIconColor() }}>{icon}</Icon>}
+            endIcon={suffixIcon && <Icon style={{ fontSize: getIconSize(), color: getIconColor() }}>{suffixIcon}</Icon>}
             style={{
                 // width: isFitParent ? "100%" : "auto",
                 ...props.style,
