@@ -1,7 +1,7 @@
 "use client";
 import AppLogo from "@/components/app_logo";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from "@mui/material";
-import OtpFields from "../components/otp_fields";
+import OtpFields from "../_components/otp_fields";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
