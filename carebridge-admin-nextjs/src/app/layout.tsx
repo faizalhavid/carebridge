@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import ThemeRegistry from "@/themes/mui_components/theme_registery";
 
 import "./globals.css";
+import 'material-icons/iconfont/material-icons.css';
+
 
 
 const geistSans = Geist({

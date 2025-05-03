@@ -1,22 +1,25 @@
 import Link from "next/link";
 
+
+
+
+interface ColorLogoProps {
+
+    primaryText: string;
+    secondaryText: string;
+    dotColor: string;
+    dotHoverColor: string;
+
+}
+
 interface AppLogoProps {
-    colors?: {
-        primaryText: string;
-        secondaryText: string;
-        dotColor: string;
-        dotHoverColor: string;
-    };
+
+    variant?: 'dark' | 'light' | 'default';
     size?: 'small' | 'medium' | 'large';
 }
 
 const AppLogo = ({
-    colors = {
-        primaryText: "text-primary-500",
-        secondaryText: "text-neutral-700",
-        dotColor: "bg-yellow-400",
-        dotHoverColor: "bg-yellow-500",
-    },
+    variant = 'default',
     size = 'medium',
 }: AppLogoProps) => {
     const sizeClasses = {
@@ -33,8 +36,33 @@ const AppLogo = ({
             text: "text-4xl",
         },
     };
+    const variantClasses = {
+        dark: {
+            primaryText: "text-white",
+            secondaryText: "text-gray-400",
+            dotColor: "bg-gray-600",
+            dotHoverColor: "bg-gray-400",
+        },
+        light: {
+            primaryText: "text-gray-50",
+            secondaryText: "text-gray-50",
+            dotColor: "bg-primary-800",
+            dotHoverColor: "bg-gray-500",
+        },
+        default: {
+            primaryText: "text-primary-800",
+            secondaryText: "text-neutral-50",
+            dotColor: "bg-yellow-300",
+            dotHoverColor: "bg-yellow-500",
+        },
+    };
+
+
+    const colors: ColorLogoProps = variantClasses[variant];
 
     const currentSize = sizeClasses[size];
+
+
 
     return (
         <Link href="/" className="w-auto no-underline group p-0 m-0">
