@@ -38,22 +38,22 @@ const AppLogo = ({
     };
     const variantClasses = {
         dark: {
-            primaryText: "text-white",
-            secondaryText: "text-gray-400",
-            dotColor: "bg-gray-600",
-            dotHoverColor: "bg-gray-400",
+            primaryText: "text-neutral-700",
+            secondaryText: "text-neutral-700",
+            dotColor: "bg-yellow-500",
+            dotHoverColor: "bg-yellow-300",
         },
         light: {
-            primaryText: "text-gray-50",
-            secondaryText: "text-gray-50",
-            dotColor: "bg-primary-800",
-            dotHoverColor: "bg-gray-500",
+            primaryText: "text-white",
+            secondaryText: "text-white",
+            dotColor: "bg-yellow-500",
+            dotHoverColor: "bg-yellow-300",
         },
         default: {
-            primaryText: "text-primary-800",
-            secondaryText: "text-neutral-50",
-            dotColor: "bg-yellow-300",
-            dotHoverColor: "bg-yellow-500",
+            primaryText: "text-primary-500",
+            secondaryText: "text-neutral-700",
+            dotColor: "bg-yellow-500",
+            dotHoverColor: "bg-yellow-300",
         },
     };
 
@@ -67,22 +67,41 @@ const AppLogo = ({
     return (
         <Link href="/" className="w-auto no-underline group p-0 m-0">
             <div className="inline-flex items-center justify-start transform transition-transform duration-300 group-hover:scale-105">
-                <div className="flex flex-row gap-0.5 relative left-4.25">
+                <div className="flex flex-row gap-0.5 relative left-4.25 z-10">
                     <span
-                        className={`${currentSize.dot} ${colors.dotColor} rounded-full transition-colors duration-300 group-hover:${colors.dotHoverColor}`}
+                        className={`${currentSize.dot} bg-yellow-300 rounded-full transition-colors duration-300 group-hover:bg-yellow-200`}
                     ></span>
                     <span
-                        className={`${currentSize.dot} ${colors.dotColor} rounded-full transition-colors duration-300 group-hover:${colors.dotHoverColor}`}
+                        className={`${currentSize.dot} bg-yellow-300 rounded-full transition-colors duration-300 group-hover:bg-yellow-200`}
                     ></span>
                     <span
-                        className={`${currentSize.dot} ${colors.dotColor} rounded-full transition-colors duration-300 group-hover:${colors.dotHoverColor}`}
+                        className={`${currentSize.dot} bg-yellow-300 rounded-full transition-colors duration-300 group-hover:bg-yellow-200`}
                     ></span>
                 </div>
-                <div className="px-0.5">
+                <div className="px-0.5 flex">
                     <span
-                        className={`font-semibold ${currentSize.text} transition-colors duration-300 opacity-100 group-hover:opacity-80 ${colors.primaryText}`}
+                        className={`font-semibold ${currentSize.text} transition-colors duration-300 opacity-100 group-hover:opacity-80 ${colors.primaryText} animate-fade`}
+                        style={{ animationDelay: "0ms" }}
                     >
-                        Care
+                        C
+                    </span>
+                    <span
+                        className={`font-semibold ${currentSize.text} transition-colors duration-300 opacity-100 group-hover:opacity-80 ${colors.primaryText} animate-fade`}
+                        style={{ animationDelay: "100ms" }}
+                    >
+                        a
+                    </span>
+                    <span
+                        className={`font-semibold ${currentSize.text} transition-colors duration-300 opacity-100 group-hover:opacity-80 ${colors.primaryText} animate-fade`}
+                        style={{ animationDelay: "200ms" }}
+                    >
+                        r
+                    </span>
+                    <span
+                        className={`font-semibold ${currentSize.text} transition-colors duration-300 opacity-100 group-hover:opacity-80 ${colors.primaryText} animate-fade`}
+                        style={{ animationDelay: "300ms" }}
+                    >
+                        e
                     </span>
                     <span
                         className={`${colors.secondaryText} font-semibold ${currentSize.text} transition-colors duration-300 group-hover:opacity-80 ${colors.secondaryText} opacity-100`}

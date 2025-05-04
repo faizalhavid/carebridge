@@ -43,6 +43,7 @@ export const AppButton: React.FC<AppButtonProps> = function AppButton({
         <Button
             {...props}
             onClick={onTap}
+            color={isDisabled ? "inherit" : backgroundColor}
             disabled={isDisabled}
             startIcon={icon}
             endIcon={endIcon}

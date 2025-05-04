@@ -93,7 +93,7 @@ export default function RegisterPage() {
                         <Typography>Password: {formStateValue.password}</Typography>
                         <AppButton
                             text="Submit"
-                            onTap={() => alert("Form submitted!")}
+                            onClick={() => alert("Form submitted!")}
                         />
                     </Box>
                 );
