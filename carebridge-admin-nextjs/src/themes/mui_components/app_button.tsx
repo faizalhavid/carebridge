@@ -6,8 +6,7 @@ import { appColors } from "../app_colors";
 
 
 interface AppButtonProps extends Omit<ButtonProps, "color" | "onClick"> {
-    customColor?: string;
-    onTap?: () => void;
+    onClick?: () => void;
     isDisabled?: boolean;
     text?: string;
     textStyle?: React.CSSProperties;
@@ -16,14 +15,13 @@ interface AppButtonProps extends Omit<ButtonProps, "color" | "onClick"> {
     adjustIconSize?: number;
     buttonType?: "normal" | "big" | "small";
     isFitParent?: boolean;
-    backgroundColor?: string;
+    backgroundColor?: "inherit" | "primary" | "secondary" | "success" | "error" | "info" | "warning",
     children?: React.ReactNode;
     variant?: "text" | "outlined" | "contained";
 }
 
 export const AppButton: React.FC<AppButtonProps> = function AppButton({
-    customColor: color,
-    onTap,
+    onClick: onTap,
     isDisabled = false,
     text,
     textStyle,
@@ -37,50 +35,8 @@ export const AppButton: React.FC<AppButtonProps> = function AppButton({
     children,
     ...props
 }): React.ReactElement {
-    const borderRadius = 100;
 
-    const getPadding = (): React.CSSProperties["padding"] => {
-        if (icon && !text) {
-            switch (buttonType) {
-                case "normal":
-                    return "8px";
-                case "big":
-                    return "10px";
-                case "small":
-                    return "8px";
-                default:
-                    return undefined;
-            }
-        } else {
-            switch (buttonType) {
-                case "normal":
-                    return "16px 30px";
-                case "big":
-                    return "8px 18px";
-                case "small":
-                    return "6px 12px";
-                default:
-                    return undefined;
-            }
-        }
-    };
 
-    // Icon size
-    const getIconSize = (): number => {
-        switch (buttonType) {
-            case "small":
-                return (appFonts.caption.ts.fontSize ?? 12) + 1 + adjustIconSize;
-            default:
-                return (appFonts.body.ts.fontSize ?? 14) + 1 + adjustIconSize;
-        }
-    };
-
-    // Icon color
-    const getIconColor = (): string => {
-        return isDisabled ? appColors.neutral[40] : appColors.neutral[0];
-    };
-
-    // Text style
     const getTextStyle = (): React.CSSProperties => {
         if (isDisabled) {
             switch (buttonType) {
@@ -99,42 +55,20 @@ export const AppButton: React.FC<AppButtonProps> = function AppButton({
         }
     };
 
-    // Button child content
-    const renderButtonChild = () => (
-        <div
-            style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: getPadding(),
-            }}
-        >
-            {
-                text && (
-                    <Typography style={{ ...getTextStyle(), ...textStyle }}>
-                        {text}
-                    </Typography>
-                )
-            }
-
-        </div >
-    );
-
     return (
         <Button
             {...props}
             onClick={onTap}
+            color={isDisabled ? "inherit" : backgroundColor}
             disabled={isDisabled}
-            startIcon={icon && <Icon style={{ fontSize: getIconSize(), color: getIconColor() }}>{icon}</Icon>}
-            endIcon={suffixIcon && <Icon style={{ fontSize: getIconSize(), color: getIconColor() }}>{suffixIcon}</Icon>}
+            startIcon={icon}
+            endIcon={suffixIcon}
             style={{
-                // width: isFitParent ? "100%" : "auto",
-                ...props.style,
+                ...(isFitParent ? { width: "100%" } : {}),
             }}
             variant={variant}
         >
-            {children || renderButtonChild()}
-
+            {children}
         </Button>
     );
 };

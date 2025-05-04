@@ -89,7 +89,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
             />
             <div className="flex flex-row justify-end gap-2 mt-2 mb-4">
-                <AppButton variant="text" isFitParent onTap={() => { setOpenForm(!openForm); }}>
+                <AppButton variant="text" isFitParent onClick={() => { setOpenForm(!openForm); }}>
                     Forgot Password ?
                 </AppButton>
             </div>
@@ -98,7 +98,7 @@ export default function LoginPage() {
             </AppButton>
             <Typography variant="body2" className="text-center mt-4">
                 Don't have an account?{" "}
-                <AppButton variant="text" isFitParent onTap={() => { redirect('/auth/register'); }}>
+                <AppButton variant="text" isFitParent onClick={() => { redirect('/auth/register'); }}>
                     Sign Up
                 </AppButton>
             </Typography>

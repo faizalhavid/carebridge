@@ -67,8 +67,10 @@
     --app-gradient-secondary: linear-gradient(to right, var(--color-gradient-0), var(--color-gradient-10));
     --app-gradient-image-background: linear-gradient(to bottom, rgba(185, 246, 202, 0.4) 0%, rgba(52, 168, 83, 0.4) 57%, var(--color-primary-500) 84%);
   
+
     /* Background and Foreground Colors */
     --color-background: var(--color-neutral-10);
     --color-foreground: var(--color-neutral-80);
     
   }
+

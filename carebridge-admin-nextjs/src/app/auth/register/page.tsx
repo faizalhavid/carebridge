@@ -41,12 +41,12 @@ export default function RegisterPage() {
                     Forgot Password ?
                 </AppButton>
             </div> */}
-            <AppButton onTap={() => { redirect('/auth/verification'); }}>
+            <AppButton onClick={() => { redirect('/auth/verification'); }}>
                 Register
             </AppButton>
             <Typography variant="body2" className="text-center mt-4">
                 Already have an account?{" "}
-                <AppButton variant="text" isFitParent onTap={() => { redirect('/auth/login'); }}>
+                <AppButton variant="text" isFitParent onClick={() => { redirect('/auth/login'); }}>
                     Sign In
                 </AppButton>
             </Typography>

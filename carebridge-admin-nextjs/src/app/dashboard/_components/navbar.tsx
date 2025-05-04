@@ -9,10 +9,11 @@ import pages from "next/dist/build/templates/pages";
 
 interface NavbarDashboardProps {
     isSidebarExpanded: boolean;
+    toggleSidebar?: () => void
     items: Array<MenuInterface>;
 }
 
-export default function NavbarDashboard({ isSidebarExpanded, items: menuNavbar }: NavbarDashboardProps) {
+export default function NavbarDashboard({ isSidebarExpanded, items, toggleSidebar }: NavbarDashboardProps) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -22,34 +23,33 @@ export default function NavbarDashboard({ isSidebarExpanded, items: menuNavbar }
     const handleClose = () => {
         setAnchorEl(null);
     };
+
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-
             <AppBar position="static">
                 <Toolbar>
-                    {!isSidebarExpanded && (
+                    {isMobile && (
                         <IconButton
                             size="large"
                             edge="start"
                             color="inherit"
                             aria-label="menu"
                             sx={{ mr: 2 }}
+                            onClick={toggleSidebar}
                         >
                             <MenuIcon />
                         </IconButton>
                     )}
-                    <Box component="div" sx={{ flexGrow: 1 }}>
-                        {
-                            !isSidebarExpanded && (
-                                <AppLogo />
-                            )
-                        }
-                    </Box>
+                    <div
+                        className={`flex flex-grow items-center justify-center`}
+                    >
+                        {!isSidebarExpanded && <AppLogo size="small" variant="light" />}
+                    </div>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {menuNavbar.map((item, index) => (
+                        {items.map((item, index) => (
                             <Button
                                 key={index}
                                 onClick={() => console.log(item.url)}
@@ -60,39 +60,39 @@ export default function NavbarDashboard({ isSidebarExpanded, items: menuNavbar }
                         ))}
                     </Box>
 
-                    <div>
-                        <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleMenu}
-                            color="inherit"
-                        >
-                            <AccountCircle />
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <MenuItem onClick={handleClose}>Profile</MenuItem>
-                            <MenuItem onClick={handleClose}>My account</MenuItem>
-                        </Menu>
-                    </div>
+
+                    <IconButton
+                        size="large"
+                        aria-label="account of current user"
+                        aria-controls="menu-appbar"
+                        aria-haspopup="true"
+                        onClick={handleMenu}
+                        color="inherit"
+                    >
+                        <AccountCircle />
+                    </IconButton>
+                    <Menu
+                        id="menu-appbar"
+                        anchorEl={anchorEl}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        keepMounted
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
+                    >
+                        <MenuItem onClick={handleClose}>Profile</MenuItem>
+                        <MenuItem onClick={handleClose}>My account</MenuItem>
+                    </Menu>
+
 
                 </Toolbar>
             </AppBar>
-        </Box>
+        </Box >
     )
 }

@@ -101,7 +101,7 @@ export default function VerificationPage() {
                 size="large"
                 fullWidth
                 sx={{ mt: 2 }}
-                onTap={() => console.log("OTP verified")}
+                onClick={() => console.log("OTP verified")}
             >
                 Verify OTP
             </AppButton>
@@ -115,7 +115,7 @@ export default function VerificationPage() {
                 size="small"
                 fullWidth
                 sx={{ mt: 1 }}
-                onTap={handleResendOtp}
+                onClick={handleResendOtp}
                 isDisabled={isResendDisabled}
             >
                 Resend OTP

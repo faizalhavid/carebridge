@@ -4,7 +4,7 @@ import SidebarDashboard from "./_components/sidebar";
 import DashboardFooter from "./_components/footer";
 import NavbarDashboard from "./_components/navbar";
 import { Menu } from "@/interfaces/models/menu";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { ChevronLeft } from "@mui/icons-material";
 import { Box, IconButton, useMediaQuery, Theme } from "@mui/material";
 
 export default function DashboardLayout({
@@ -34,12 +34,14 @@ export default function DashboardLayout({
         },
     ];
 
-    const [isSidebarExpanded, setisSidebarExpanded] = React.useState(true);
+    const [isSidebarExpanded, setIsSidebarExpanded] = React.useState(true);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     useEffect(() => {
-        setisSidebarExpanded(!isMobile);
+        setIsSidebarExpanded(!isMobile);
     }, [isMobile]);
+
+
 
     return (
         <main className="flex flex-col min-h-screen bg-gray-100">
@@ -47,10 +49,10 @@ export default function DashboardLayout({
                 <SidebarDashboard
                     items={menus}
                     isExpand={isSidebarExpanded}
-                    onClikcButtonExpand={() => setisSidebarExpanded(!isSidebarExpanded)}
+                    onClickButtonExpand={() => setIsSidebarExpanded((prev) => !prev)}
                 />
                 <div className="flex-1 flex flex-col">
-                    <NavbarDashboard isSidebarExpanded items={menuNavbar} />
+                    <NavbarDashboard isSidebarExpanded items={menuNavbar} toggleSidebar={() => setIsSidebarExpanded((prev) => !prev)} />
                     {!isMobile && (
                         <Box
                             sx={{
@@ -62,7 +64,7 @@ export default function DashboardLayout({
                             }}
                         >
                             <IconButton
-                                onClick={() => setisSidebarExpanded(!isSidebarExpanded)}
+                                onClick={() => setIsSidebarExpanded((prev) => !prev)}
                                 className="absolute right-[12px] top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md"
                                 sx={{
                                     transition: "transform 0.3s ease-in-out",
