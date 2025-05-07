@@ -1,5 +1,7 @@
 "use client";
 import AppLogo from "@/components/app_logo";
+import { loginService } from "@/lib/api/auth";
+import { useAuthStore } from "@/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { Mail, Send, Visibility } from "@mui/icons-material";
@@ -12,6 +14,28 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [openForm, setOpenForm] = useState(false);
 
+    const { login, setLoading, setLogout } = useAuthStore.getState();
+
+    const handleLogin = async () => {
+        setLoading(true);
+        try {
+            const res = await loginService(email, password);
+            // @ts-ignore
+            if (res.status === 200) {
+                // @ts-ignore
+                const data = await res.json();
+                login(data.user, data.accessToken, data.refreshToken);
+                redirect("/dashboard");
+            } else {
+                // @ts-ignore
+                console.error("Login failed:", res.statusText);
+            }
+        } catch (error) {
+            console.error("Login failed:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const renderResendMailForm = () => {
         const handleClose = () => setOpenForm(false);
@@ -93,7 +117,7 @@ export default function LoginPage() {
                     Forgot Password ?
                 </AppButton>
             </div>
-            <AppButton>
+            <AppButton onClick={handleLogin} isFitParent endIcon={<Send />}>
                 Login
             </AppButton>
             <Typography variant="body2" className="text-center mt-4">
