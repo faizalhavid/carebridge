@@ -1,11 +1,11 @@
 "use client";
 import AppLogo from "@/components/app_logo";
-import { loginService } from "@/lib/api/auth";
+import AuthService from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { Mail, Send, Visibility } from "@mui/icons-material";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, TextField, Typography } from "@mui/material";
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, TextField, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 
@@ -14,12 +14,12 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [openForm, setOpenForm] = useState(false);
 
-    const { login, setLoading, setLogout } = useAuthStore.getState();
+    const { login, setLoading, setLogout, isLoading } = useAuthStore.getState();
 
     const handleLogin = async () => {
         setLoading(true);
         try {
-            const res = await loginService(email, password);
+            const res = await AuthService.login(email, password);
             // @ts-ignore
             if (res.status === 200) {
                 // @ts-ignore
@@ -117,7 +117,7 @@ export default function LoginPage() {
                     Forgot Password ?
                 </AppButton>
             </div>
-            <AppButton onClick={handleLogin} isFitParent endIcon={<Send />}>
+            <AppButton onClick={handleLogin} disabled={isLoading} isFitParent endIcon={isLoading && <CircularProgress size={20} />}>
                 Login
             </AppButton>
             <Typography variant="body2" className="text-center mt-4">

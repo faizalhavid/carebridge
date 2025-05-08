@@ -1,7 +1,7 @@
 
 
 export async function fetcher<T>(url: string, options?: RequestInit): Promise<T> {
-    const res = await fetch(process.env.NEXT_PUBLIC_API_URL + url, {
+    const res = await fetch(process.env.NEXT_PUBLIC_API_URL + `/${process.env.NEXT_PUBLIC_API_VERSION}` + url, {
         ...options,
         headers: {
             "Content-TYpe": "application/json",
