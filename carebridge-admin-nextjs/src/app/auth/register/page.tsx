@@ -4,6 +4,10 @@ import { Stepper, Step, StepLabel, Button, Typography, Box } from "@mui/material
 import AppLogo from "@/components/app_logo";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import OtpFields from "../_components/otp_fields";
+import { RegEmail } from "./_shared/reg-email";
+import { Verification } from "./_shared/verification";
+import { RegStatus } from "./_shared/reg-status";
+import { RegBiodata } from "./_shared/reg-bio";
 
 export default function RegisterPage() {
     const steps = [
@@ -34,72 +38,23 @@ export default function RegisterPage() {
         switch (step) {
             case 0: // Register Email
                 return (
-                    <>
-                        <AppTextField
-                            variant="outlined"
-                            sizes="small"
-                            type="email"
-                            label="Email Address"
-                            helperText="Enter a valid email to proceed"
-                            isRequired
-                            value={formStateValue.email}
-                            onChange={(e) => setFormStateValue({ ...formStateValue, email: e.target.value })}
-                        />
-                    </>
+                    <RegEmail />
                 );
             case 1: // Verify OTP
                 return (
-                    <>
-                        <OtpFields
-                            length={6}
-                            onChange={(otp) => setFormStateValue({ ...formStateValue, otp })}
-                            value={formStateValue.otp}
-                        />
-                        <Typography variant="body2" textAlign="center" sx={{ mt: 2 }}>
-                            Enter the OTP sent to your email.
-                        </Typography>
-                    </>
+                    <Verification />
                 );
             case 2: // Verification Status
                 return (
-                    <>
-                        <Typography variant="body2" textAlign="center">
-                            Your verification status will be displayed here.
-                        </Typography>
-                    </>
+                    <RegStatus />
                 );
             case 3: // Fill Biodata
                 return (
-                    <>
-                        <AppTextField
-                            variant="outlined"
-                            sizes="small"
-                            type="text"
-                            label="Full Name"
-                            helperText="Enter your full name"
-                            isRequired
-                            value={formStateValue.name}
-                            onChange={(e) => setFormStateValue({ ...formStateValue, name: e.target.value })}
-                        />
-                        <AppTextField
-                            variant="outlined"
-                            sizes="small"
-                            type="text"
-                            label="Address"
-                            helperText="Enter your address"
-                            isRequired
-                            value={formStateValue.address}
-                            onChange={(e) => setFormStateValue({ ...formStateValue, address: e.target.value })}
-                        />
-                    </>
+                    <RegBiodata />
                 );
             case 4: // Registration Success
                 return (
-                    <>
-                        <Typography variant="body2" textAlign="center">
-                            Congratulations! Your registration is complete.
-                        </Typography>
-                    </>
+                    <RegStatus />
                 );
             default:
                 return null;

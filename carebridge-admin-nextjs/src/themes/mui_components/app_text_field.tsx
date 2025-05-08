@@ -6,7 +6,7 @@ interface AppTextFieldProps {
     sizes?: "small" | "medium";
     type?: "text" | "email" | "password" | "number" | "tel" | "url" | "search" | "date" | "time" | "datetime-local" | "month" | "week";
     label?: string;
-    helperText?: string;
+    helperText?: string | undefined;
     suffix?: ReactNode;
     prefix?: ReactNode;
     isDisabled?: boolean;
