@@ -49,7 +49,8 @@ export const useAuthStore = create<AuthState>()(
                     });
                 },
                 setLoading: (isLoading) => {
-                    set({ isLoading });
+                    console.log("isLoading", isLoading);
+                    set({ isLoading: isLoading });
                 },
                 setLogout: (isLogout) => {
                     set({ isLogout });

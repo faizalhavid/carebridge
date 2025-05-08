@@ -11,7 +11,7 @@ interface AppButtonProps extends Omit<ButtonProps, "color" | "onClick"> {
     text?: string;
     textStyle?: React.CSSProperties;
     icon?: React.ReactNode;
-    suffixIcon?: React.ReactNode;
+    endIcon?: React.ReactNode;
     adjustIconSize?: number;
     buttonType?: "normal" | "big" | "small";
     isFitParent?: boolean;
@@ -26,7 +26,7 @@ export const AppButton: React.FC<AppButtonProps> = function AppButton({
     text,
     textStyle,
     icon,
-    suffixIcon,
+    endIcon,
     adjustIconSize = 0,
     buttonType = "normal",
     isFitParent = false,
@@ -37,32 +37,15 @@ export const AppButton: React.FC<AppButtonProps> = function AppButton({
 }): React.ReactElement {
 
 
-    const getTextStyle = (): React.CSSProperties => {
-        if (isDisabled) {
-            switch (buttonType) {
-                case "small":
-                    return { ...appFonts.caption.ts, color: appColors.neutral[40] };
-                default:
-                    return { ...appFonts.body.ts, color: appColors.neutral[40] };
-            }
-        } else {
-            switch (buttonType) {
-                case "small":
-                    return { ...appFonts.caption.ts, color: appColors.primary[500] };
-                default:
-                    return { ...appFonts.body.ts, color: appColors.primary[500] };
-            }
-        }
-    };
+
 
     return (
         <Button
             {...props}
             onClick={onTap}
-            color={isDisabled ? "inherit" : backgroundColor}
             disabled={isDisabled}
             startIcon={icon}
-            endIcon={suffixIcon}
+            endIcon={endIcon}
             style={{
                 ...(isFitParent ? { width: "100%" } : {}),
             }}

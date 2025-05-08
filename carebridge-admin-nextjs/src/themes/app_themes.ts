@@ -48,6 +48,13 @@ const appThemes = createTheme({
             secondary: appColors.neutral[60],
             disabled: appColors.neutral[40],
         },
+        action: {
+            // disabled: appColors.neutral[50],
+            // disabledBackground: appColors.neutral[40],
+            // hover: appColors.neutral[10],
+            // hoverOpacity: 0.08,
+        },
+
     },
     components: {
         MuiAppBar: {
@@ -70,6 +77,7 @@ const appThemes = createTheme({
                     textTransform: "none",
                     shadow: "none",
                     boxShadow: "none",
+
                 },
             },
         },
