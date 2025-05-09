@@ -1,11 +1,14 @@
 import React, { useRef } from "react";
-import { Box, TextField } from "@mui/material";
+import { Box, FormHelperText, TextField } from "@mui/material";
+import { isError } from "util";
 
 interface OtpFieldsProps {
     length?: number;
     value: string;
     onChange: (otp: string) => void;
     isDisabled?: boolean;
+    helperText?: string;
+    isError?: boolean;
 }
 
 export default function OtpFields({
@@ -13,6 +16,8 @@ export default function OtpFields({
     value,
     onChange,
     isDisabled = false,
+    helperText,
+    isError = false,
 }: OtpFieldsProps) {
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -56,24 +61,30 @@ export default function OtpFields({
     };
 
     return (
-        <Box display="flex" gap={1}>
-            {Array.from({ length }).map((_, index) => (
-                <TextField
-                    key={index}
-                    inputRef={(el) => (inputRefs.current[index] = el)}
-                    value={value[index] || ""}
-                    onChange={(e) => handleChange(e.target.value, index)}
-                    onKeyDown={(e) => handleKeyDown(e as React.KeyboardEvent<HTMLInputElement>, index)}
-                    onPaste={handlePaste}
-                    variant="outlined"
-                    size="small"
-                    inputProps={{
-                        maxLength: 1,
-                        style: { textAlign: "center" },
-                    }}
-                    disabled={isDisabled}
-                />
-            ))}
-        </Box>
+        <div className="flex flex-col gap-2">
+
+            <Box display="flex" gap={1}>
+                {Array.from({ length }).map((_, index) => (
+                    <TextField
+                        key={index}
+                        inputRef={(el) => (inputRefs.current[index] = el)}
+                        value={value[index] || ""}
+                        onChange={(e) => handleChange(e.target.value, index)}
+                        onKeyDown={(e) => handleKeyDown(e as React.KeyboardEvent<HTMLInputElement>, index)}
+                        onPaste={handlePaste}
+                        variant="outlined"
+                        size="small"
+                        inputProps={{
+                            maxLength: 1,
+                            style: { textAlign: "center" },
+                        }}
+                        disabled={isDisabled}
+                    />
+                ))}
+            </Box>
+            <FormHelperText sx={{ marginLeft: 1 }} error={isError}>
+                {helperText}
+            </FormHelperText>
+        </div>
     );
 }

@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { TextField, InputAdornment } from "@mui/material";
 
 interface AppTextFieldProps {
+    id?: string;
     variant?: "outlined" | "filled" | "standard";
     sizes?: "small" | "medium";
     type?: "text" | "email" | "password" | "number" | "tel" | "url" | "search" | "date" | "time" | "datetime-local" | "month" | "week";
@@ -20,6 +21,7 @@ interface AppTextFieldProps {
 }
 
 export function AppTextField({
+    id,
     variant = "outlined",
     sizes = "medium",
     type = "text",
@@ -57,6 +59,7 @@ export function AppTextField({
             defaultValue={defaultValue}
             onChange={onChange}
             onBlur={onBlur}
+            id={id}
             fullWidth
         />
     );

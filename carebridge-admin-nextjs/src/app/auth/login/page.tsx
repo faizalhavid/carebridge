@@ -16,6 +16,8 @@ import { format } from "node:path";
 export default function LoginPage() {
     const [openForm, setOpenForm] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
     const authState = useAuthStore();
 
     const {
@@ -32,8 +34,7 @@ export default function LoginPage() {
 
 
     const handleLogin = async (data: { email: string; password: string }) => {
-        authState.setLoading(true);
-        console.log("authState.isloading from component", authState.isLoading);
+        setIsLoading(true);
         try {
             const res = await AuthService.login(data.email, data.password);
             authState.login(res.data.user, res.data.accessToken, res.data.refreshToken);
@@ -41,8 +42,7 @@ export default function LoginPage() {
         } catch (error) {
             console.error("Login failed:", error);
         } finally {
-            authState.setLoading(false);
-            console.log("authState.isloading from component", authState.isLoading);
+            setIsLoading(false);
         }
     };
     const renderResendMailForm = () => {
@@ -140,9 +140,9 @@ export default function LoginPage() {
                 </div>
                 <AppButton
                     type="submit"
-                    isDisabled={authState.isLoading}
+                    isDisabled={isLoading}
                     isFitParent
-                    endIcon={authState.isLoading && <CircularProgress color="inherit" size={16} />}
+                    endIcon={isLoading && <CircularProgress color="inherit" size={16} />}
                 >
                     Login
                 </AppButton>

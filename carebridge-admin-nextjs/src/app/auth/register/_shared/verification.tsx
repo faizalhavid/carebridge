@@ -5,12 +5,13 @@ import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Button, CircularProgress, Step, StepLabel, Stepper, Typography } from "@mui/material";
+import React, { use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import * as yup from "yup";
 import OtpFields from "../../_components/otp_fields";
+import AuthService from "@/lib/api/auth-service";
 
 const verificationSchema = yup.object().shape({
     otp: yup
@@ -19,19 +20,28 @@ const verificationSchema = yup.object().shape({
         .length(6, "OTP must be exactly 6 characters"),
 });
 
-export const Verification: React.FC<RegisterPageProps> = ({
-    formStateValue,
-    setFormStateValue,
+export const Verification: React.FC<any> = ({
     activeStep,
     setActiveStep,
-    handleNext,
-    handleBack,
-    handleSkip,
-    handleReset,
 }) => {
+    const duration = 60 * 1000;
+    const [isLoading, setIsLoading] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(duration);
+    const [isResendDisabled, setIsResendDisabled] = useState(false);
+    const email = (document.getElementById("email") as HTMLInputElement)?.value || "";
 
-    const [showPassword, setShowPassword] = useState(false);
-    const authState = useAuthStore();
+    useEffect(() => {
+        if (timeLeft > 0) {
+            const timer = setInterval(() => {
+                setTimeLeft((prev) => prev - 1000);
+            }, 1000);
+
+            return () => clearInterval(timer);
+        } else {
+            setIsResendDisabled(false);
+        }
+    }, [timeLeft]);
+
 
     const {
         control,
@@ -44,10 +54,25 @@ export const Verification: React.FC<RegisterPageProps> = ({
         },
     });
 
-    const handleVerification = (data: any) => {
+    const handleVerification = async (data: any) => {
+        setIsLoading(true);
+        try {
+            const res = await AuthService.verification(data.otp, email);
+            console.log(res.data);
+            setActiveStep(activeStep + 1);
+        } catch (error) {
+            console.error("Verification failed:", error);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
-
+    function handleResendOtp() {
+        console.log("Resending OTP...");
+        setTimeLeft(60);
+        setIsResendDisabled(true);
+        setActiveStep(activeStep - 1);
+    }
 
     return (
         <>
@@ -59,18 +84,31 @@ export const Verification: React.FC<RegisterPageProps> = ({
                         <OtpFields
                             {...field}
                             length={6}
-
-                            helperText={errors.email?.message || "Enter your email"}
-                            isRequired
-                            value={formStateValue.email}
-                            onChange={(e) => setFormStateValue({ ...formStateValue, email: e.target.value })}
+                            value={field.value}
+                            isError={!!errors.otp}
+                            helperText={errors.otp?.message || "Enter otp"}
                         />
                     )}
                 />
+                <div className="flex flex-row gap-2 justify-end">
+                    <Typography variant="body2" textAlign="center" sx={{ mt: 2 }}>
+                        {isResendDisabled
+                            ? `Resend OTP in ${timeLeft} seconds`
+                            : "Didn't receive the OTP?"}
+                    </Typography>
+                    <AppButton
+                        variant="text"
+                        size="small"
+                        sx={{ mt: 1, display: isResendDisabled ? "none" : "block" }}
+                        onClick={handleResendOtp}
+                        isDisabled={isResendDisabled}
+                    >
+                        Resend OTP
+                    </AppButton>
+                </div>
 
-
-                <AppButton type="submit" variant="contained" size="large">
-                    Submit Biodata
+                <AppButton type="submit" variant="contained" size="large" isDisabled={isLoading} endIcon={isLoading ? <CircularProgress color="inherit" size={16} /> : undefined}>
+                    Submit
                 </AppButton>
             </form>
         </>

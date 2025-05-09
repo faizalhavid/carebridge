@@ -1,9 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Stepper, Step, StepLabel, Button, Typography, Box } from "@mui/material";
-import AppLogo from "@/components/app_logo";
-import { AppTextField } from "@/themes/mui_components/app_text_field";
-import OtpFields from "../_components/otp_fields";
+import { Stepper, Step, StepLabel, Button, Box } from "@mui/material";
 import { RegEmail } from "./_shared/reg-email";
 import { Verification } from "./_shared/verification";
 import { RegStatus } from "./_shared/reg-status";
@@ -19,47 +16,47 @@ export default function RegisterPage() {
     ];
 
     const [activeStep, setActiveStep] = useState(0);
-    const [formStateValue, setFormStateValue] = useState({
-        email: "",
-        otp: "",
-        name: "",
-        address: "",
-    });
-
+    const [isStepDisable, setIsStepValid] = useState(false);
     const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        if (isStepDisable) {
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        }
     };
 
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
+        if (activeStep === 0) {
+            setIsStepValid(false);
+        }
     };
 
     const renderStepContent = (step: number) => {
         switch (step) {
-            case 0: // Register Email
+            case 0:
                 return (
-                    <RegEmail />
+                    <RegEmail activeStep={activeStep} setActiveStep={setActiveStep} />
                 );
-            case 1: // Verify OTP
+            case 1:
                 return (
-                    <Verification />
+                    <Verification activeStep={activeStep} setActiveStep={setActiveStep} />
                 );
-            case 2: // Verification Status
+            case 2:
                 return (
-                    <RegStatus />
+                    <RegStatus title="Verification Status" content={<p>Verification in progress...</p>} />
                 );
-            case 3: // Fill Biodata
+            case 3:
                 return (
-                    <RegBiodata />
+                    <RegBiodata activeStep={activeStep} setActiveStep={setActiveStep} />
                 );
-            case 4: // Registration Success
+            case 4:
                 return (
-                    <RegStatus />
+                    <RegStatus title="Registration Success" content={<p>Registration completed successfully!</p>} />
                 );
             default:
                 return null;
         }
     };
+
 
     return (
         <Box sx={{ width: "100%", maxWidth: "600px", margin: "0 auto", mt: 4 }}>
@@ -78,7 +75,7 @@ export default function RegisterPage() {
             </Box>
 
             {/* Navigation Buttons */}
-            <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+            {/* <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
                 <Button
                     disabled={activeStep === 0}
                     onClick={handleBack}
@@ -87,7 +84,7 @@ export default function RegisterPage() {
                     Back
                 </Button>
                 {activeStep < steps.length - 1 ? (
-                    <Button onClick={handleNext} variant="contained">
+                    <Button onClick={handleNext} variant="contained" disabled={!isStepDisable}>
                         Next
                     </Button>
                 ) : (
@@ -95,7 +92,7 @@ export default function RegisterPage() {
                         Finish
                     </Button>
                 )}
-            </Box>
+            </Box> */}
         </Box>
     );
 }

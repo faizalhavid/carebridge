@@ -9,12 +9,10 @@ interface AuthState {
     refreshToken: string | null;
 
     isAuthenticated: boolean;
-    isLoading: boolean;
     isLogout: boolean;
 
     login(user: User, accessToken: string, refreshToken: string): void;
     logout(): void;
-    setLoading(isLoading: boolean): void;
     setLogout(isLogout: boolean): void;
 }
 
@@ -35,8 +33,7 @@ export const useAuthStore = create<AuthState>()(
                         user,
                         accessToken,
                         refreshToken,
-                        isAuthenticated: true,
-                        isLoading: false,
+                        isAuthenticated: true
                     });
                 },
                 logout: () => {
@@ -44,14 +41,10 @@ export const useAuthStore = create<AuthState>()(
                         user: null,
                         accessToken: null,
                         refreshToken: null,
-                        isAuthenticated: false,
-                        isLoading: false,
+                        isAuthenticated: false
                     });
                 },
-                setLoading: (isLoading) => {
-                    console.log("isLoading", isLoading);
-                    set({ isLoading: isLoading });
-                },
+
                 setLogout: (isLogout) => {
                     set({ isLogout });
                 },

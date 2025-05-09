@@ -18,6 +18,29 @@ class AuthService {
             body: JSON.stringify({ email, password, deviceInfo }),
         });
     }
+
+    public static async registerEmail(email: string): Promise<SuccessResponse<{ message: string }>> {
+
+        return fetcher('/auth/register/email', {
+            method: 'POST',
+            body: JSON.stringify({ email }),
+        });
+    }
+
+    public static async verification(email: string, otp: string): Promise<SuccessResponse<{ message: string }>> {
+        return fetcher('/auth/verification', {
+            method: 'POST',
+            body: JSON.stringify({ email, otp }),
+        });
+    }
+
+    public static async registerBiodata(data: any): Promise<SuccessResponse<{ message: string }>> {
+        return fetcher('/auth/register/biodata', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
 }
 
 export default AuthService;
