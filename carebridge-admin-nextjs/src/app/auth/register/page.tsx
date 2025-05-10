@@ -70,7 +70,6 @@ export default function RegisterPage() {
         }
     };
 
-
     return (
         <>
             <Typography variant="body1" sx={{ mb: 2, textAlign: { xs: "center", sm: "left" } }}>
