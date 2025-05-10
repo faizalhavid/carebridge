@@ -5,7 +5,7 @@ import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { Facebook, Google, Mail, Send, Visibility, VisibilityOff } from "@mui/icons-material";
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, TextField, Typography } from "@mui/material";
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, TextField, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -93,8 +93,8 @@ export default function LoginPage() {
 
     return (
         <>
-            <form onSubmit={handleSubmit(handleLogin)} noValidate className="flex flex-col gap-4">
-                <p>Please login to continue</p>
+            <Typography variant="body1" sx={{ mb: 4 }}>Please login to continue</Typography>
+            <form onSubmit={handleSubmit(handleLogin)} noValidate className="flex flex-col gap-5 my-2">
                 <Controller
                     name="email"
                     control={control}
@@ -121,19 +121,19 @@ export default function LoginPage() {
                             {...field}
                             variant="outlined"
                             sizes="small"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             label="Password"
                             helperText={errors.password?.message || "Enter your password"}
                             isError={!!errors.password}
                             suffix={
                                 <IconButton onClick={() => setShowPassword(!showPassword)}>
-                                    {showPassword ? <Visibility /> : <VisibilityOff color="primary" />}
+                                    {showPassword ? <Visibility color="primary" /> : <VisibilityOff />}
                                 </IconButton>
                             }
                         />
                     )}
                 />
-                <div className="flex flex-row justify-end gap-2 mt-2 mb-4">
+                <div className="flex flex-row justify-end gap-2 mb-4">
                     <AppButton variant="text" onClick={() => { setOpenForm(!openForm); }}>
                         Forgot Password ?
                     </AppButton>
@@ -148,14 +148,16 @@ export default function LoginPage() {
                 </AppButton>
             </form>
 
-            <Typography variant="body2" className="text-center mt-4">
-                Don't have an account?{" "}
-                <AppButton variant="text" isFitParent onClick={() => { redirect('/auth/register'); }}>
+
+
+            <Typography variant="body2" className="text-center my-2">
+                Don't have an account?
+                <AppButton variant="text" onClick={() => { redirect('/auth/register'); }}>
                     Sign Up
                 </AppButton>
             </Typography>
-            {/* Social Login */}
-            <div className="flex flex-row justify-center gap-2 mt-4 mb-4">
+
+            <div className="flex flex-row justify-center gap-2">
                 <IconButton >
                     <Google color="inherit" />
                 </IconButton>

@@ -26,7 +26,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 className="hidden md:block object-cover md:w-1/2 h-full"
             />
             <main
-                className="relative flex flex-col justify-center flex-1 px-6 md:px-12 py-12 md:py-28 h-full gap-3 w-full bg-white/ md:bg-opacity-100"
+                className="relative flex flex-col justify-center flex-1 px-6 md:px-12 py-12 md:py-28 h-full w-full bg-white/ md:bg-opacity-100"
             >
                 <AppLogo size="large" />
                 {children}

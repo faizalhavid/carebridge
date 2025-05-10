@@ -28,17 +28,22 @@ export const Verification: React.FC<any> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [timeLeft, setTimeLeft] = useState(duration);
     const [isResendDisabled, setIsResendDisabled] = useState(false);
-    const email = (document.getElementById("email") as HTMLInputElement)?.value || "";
+    const email = (document.getElementById("email") as HTMLInputElement);
 
     useEffect(() => {
-        if (timeLeft > 0) {
-            const timer = setInterval(() => {
-                setTimeLeft((prev) => prev - 1000);
-            }, 1000);
+        if (email) {
+            if (timeLeft > 0) {
+                email.setAttribute("disabled", "true");
+                setIsResendDisabled(true);
+                const timer = setInterval(() => {
+                    setTimeLeft((prev) => prev - 1000);
+                }, 1000);
 
-            return () => clearInterval(timer);
-        } else {
-            setIsResendDisabled(false);
+                return () => clearInterval(timer);
+            } else {
+                email.setAttribute("disabled", "false");
+                setIsResendDisabled(false);
+            }
         }
     }, [timeLeft]);
 
@@ -57,7 +62,7 @@ export const Verification: React.FC<any> = ({
     const handleVerification = async (data: any) => {
         setIsLoading(true);
         try {
-            const res = await AuthService.verification(data.otp, email);
+            const res = await AuthService.verification(data.otp, email.value);
             console.log(res.data);
             setActiveStep(activeStep + 1);
         } catch (error) {
@@ -69,7 +74,7 @@ export const Verification: React.FC<any> = ({
 
     function handleResendOtp() {
         console.log("Resending OTP...");
-        setTimeLeft(60);
+        setTimeLeft(60000);
         setIsResendDisabled(true);
         setActiveStep(activeStep - 1);
     }
@@ -91,9 +96,18 @@ export const Verification: React.FC<any> = ({
                     )}
                 />
                 <div className="flex flex-row gap-2 justify-end">
-                    <Typography variant="body2" textAlign="center" sx={{ mt: 2 }}>
+                    <Typography variant="caption" textAlign="center" sx={{ mt: 2 }}>
                         {isResendDisabled
-                            ? `Resend OTP in ${timeLeft} seconds`
+                            ? (<>
+                                Resend OTP in
+                                <AppButton variant="text" size="small" sx={{ color: "warning.main" }}>
+                                    {Math.floor(timeLeft / 1000 / 60)
+                                        .toString()
+                                        .padStart(2, "0")}:{(Math.floor(timeLeft / 1000) % 60)
+                                            .toString()
+                                            .padStart(2, "0")}
+                                </AppButton>
+                            </>)
                             : "Didn't receive the OTP?"}
                     </Typography>
                     <AppButton

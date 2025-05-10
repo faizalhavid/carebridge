@@ -21,7 +21,7 @@ class AuthService {
 
     public static async registerEmail(email: string): Promise<SuccessResponse<{ message: string }>> {
 
-        return fetcher('/auth/register/email', {
+        return fetcher('/auth/register-email', {
             method: 'POST',
             body: JSON.stringify({ email }),
         });
@@ -35,7 +35,7 @@ class AuthService {
     }
 
     public static async registerBiodata(data: any): Promise<SuccessResponse<{ message: string }>> {
-        return fetcher('/auth/register/biodata', {
+        return fetcher('/auth/register-account', {
             method: 'POST',
             body: JSON.stringify(data),
         });

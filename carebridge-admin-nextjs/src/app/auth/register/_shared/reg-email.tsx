@@ -37,21 +37,22 @@ export const RegEmail: React.FC<RegisterPageProps> = ({
 
     const handleRegEmail = async (data: any) => {
         setIsLoading(true);
-        // try {
-        //     const res = await AuthService.registerEmail(data.email);
-        //     console.log(res.data);
-        //     setActiveStep(activeStep + 1);
-        // } catch (error) {
-        //     console.error("Register email failed:", error);
-        // } finally {
-        //     setIsLoading(false);
-        // }
-        setActiveStep(activeStep + 1);
+        try {
+            const res = await AuthService.registerEmail(data.email);
+            console.log(res.data);
+            setActiveStep(activeStep + 1);
+        } catch (error) {
+            console.error("Register email failed:", error);
+        } finally {
+            setIsLoading(false);
+            // debug
+            setActiveStep(activeStep + 1);
+        }
     }
 
     return (
         <>
-            <form onSubmit={handleSubmit(handleRegEmail)} noValidate className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit(handleRegEmail)} noValidate className="flex flex-col gap-4 h-full">
                 <Controller
                     name="email"
                     control={control}
@@ -70,8 +71,7 @@ export const RegEmail: React.FC<RegisterPageProps> = ({
                     )}
                 />
 
-
-
+                <div className="flex-grow" />
 
                 <AppButton type="submit" variant="contained" size="large" isDisabled={isLoading} endIcon={isLoading ? <CircularProgress color="inherit" size={16} /> : undefined}>
                     Submit

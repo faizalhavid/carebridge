@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Stepper, Step, StepLabel, Button, Box } from "@mui/material";
+import { Stepper, Step, StepLabel, Button, Box, Typography } from "@mui/material";
 import { RegEmail } from "./_shared/reg-email";
 import { Verification } from "./_shared/verification";
 import { RegStatus } from "./_shared/reg-status";
@@ -9,25 +9,38 @@ import { RegBiodata } from "./_shared/reg-bio";
 export default function RegisterPage() {
     const steps = [
         "Register Email",
-        "Verify OTP",
-        "Verification Status",
+        "Verification",
+        "Status",
         "Fill Biodata",
-        "Registration Success",
+        "Welcome",
     ];
 
     const [activeStep, setActiveStep] = useState(0);
     const [isStepDisable, setIsStepValid] = useState(false);
+    const [stepHistory, setStepHistory] = useState<number[]>([0]); // Initialize with the first step
+
     const handleNext = () => {
         if (isStepDisable) {
-            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            setActiveStep((prevActiveStep) => {
+                const nextStep = prevActiveStep + 1;
+                setStepHistory((prevHistory) => [...prevHistory, nextStep]); // Add to history
+                return nextStep;
+            });
+
+            // Disable "Next" button for the next step until it's valid
+            setIsStepValid(false);
         }
     };
 
     const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-        if (activeStep === 0) {
-            setIsStepValid(false);
-        }
+        setActiveStep((prevActiveStep) => {
+            const prevStep = prevActiveStep - 1;
+            setStepHistory((prevHistory) => prevHistory.slice(0, -1)); // Remove last step from history
+            return prevStep;
+        });
+
+        // Enable "Next" button for the previous step
+        setIsStepValid(true);
     };
 
     const renderStepContent = (step: number) => {
@@ -57,42 +70,62 @@ export default function RegisterPage() {
         }
     };
 
-
     return (
-        <Box sx={{ width: "100%", maxWidth: "600px", margin: "0 auto", mt: 4 }}>
-            {/* Stepper */}
-            <Stepper activeStep={activeStep} alternativeLabel>
-                {steps.map((label) => (
-                    <Step key={label}>
-                        <StepLabel>{label}</StepLabel>
-                    </Step>
-                ))}
-            </Stepper>
+        <>
+            <Typography variant="body1" sx={{ mb: 2 }}>Follow the steps to register</Typography>
+            <Box className="flex flex-col gap-4 h-full">
+                {/* Stepper */}
+                <Stepper activeStep={activeStep}>
+                    {steps.map((label) => (
+                        <Step key={label}>
+                            <StepLabel
+                                onClick={() => {
+                                    /*                                     const stepIndex = steps.indexOf(label);
+                                                                        if (stepIndex > Math.max(...stepHistory)) {
+                                                                            return; // Prevent navigating to future steps
+                                                                        }
+                                                                        setActiveStep(stepIndex);
+                                                                        setStepHistory((prevHistory) => [...prevHistory, stepIndex]); // Add to history
+                                    
+                                                                        // Enable "Next" button only if the step is valid
+                                                                        setIsStepValid(stepIndex <= Math.max(...stepHistory)); */
+                                }}
+                            >
+                                <Typography variant="caption">{label}</Typography>
+                            </StepLabel>
+                        </Step>
+                    ))}
+                </Stepper>
 
-            {/* Step Content */}
-            <Box sx={{ mt: 4, mb: 2 }}>
-                {renderStepContent(activeStep)}
+                {/* Step Content */}
+                <div className="grow my-5">
+                    {renderStepContent(activeStep)}
+                </div>
+
+                {/* Navigation Buttons */}
+                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                    <Button
+                        disabled={activeStep === 0}
+                        onClick={handleBack}
+                        color="inherit"
+                    >
+                        Back
+                    </Button>
+                    {activeStep < steps.length - 1 ? (
+                        <Button
+                            onClick={handleNext}
+                            variant="contained"
+                            disabled={!isStepDisable || activeStep === steps.length - 1}
+                        >
+                            Next
+                        </Button>
+                    ) : (
+                        <Button variant="contained" onClick={() => alert("Process Complete!")}>
+                            Finish
+                        </Button>
+                    )}
+                </Box>
             </Box>
-
-            {/* Navigation Buttons */}
-            {/* <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-                <Button
-                    disabled={activeStep === 0}
-                    onClick={handleBack}
-                    color="inherit"
-                >
-                    Back
-                </Button>
-                {activeStep < steps.length - 1 ? (
-                    <Button onClick={handleNext} variant="contained" disabled={!isStepDisable}>
-                        Next
-                    </Button>
-                ) : (
-                    <Button variant="contained" onClick={() => alert("Process Complete!")}>
-                        Finish
-                    </Button>
-                )}
-            </Box> */}
-        </Box>
+        </>
     );
 }
