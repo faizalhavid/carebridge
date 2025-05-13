@@ -65,8 +65,8 @@ const AppLogo = ({
 
 
     return (
-        <Link href="/" className="no-underline group">
-            <div className="relative inline-flex items-center p-0 justify-start transform transition-transform duration-300 group-hover:scale-105">
+        <Link href="/" className="no-underline group w-50">
+            <div className="relative transform transition-transform duration-300 group-hover:scale-105">
                 {/* group of circles */}
                 <div
                     className="absolute flex flex-row gap-0.5 z-10"
