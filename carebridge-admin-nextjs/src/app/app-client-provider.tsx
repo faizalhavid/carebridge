@@ -33,7 +33,7 @@ export default function AppClientProvider({
     //             }
     //         } catch (error) {
     //             console.error("Error fetching refresh token: ", error);
-    //             redirect("/auth/login");
+    //             router.push("/auth/login");
     //         }
     //     };
     //     if (!accessToken && !isAuthPath) {

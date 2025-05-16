@@ -37,7 +37,7 @@ export default function LoginPage() {
         try {
             const res = await AuthService.login(data.email, data.password);
             authState.login(res.data.user, res.data.accessToken);
-            // redirect("/dashboard");
+            // router.push("/dashboard");
         } catch (error) {
             console.error("Login failed:", error);
         } finally {
@@ -151,7 +151,7 @@ export default function LoginPage() {
 
             <Typography variant="body2" className="text-center my-2">
                 Don't have an account?
-                <AppButton variant="text" onClick={() => { redirect('/auth/register'); }}>
+                <AppButton variant="text" onClick={() => { router.push('/auth/register'); }}>
                     Sign Up
                 </AppButton>
             </Typography>

@@ -14,5 +14,5 @@ export default function DashboardPage() {
     //     }
     // }, [isAuthenticated, router])
 
-    redirect('/dashboard/home');
+    router.push('/dashboard/home');
 }

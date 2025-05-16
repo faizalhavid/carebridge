@@ -4,6 +4,7 @@ import { AppButton } from "@/themes/mui_components/app_button";
 import { ChevronLeft } from "@mui/icons-material";
 import { Box, Divider, Drawer, Icon, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Theme, useMediaQuery } from "@mui/material";
 import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface SidebarDashboardProps {
     items: Array<Menu>;
@@ -13,7 +14,7 @@ interface SidebarDashboardProps {
 
 
 export default function SidebarDashboard({ items, isExpand = true, onClickButtonExpand: onClikcButtonExpand }: SidebarDashboardProps) {
-
+    const router = useRouter();
 
 
     const DrawerList = (
@@ -24,7 +25,7 @@ export default function SidebarDashboard({ items, isExpand = true, onClickButton
                 </ListItem>
                 <Divider sx={{ my: 1 }} />
                 {items.map((item) => (
-                    <ListItem key={item.name} onClick={() => redirect(`/dashboard/${item.url}`)} disablePadding>
+                    <ListItem key={item.name} onClick={() => router.push(`/dashboard/${item.url}`)} disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
                                 <Icon>{item.smallIcon}</Icon>
