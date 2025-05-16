@@ -1,15 +1,16 @@
 services:
   app:
     build: .
-    image: carebridge-api-app:latest
+    image: carebridge-client-app:latest
+    command: bun run start
     ports:
-      - '8080:8080'
+      - '3000:3000'
     volumes:
       - ./app:/usr/src/app
     networks:
       - app-network
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8080']
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -17,10 +18,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '1.0'
           memory: 512M
         reservations:
-          cpus: '0.1'
+          cpus: '0.5'
           memory: 256M
 
 networks:

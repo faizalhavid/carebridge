@@ -52,7 +52,7 @@ export const RegEmail: React.FC<RegisterPageProps> = ({
 
     return (
         <>
-            <form onSubmit={handleSubmit(handleRegEmail)} noValidate className="flex flex-col gap-4 h-full">
+            <form onSubmit={handleSubmit(handleRegEmail)} noValidate className="flex flex-col gap-4 h-full bg-amber-300">
                 <Controller
                     name="email"
                     control={control}
@@ -71,7 +71,7 @@ export const RegEmail: React.FC<RegisterPageProps> = ({
                     )}
                 />
 
-                <div className="flex-grow" />
+                {/* <div className="flex-grow" /> */}
 
                 <AppButton type="submit" variant="contained" size="large" isDisabled={isLoading} endIcon={isLoading ? <CircularProgress color="inherit" size={16} /> : undefined}>
                     Submit

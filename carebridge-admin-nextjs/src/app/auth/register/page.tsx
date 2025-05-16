@@ -72,23 +72,35 @@ export default function RegisterPage() {
 
     return (
         <>
-            <Typography variant="body1" sx={{ mb: 2 }}>Follow the steps to register</Typography>
-            <Box className="flex flex-col gap-4 h-full">
+            <Typography variant="body1" sx={{ mb: 2, textAlign: { xs: "center", sm: "left" } }}>
+                Follow the steps to register
+            </Typography>
+            <Box
+                className="flex flex-col gap-4 h-full"
+                sx={{
+                    px: { xs: 2, sm: 0 }, // Add padding for mobile
+                }}
+            >
                 {/* Stepper */}
-                <Stepper activeStep={activeStep}>
+                <Stepper
+                    activeStep={activeStep}
+                    orientation="horizontal"
+                    sx={{
+                        flexDirection: { xs: "column", sm: "row" }, // Stack steps vertically on mobile
+                        alignItems: { xs: "flex-start", sm: "center" },
+                    }}
+                >
                     {steps.map((label) => (
                         <Step key={label}>
                             <StepLabel
                                 onClick={() => {
-                                    /*                                     const stepIndex = steps.indexOf(label);
-                                                                        if (stepIndex > Math.max(...stepHistory)) {
-                                                                            return; // Prevent navigating to future steps
-                                                                        }
-                                                                        setActiveStep(stepIndex);
-                                                                        setStepHistory((prevHistory) => [...prevHistory, stepIndex]); // Add to history
-                                    
-                                                                        // Enable "Next" button only if the step is valid
-                                                                        setIsStepValid(stepIndex <= Math.max(...stepHistory)); */
+                                    /* Prevent navigating to future steps */
+                                }}
+                                sx={{
+                                    cursor: "pointer",
+                                    "& .MuiStepLabel-label": {
+                                        fontSize: { xs: "0.75rem", sm: "inherit" }, // Smaller font size for mobile
+                                    },
                                 }}
                             >
                                 <Typography variant="caption">{label}</Typography>
@@ -98,16 +110,27 @@ export default function RegisterPage() {
                 </Stepper>
 
                 {/* Step Content */}
-                <div className="grow my-5">
+                <div className="grow flex flex-col justify-center h-full">
                     {renderStepContent(activeStep)}
                 </div>
 
                 {/* Navigation Buttons */}
-                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" }, // Stack buttons vertically on mobile
+                        justifyContent: { sm: "space-between" },
+                        gap: { xs: 2, sm: 0 }, // Add spacing between buttons on mobile
+                        mt: 2,
+                    }}
+                >
                     <Button
                         disabled={activeStep === 0}
                         onClick={handleBack}
                         color="inherit"
+                        sx={{
+                            width: { xs: "100%", sm: "auto" }, // Full width for mobile
+                        }}
                     >
                         Back
                     </Button>
@@ -116,11 +139,20 @@ export default function RegisterPage() {
                             onClick={handleNext}
                             variant="contained"
                             disabled={!isStepDisable || activeStep === steps.length - 1}
+                            sx={{
+                                width: { xs: "100%", sm: "auto" }, // Full width for mobile
+                            }}
                         >
                             Next
                         </Button>
                     ) : (
-                        <Button variant="contained" onClick={() => alert("Process Complete!")}>
+                        <Button
+                            variant="contained"
+                            onClick={() => alert("Process Complete!")}
+                            sx={{
+                                width: { xs: "100%", sm: "auto" }, // Full width for mobile
+                            }}
+                        >
                             Finish
                         </Button>
                     )}
