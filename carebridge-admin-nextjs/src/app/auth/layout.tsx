@@ -1,15 +1,15 @@
 "use client";
 
 import AppLogo from '@/components/app_logo';
-import { useAuthStore } from '@/lib/stores/auth_store';
+import { useAuthStore, useIsAuthenticated } from '@/lib/stores/auth_store';
 import { redirect } from 'next/navigation';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     // Check if the user is authenticated
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const isAuthenticated = useIsAuthenticated();
 
     if (isAuthenticated) {
-        redirect('/');
+        redirect('/dashboard');
     }
 
     return (

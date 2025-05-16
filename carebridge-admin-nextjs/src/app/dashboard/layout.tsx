@@ -1,53 +1,61 @@
 "use client"
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import SidebarDashboard from "./_components/sidebar";
 import DashboardFooter from "./_components/footer";
 import NavbarDashboard from "./_components/navbar";
 import { Menu } from "@/interfaces/models/menu";
-import { ChevronLeft } from "@mui/icons-material";
+import { ChevronLeft, Dashboard } from "@mui/icons-material";
 import { Box, IconButton, useMediaQuery, Theme } from "@mui/material";
+import { useAuthStore, useIsAuthenticated } from "@/lib/stores/auth_store";
+import DashboardService from "@/lib/api/dashboard-service";
+import { useMenuStore } from "@/lib/stores/menu_store";
 
+
+
+const menus: Menu[] = [
+    {
+        id: 1,
+        name: "Home",
+        smallIcon: "home_icon",
+        bigIcon: "home",
+        url: "/dashboard/home",
+        parentId: null,
+    },
+];
+
+const menuNavbar: Menu[] = [
+    {
+        id: 1,
+        name: "Home",
+        smallIcon: "home_icon",
+        bigIcon: "home",
+        url: "/dashboard/home",
+        parentId: null,
+    },
+];
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const menus: Menu[] = [
-        {
-            id: 1,
-            name: "Home",
-            smallIcon: "home_icon",
-            bigIcon: "home",
-            url: "/dashboard/home",
-            parentId: null,
-        },
-    ];
-
-    const menuNavbar: Menu[] = [
-        {
-            id: 1,
-            name: "Home",
-            smallIcon: "home_icon",
-            bigIcon: "home",
-            url: "/dashboard/home",
-            parentId: null,
-        },
-    ];
 
     const [isSidebarExpanded, setIsSidebarExpanded] = React.useState(true);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-
+    const menuStore = useMenuStore();
     useEffect(() => {
         setIsSidebarExpanded(!isMobile);
     }, [isMobile]);
 
 
+    useEffect(() => {
+        menuStore.fetchMenus();
+    }, []);
 
     return (
         <main className="flex flex-col min-h-screen bg-gray-100">
             <div className="flex flex-row flex-1 relative">
                 <SidebarDashboard
-                    items={menus}
+                    items={menuStore.menus || menus}
                     isExpand={isSidebarExpanded}
                     onClickButtonExpand={() => setIsSidebarExpanded((prev) => !prev)}
                 />

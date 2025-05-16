@@ -11,7 +11,6 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "@/lib/validations/auth.schema";
-import { format } from "node:path";
 
 export default function LoginPage() {
     const [openForm, setOpenForm] = useState(false);
@@ -28,7 +27,7 @@ export default function LoginPage() {
         resolver: yupResolver(loginSchema),
         defaultValues: {
             email: "nurfaizal966@gmail.com",
-            password: "",
+            password: "Barakadut123@",
         },
     });
 
@@ -37,8 +36,8 @@ export default function LoginPage() {
         setIsLoading(true);
         try {
             const res = await AuthService.login(data.email, data.password);
-            authState.login(res.data.user, res.data.accessToken, res.data.refreshToken);
-            redirect("/dashboard");
+            authState.login(res.data.user, res.data.accessToken);
+            // redirect("/dashboard");
         } catch (error) {
             console.error("Login failed:", error);
         } finally {

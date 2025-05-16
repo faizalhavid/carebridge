@@ -6,7 +6,7 @@ import { SuccessResponse } from "@/interfaces/server-res";
 class AuthService {
     private static deviceToken = "1234567890";
 
-    public static async login(email: string, password: string): Promise<SuccessResponse<{ user: any; accessToken: string; refreshToken: string }>> {
+    public static async login(email: string, password: string): Promise<SuccessResponse<{ user: any; accessToken: string; }>> {
         const deviceInfo: DeviceInfo = {
             ...getDeviceInfo(),
             deviceToken: this.deviceToken,
@@ -14,6 +14,7 @@ class AuthService {
         };
 
         return fetcher('/auth/login', {
+            credentials: 'include',
             method: 'POST',
             body: JSON.stringify({ email, password, deviceInfo }),
         });
@@ -38,6 +39,19 @@ class AuthService {
         return fetcher('/auth/register-account', {
             method: 'POST',
             body: JSON.stringify(data),
+        });
+    }
+
+    public static async logout(): Promise<SuccessResponse<{ message: string }>> {
+        return fetcher('/auth/logout', {
+            method: 'POST',
+            body: JSON.stringify({ deviceToken: this.deviceToken }),
+        });
+    }
+    public static async refreshToken(): Promise<SuccessResponse<{ accessToken: string }>> {
+        return fetcher('/auth/refresh-token', {
+            method: 'POST',
+            credentials: 'include',
         });
     }
 

@@ -42,17 +42,24 @@ public class JwtHelper {
     }
 
     public String extractUsername(String token) {
-        return Jwts.parser().verifyWith(getParsedSecretKey()).build().parseSignedClaims(token).getPayload().getSubject();
+        return Jwts.parser().verifyWith(getParsedSecretKey()).build().parseSignedClaims(token).getPayload()
+                .getSubject();
     }
 
     public Long extractUserId(String token) {
-        return Jwts.parser().verifyWith(getParsedSecretKey()).build().parseSignedClaims(token).getPayload().get("user_id",
+        return Jwts.parser().verifyWith(getParsedSecretKey()).build().parseSignedClaims(token).getPayload().get(
+                "user_id",
                 Long.class);
+    }
+
+    public String extractEmail(String token) {
+        return Jwts.parser().verifyWith(getParsedSecretKey()).build().parseSignedClaims(token).getPayload().get("email",
+                String.class);
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(getParsedSecretKey()).build().parseClaimsJws(token);
+            Jwts.parser().verifyWith(getParsedSecretKey()).build().parse(token);
             return true;
         } catch (SignatureException | ExpiredJwtException e) {
             System.out.println("Invalid JWT token: " + e.getMessage());
@@ -63,7 +70,8 @@ public class JwtHelper {
     }
 
     private boolean isTokenExpired(String token) {
-        return Jwts.parser().verifyWith(getParsedSecretKey()).build().parseSignedClaims(token).getPayload().getExpiration()
+        return Jwts.parser().verifyWith(getParsedSecretKey()).build().parseSignedClaims(token).getPayload()
+                .getExpiration()
                 .before(new Date());
     }
 

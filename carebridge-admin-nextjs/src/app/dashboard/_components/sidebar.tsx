@@ -3,6 +3,7 @@ import { Menu } from "@/interfaces/models/menu"
 import { AppButton } from "@/themes/mui_components/app_button";
 import { ChevronLeft } from "@mui/icons-material";
 import { Box, Divider, Drawer, Icon, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Theme, useMediaQuery } from "@mui/material";
+import { redirect } from "next/navigation";
 
 interface SidebarDashboardProps {
     items: Array<Menu>;
@@ -23,7 +24,7 @@ export default function SidebarDashboard({ items, isExpand = true, onClickButton
                 </ListItem>
                 <Divider sx={{ my: 1 }} />
                 {items.map((item) => (
-                    <ListItem key={item.id} onClick={() => console.log(item.url)} disablePadding>
+                    <ListItem key={item.name} onClick={() => redirect(`/dashboard/${item.url}`)} disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
                                 <Icon>{item.smallIcon}</Icon>
@@ -38,7 +39,7 @@ export default function SidebarDashboard({ items, isExpand = true, onClickButton
                     Logout
                 </AppButton>
             </ListItem>
-        </Box>
+        </Box >
     );
     return (
         <Drawer
