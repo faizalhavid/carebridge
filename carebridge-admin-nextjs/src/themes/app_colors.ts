@@ -1,4 +1,4 @@
-export const AppColors = {
+export const appColors = {
     primary: {
         50: "#F0FDF4",
         100: "#DCFCE7",

@@ -18,8 +18,8 @@ export interface User extends BaseEntity {
     loginAttempt: number;
     isLocked: boolean;
     lastLogin: Date;
-    deviceInfo: DeviceInfo[];
-    authority: Authority[];
+    // deviceInfo: DeviceInfo[];
+    // authority: Authority[];
     role: Role;
     biodata: Biodata;
 }
