@@ -1,10 +1,14 @@
-FROM openjdk:22-jdk-slim
-
-ARG APP_PORT=8080
+FROM openjdk:22-jdk-slim AS builder
 
 WORKDIR /app
-COPY target/*.jar app.jar
+COPY . .
+RUN ./mvnw clean package -DskipTests
 
-EXPOSE ${APP_PORT}
 
+FROM eclipse-temurin:22-jre-alpine
+
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
+
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
