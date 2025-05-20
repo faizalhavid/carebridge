@@ -15,7 +15,7 @@ carebridge/
 
 ## 🚀 Technologies Used
 
-- **Backend:** Java 17, Spring Boot, Spring Security, Spring Data JPA
+- **Backend:** Java 22, Spring Boot, Spring Security, Spring Data JPA
 - **Database:** PostgreSQL
 - **Authentication:** JWT
 - **API Documentation:** Swagger (Springdoc OpenAPI)
