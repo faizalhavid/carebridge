@@ -9,6 +9,9 @@ import { Box, IconButton, useMediaQuery, Theme } from "@mui/material";
 import { useAuthStore, useIsAuthenticated } from "@/lib/stores/auth_store";
 import DashboardService from "@/lib/api/dashboard-service";
 import { useMenuStore } from "@/lib/stores/menu_store";
+import { fetcher } from "@/lib/utils/fetcher";
+import { RepositoryRestResource } from "@/interfaces/server-res";
+import { createApiStore } from "@/lib/stores/api_store";
 
 
 
@@ -41,21 +44,30 @@ export default function DashboardLayout({
 
     const [isSidebarExpanded, setIsSidebarExpanded] = React.useState(true);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const menuStore = useMenuStore();
+    const useMenuStore = createApiStore<RepositoryRestResource<Menu[]>>(
+        () => fetcher('/admin/menus', { method: 'GET' }, true)
+    );
+    const { data, loading, error, fetchData } = useMenuStore();
+    // const menuStore = useMenuStore();
     useEffect(() => {
         setIsSidebarExpanded(!isMobile);
     }, [isMobile]);
 
 
     useEffect(() => {
-        menuStore.fetchMenus();
+        // menuStore.fetchMenus();
+        useMenuStore().fetchData();
     }, []);
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error}</p>;
+    if (!data) return <p>No data.</p>;
 
     return (
         <main className="flex flex-col min-h-screen bg-gray-100">
             <div className="flex flex-row flex-1 relative">
                 <SidebarDashboard
-                    items={menuStore.menus || menus}
+                    items={data._embedded.menus.flat() || menus}
                     isExpand={isSidebarExpanded}
                     onClickButtonExpand={() => setIsSidebarExpanded((prev) => !prev)}
                 />

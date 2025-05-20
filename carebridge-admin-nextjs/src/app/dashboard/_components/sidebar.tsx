@@ -1,9 +1,9 @@
+
 import AppLogo from "@/components/app_logo";
 import { Menu } from "@/interfaces/models/menu"
 import { AppButton } from "@/themes/mui_components/app_button";
 import { ChevronLeft } from "@mui/icons-material";
 import { Box, Divider, Drawer, Icon, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Theme, useMediaQuery } from "@mui/material";
-import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 interface SidebarDashboardProps {

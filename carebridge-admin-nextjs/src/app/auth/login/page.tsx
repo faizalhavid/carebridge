@@ -6,7 +6,7 @@ import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { Facebook, Google, Mail, Send, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, TextField, Typography } from "@mui/material";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -16,6 +16,8 @@ export default function LoginPage() {
     const [openForm, setOpenForm] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
+
 
     const authState = useAuthStore();
 
