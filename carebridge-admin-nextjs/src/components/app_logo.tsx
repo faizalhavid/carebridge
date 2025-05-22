@@ -65,7 +65,7 @@ const AppLogo = ({
 
 
     return (
-        <Link href="/" className="no-underline group w-50">
+        <Link href="/" className="no-underline group w-auto">
             <div className="relative transform transition-transform duration-300 group-hover:scale-105">
                 {/* group of circles */}
                 <div
@@ -87,7 +87,7 @@ const AppLogo = ({
                     ></span>
                 </div>
                 {/* Letters */}
-                <div className="px-0.5 flex">
+                <div className="px-0.5 flex select-none pointer-events-none">
                     <span
                         className={`font-semibold ${currentSize.text} transition-colors duration-300 opacity-100 group-hover:opacity-80 ${colors.primaryText} animate-fade`}
                         style={{ animationDelay: "0ms" }}

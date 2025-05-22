@@ -62,8 +62,7 @@ export default function SidebarDashboard({ items, isExpand = true, onClickButton
                     boxSizing: 'border-box',
                     transition: 'width 2s ease-in-out',
                 },
-            }
-            }
+            }}
         >
             {DrawerList}
         </Drawer>
