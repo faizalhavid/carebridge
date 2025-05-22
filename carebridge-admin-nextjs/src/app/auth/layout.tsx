@@ -2,19 +2,12 @@
 
 import AppLogo from '@/components/app_logo';
 import { useAuthStore, useIsAuthenticated } from '@/lib/stores/auth_store';
+import { log } from 'console';
 import { redirect } from 'next/navigation';
 import { useRouter } from "next/navigation";
+import { useEffect } from 'react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-    // Check if the user is authenticated
-    const isAuthenticated = useIsAuthenticated();
-    const router = useRouter();
-
-
-    if (isAuthenticated) {
-        router.push('/dashboard');
-    }
-
     return (
         <div className="flex flex-col md:flex-row items-center justify-center h-screen bg-gray-100 overflow-hidden">
             <div

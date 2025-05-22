@@ -8,7 +8,6 @@ import { ChevronLeft, Dashboard } from "@mui/icons-material";
 import { Box, IconButton, useMediaQuery, Theme } from "@mui/material";
 import { useAuthStore, useIsAuthenticated } from "@/lib/stores/auth_store";
 import DashboardService from "@/lib/api/dashboard-service";
-import { useMenuStore } from "@/lib/stores/menu_store";
 import { fetcher } from "@/lib/utils/fetcher";
 import { RepositoryRestResource } from "@/interfaces/server-res";
 import { createApiStore } from "@/lib/stores/api_store";
@@ -36,6 +35,10 @@ const menuNavbar: Menu[] = [
         parentId: null,
     },
 ];
+const useMenuStore = createApiStore<RepositoryRestResource<Menu[]>>(
+    () => fetcher('/admin/menus', { method: 'GET' }, true)
+);
+
 export default function DashboardLayout({
     children,
 }: {
@@ -44,11 +47,7 @@ export default function DashboardLayout({
 
     const [isSidebarExpanded, setIsSidebarExpanded] = React.useState(true);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const useMenuStore = createApiStore<RepositoryRestResource<Menu[]>>(
-        () => fetcher('/admin/menus', { method: 'GET' }, true)
-    );
     const { data, loading, error, fetchData } = useMenuStore();
-    // const menuStore = useMenuStore();
     useEffect(() => {
         setIsSidebarExpanded(!isMobile);
     }, [isMobile]);
@@ -56,38 +55,40 @@ export default function DashboardLayout({
 
     useEffect(() => {
         // menuStore.fetchMenus();
-        useMenuStore().fetchData();
+        fetchData();
     }, []);
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
-    if (!data) return <p>No data.</p>;
+
 
     return (
         <main className="flex flex-col min-h-screen bg-gray-100">
-            <div className="flex flex-row flex-1 relative">
+            <div className="flex flex-row flex-1">
                 <SidebarDashboard
-                    items={data._embedded.menus.flat() || menus}
+                    items={data?._embedded.menus.flat() || menus}
                     isExpand={isSidebarExpanded}
                     onClickButtonExpand={() => setIsSidebarExpanded((prev) => !prev)}
                 />
                 <div className="flex-1 flex flex-col">
-                    <NavbarDashboard isSidebarExpanded items={menuNavbar} toggleSidebar={() => setIsSidebarExpanded((prev) => !prev)} />
+                    <NavbarDashboard isSidebarExpanded={isSidebarExpanded} items={menuNavbar} toggleSidebar={() => setIsSidebarExpanded((prev) => !prev)} />
                     {!isMobile && (
                         <Box
                             sx={{
-                                width: 250,
                                 position: "absolute",
                                 top: 0,
                                 bottom: 0,
                                 zIndex: 1301,
+
                             }}
                         >
                             <IconButton
                                 onClick={() => setIsSidebarExpanded((prev) => !prev)}
-                                className="absolute right-[12px] top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md"
+                                className="absolute right-[12px] top-1/2 transform -translate-y-1/2 z-99 shadow-md"
                                 sx={{
                                     transition: "transform 0.3s ease-in-out",
+                                    bgcolor: "white",
+                                    "&:hover": {
+                                        bgcolor: "grey.200",
+                                    },
                                 }}
                             >
                                 <ChevronLeft

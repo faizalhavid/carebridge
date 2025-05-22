@@ -33,7 +33,6 @@ export async function fetcher<T>(
         if (refreshRes.ok) {
             const { data: accessToken } = await refreshRes.json();
             useAuthStore.setState({ accessToken });
-            // Retry request dengan token baru
             return fetcher<T>(url, options, isRestResourcePath, false);
         } else {
             useAuthStore.getState().logout();

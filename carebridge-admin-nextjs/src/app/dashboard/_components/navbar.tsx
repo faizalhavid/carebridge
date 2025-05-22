@@ -14,7 +14,6 @@ interface NavbarDashboardProps {
 }
 
 export default function NavbarDashboard({ isSidebarExpanded, items, toggleSidebar }: NavbarDashboardProps) {
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -23,76 +22,92 @@ export default function NavbarDashboard({ isSidebarExpanded, items, toggleSideba
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [scrolled, setScrolled] = React.useState(false);
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
+    React.useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 10);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
     return (
-        <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static">
-                <Toolbar>
-                    {isMobile && (
-                        <IconButton
-                            size="large"
-                            edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            sx={{ mr: 2 }}
-                            onClick={toggleSidebar}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                    )}
-                    <div
-                        className={`flex flex-grow items-center justify-center`}
-                    >
-                        {!isSidebarExpanded && <AppLogo size="small" variant="light" />}
-                    </div>
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {items.map((item, index) => (
-                            <Button
-                                key={index}
-                                onClick={() => console.log(item.url)}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                                {item.name}
-                            </Button>
-                        ))}
-                    </Box>
-
-
+        <AppBar style={{ position: "fixed" }}
+            sx={{
+                transition: "background-color 0.3s, backdrop-filter 0.3s",
+                backgroundColor: scrolled
+                    ? "rgba(244, 244, 244, 0.38)"
+                    : "primary.main",
+                backdropFilter: scrolled ? "blur(6px)" : "none",
+                zIndex: (theme) => theme.zIndex.drawer + 1,
+            }}
+        >
+            <Toolbar>
+                {isMobile && (
                     <IconButton
                         size="large"
-                        aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleMenu}
+                        edge="start"
                         color="inherit"
+                        aria-label="menu"
+                        sx={{ mr: 2 }}
+                        onClick={toggleSidebar}
                     >
-                        <AccountCircle />
+                        <MenuIcon />
                     </IconButton>
-                    <Menu
-                        id="menu-appbar"
-                        anchorEl={anchorEl}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        open={Boolean(anchorEl)}
-                        onClose={handleClose}
-                    >
-                        <MenuItem onClick={handleClose}>Profile</MenuItem>
-                        <MenuItem onClick={handleClose}>My account</MenuItem>
-                    </Menu>
+                )}
+                <Box sx={{ display: "flex", justifyContent: isMobile ? "center" : "flex-start", alignItems: "center", flexGrow: isMobile ? 1 : 0 }}>
+                    {(isMobile || !isSidebarExpanded) && <AppLogo size="small" variant="light" />}
+                </Box>
+
+                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                    {items.map((item, index) => (
+                        <Button
+                            key={index}
+                            onClick={() => console.log(item.url)}
+                            sx={{ my: 2, color: scrolled ? 'primary' : 'white', display: 'block' }}
+                        >
+                            {item.name}
+                        </Button>
+                    ))}
+                </Box>
 
 
-                </Toolbar>
-            </AppBar>
-        </Box >
+                <IconButton
+                    size="large"
+                    aria-label="account of current user"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    onClick={handleMenu}
+                    color="inherit"
+                >
+                    <AccountCircle />
+                </IconButton>
+                <Menu
+                    id="menu-appbar"
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                >
+                    <MenuItem onClick={handleClose}>Profile</MenuItem>
+                    <MenuItem onClick={handleClose}>My account</MenuItem>
+                </Menu>
+
+
+            </Toolbar>
+        </AppBar>
+
     )
 }
