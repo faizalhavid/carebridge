@@ -1,5 +1,5 @@
 "use client";
-import AppLogo from "@/components/app_logo";
+import AppLogo from "@/components/app-logo";
 import { RegisterPageProps } from "@/interfaces/register-page";
 import AuthService from "@/lib/api/auth-service";
 import { useAuthStore } from "@/lib/stores/auth_store";

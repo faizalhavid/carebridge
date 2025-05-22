@@ -54,7 +54,6 @@ export default function DashboardLayout({
 
 
     useEffect(() => {
-        // menuStore.fetchMenus();
         fetchData();
     }, []);
 
@@ -100,10 +99,11 @@ export default function DashboardLayout({
                             </IconButton>
                         </Box>
                     )}
-                    {children}
+                    <Box sx={{ flex: 1, padding: 2, paddingTop: 12, minHeight: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        {children}
+                    </Box>
                 </div>
             </div>
-            {/* Footer component */}
             <DashboardFooter />
         </main>
     );

@@ -1,5 +1,5 @@
 "use client";
-import AppLogo from "@/components/app_logo";
+import AppLogo from "@/components/app-logo";
 import { RegisterPageProps } from "@/interfaces/register-page";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";

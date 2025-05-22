@@ -1,6 +1,6 @@
 "use client";
 
-import AppLogo from '@/components/app_logo';
+import AppLogo from '@/components/app-logo';
 import { useAuthStore, useIsAuthenticated } from '@/lib/stores/auth_store';
 import { log } from 'console';
 import { redirect } from 'next/navigation';

@@ -3,7 +3,7 @@ import { AppBar, Box, Button, IconButton, Menu, MenuItem, Theme, Toolbar, Typogr
 import MenuIcon from "@mui/icons-material/Menu";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import React from "react";
-import AppLogo from "@/components/app_logo";
+import AppLogo from "@/components/app-logo";
 import { Menu as MenuInterface } from "@/interfaces/models/menu";
 import pages from "next/dist/build/templates/pages";
 
@@ -63,7 +63,7 @@ export default function NavbarDashboard({ isSidebarExpanded, items, toggleSideba
                     {(isMobile || !isSidebarExpanded) && <AppLogo size="small" variant="light" />}
                 </Box>
 
-                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                     {items.map((item, index) => (
                         <Button
                             key={index}
@@ -74,8 +74,6 @@ export default function NavbarDashboard({ isSidebarExpanded, items, toggleSideba
                         </Button>
                     ))}
                 </Box>
-
-
                 <IconButton
                     size="large"
                     aria-label="account of current user"
@@ -83,9 +81,16 @@ export default function NavbarDashboard({ isSidebarExpanded, items, toggleSideba
                     aria-haspopup="true"
                     onClick={handleMenu}
                     color="inherit"
+                    sx={{
+                        marginLeft: "auto",
+                        color: scrolled ? "primary" : "white",
+                        display: { xs: 'none', md: 'flex' },
+                    }}
                 >
                     <AccountCircle />
                 </IconButton>
+
+
                 <Menu
                     id="menu-appbar"
                     anchorEl={anchorEl}

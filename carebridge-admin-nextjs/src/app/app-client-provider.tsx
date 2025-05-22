@@ -31,7 +31,7 @@ export default function AppClientProvider({
                 if (res.status === 200) {
                     const data = res.data;
                     useAuthStore.setState({ accessToken: data.accessToken });
-                    router.push("/dashboard/home");
+                    // router.push("/dashboard/home");
                 }
             } catch (error) {
                 console.error("Error fetching refresh token: ", error);
