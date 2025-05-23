@@ -1,20 +1,20 @@
 'use client'
 
-import { useAuthStore } from '@/stores/auth_store'
-import { useRouter } from 'next/navigation'
+import { useAuthStore, useIsAuthenticated } from '@/lib/stores/auth_store'
+import { redirect, useRouter } from 'next/navigation'
 import React, { useEffect } from 'react'
 
 export default function DashboardPage() {
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+    const isAuthenticated = useIsAuthenticated();
     const router = useRouter()
 
     useEffect(() => {
         if (!isAuthenticated) {
-            router.push('/login') // Redirect to login if not authenticated
+            router.push('/auth/login')
+        } else {
+            router.push('/dashboard/home')
         }
-    }, [isAuthenticated, router])
+    }, [router])
 
-    return (
-        <div>DashboardPage</div>
-    )
+    // router.push('/dashboard/home');
 }

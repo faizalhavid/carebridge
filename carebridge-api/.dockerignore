@@ -1,0 +1,6 @@
+*.jar
+*.log
+.git
+.gitignore
+Dockerfile
+README.md

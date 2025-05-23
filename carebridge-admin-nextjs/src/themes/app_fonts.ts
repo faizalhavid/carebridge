@@ -1,4 +1,4 @@
-import { AppColors } from './app_colors';
+import { appColors } from './app_colors';
 
 interface TextStyle {
     fontSize?: number;
@@ -54,7 +54,7 @@ class AppFonts {
         return {
             fontSize: this.fontSize ?? 14,
             fontWeight: this.fontWeight ?? 'normal',
-            color: this.color ?? AppColors.neutral[80],
+            color: this.color ?? appColors.neutral[80],
             letterSpacing: 0,
             decoration: this.decoration ?? 'none',
             fontStyle: this.fontStyle ?? 'normal',
@@ -67,51 +67,51 @@ class AppFonts {
     }
 
     get placeholder(): AppFonts {
-        return this.copyWith({ color: AppColors.neutral[50] });
+        return this.copyWith({ color: appColors.neutral[50] });
     }
 
     get text(): AppFonts {
-        return this.copyWith({ color: AppColors.neutral[80] });
+        return this.copyWith({ color: appColors.neutral[80] });
     }
 
     get light(): AppFonts {
-        return this.copyWith({ color: AppColors.neutral[60] });
+        return this.copyWith({ color: appColors.neutral[60] });
     }
 
     get gray(): AppFonts {
-        return this.copyWith({ color: AppColors.neutral[70] });
+        return this.copyWith({ color: appColors.neutral[70] });
     }
 
     get disabled(): AppFonts {
-        return this.copyWith({ color: AppColors.neutral[40] });
+        return this.copyWith({ color: appColors.neutral[40] });
     }
 
     get primary(): AppFonts {
-        return this.copyWith({ color: AppColors.primary[500] });
+        return this.copyWith({ color: appColors.primary[500] });
     }
 
     get secondary(): AppFonts {
-        return this.copyWith({ color: AppColors.secondary[500] });
+        return this.copyWith({ color: appColors.secondary[500] });
     }
 
     get white(): AppFonts {
-        return this.copyWith({ color: AppColors.neutral[0] });
+        return this.copyWith({ color: appColors.neutral[0] });
     }
 
     get info(): AppFonts {
-        return this.copyWith({ color: AppColors.info[20] });
+        return this.copyWith({ color: appColors.info[20] });
     }
 
     get success(): AppFonts {
-        return this.copyWith({ color: AppColors.success[20] });
+        return this.copyWith({ color: appColors.success[20] });
     }
 
     get warning(): AppFonts {
-        return this.copyWith({ color: AppColors.warning[20] });
+        return this.copyWith({ color: appColors.warning[20] });
     }
 
     get error(): AppFonts {
-        return this.copyWith({ color: AppColors.error[20] });
+        return this.copyWith({ color: appColors.error[20] });
     }
 
     // Decoration Methods
