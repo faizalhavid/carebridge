@@ -34,8 +34,6 @@ export default function RoleManagementPage() {
     }
 
     return (
-
-
         <ResourceView<Role>
             title="Role Management"
             resource={data}
@@ -47,7 +45,7 @@ export default function RoleManagementPage() {
             onFilterClick={() => console.log("filter")}
             onAddClick={() => console.log("add")}
             onPageChange={handlePageChange}
-            renderActions={(role) => (
+            customTableAction={(role) => (
                 <>
                     <button>Edit</button>
                     <button>Delete</button>

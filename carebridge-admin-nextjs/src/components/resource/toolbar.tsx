@@ -48,7 +48,7 @@ const TableToolbar: React.FC<TableToolbarProps> = ({
                 flexWrap: "wrap",
             }}
         >
-            <Typography variant="h6" component="div">
+            <Typography variant="subtitle1" component="div">
                 {title}
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center">

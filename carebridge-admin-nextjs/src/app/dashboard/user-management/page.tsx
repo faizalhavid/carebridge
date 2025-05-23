@@ -5,6 +5,7 @@ import { fetcher } from "@/lib/utils/fetcher";
 import { RepositoryRestResource } from "@/interfaces/server-res";
 import { createApiStore } from "@/lib/stores/api_store";
 import ResourceView from "@/components/resource";
+import { Chip } from "@mui/material";
 
 
 const useUserStore = createApiStore<RepositoryRestResource<User[]>>(
@@ -41,19 +42,25 @@ export default function UserManagementPage() {
             resource={data}
             columns={[
                 { key: "id", label: "ID" },
-                { key: "name", label: "Nama" },
+                { key: "biodata.fullName", label: "Nama" },
                 { key: "email", label: "Email" },
+                { key: "role", label: "Role" },
             ]}
+            columnComponents={{
+                role: ({ value }) => <Chip label={value.split("_")[1].toLowerCase()} color="primary" size="small" />,
+
+            }}
             onSearch={(v) => console.log(v)}
             onFilterClick={() => console.log("filter")}
             onAddClick={() => console.log("add")}
             onPageChange={handlePageChange}
-            renderActions={(user) => (
-                <>
-                    <button>Edit</button>
-                    <button>Delete</button>
-                </>
-            )}
+            formBuilder={
+                <div>
+                    <h2>Form Builder</h2>
+                    {/* Your form builder component goes here */}
+                </div>
+            }
+
         />
 
     );

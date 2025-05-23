@@ -17,10 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 public class Menu extends BaseEntity {
 
-    @Column(name = "name", length = 20)
+    @Column(name = "name", length = 60)
     private String name;
 
-    @Column(name = "url", length = 50)
+    @Column(name = "url", length = 80)
     private String url;
 
     @ManyToOne
