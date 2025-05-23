@@ -18,6 +18,7 @@ interface ResourceViewProps<T> {
     customTableAction?: (row: T) => React.ReactNode;
     formBuilder: React.ReactNode;
     onSubmitForm?: (data: any) => void;
+    onActionClick?: (mode: DialogMode, data: T) => void;
 }
 
 
@@ -33,7 +34,7 @@ function ResourceView<T>({
     customTableAction: renderActions,
     formBuilder,
     onSubmitForm,
-
+    onActionClick,
 }: ResourceViewProps<T>) {
     const [dialogState, setDialogState] = useState({
         open: false,
@@ -64,7 +65,7 @@ function ResourceView<T>({
                 onFilterClick={onFilterClick}
                 onAddClick={onAddClick}
             />
-            <ResourceTable<T> data={data} columns={columns} customTableAction={renderActions} columnComponents={columnComponents} dialogState={dialogState} setDialogState={setDialogState} />
+            <ResourceTable<T> data={data} columns={columns} customTableAction={renderActions} columnComponents={columnComponents} dialogState={dialogState} setDialogState={setDialogState} onActionClick={onActionClick} />
             <Box sx={{ flexGrow: 1 }} />
             <ResourcePagination resource={resource} onChange={onPageChange} />
             <ResourceDialog
@@ -88,9 +89,11 @@ function ResourceView<T>({
                 deleteLabel="Delete"
                 loading={false}
                 maxWidth="sm"
-            >
-                {formBuilder}
-            </ResourceDialog>
+                children={dialogState.mode === "delete" ? (
+                    <p>Are you sure you want to delete this item?</p>
+
+                ) : formBuilder}
+            />
         </Box>
     );
 }

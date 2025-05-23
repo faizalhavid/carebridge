@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, ButtonGroup, Typography, Checkbox } from "@mui/material";
 import { RepositoryRestResource } from "@/interfaces/server-res";
 import { DialogMode } from "./dialog";
+import { createSelectedItemResourceStore } from "@/lib/stores/resource_store";
 
 interface ResourceTableProps<T> {
     data: RepositoryRestResource<T>[];
@@ -19,6 +20,7 @@ interface ResourceTableProps<T> {
         mode: DialogMode;
         selectedModelResource: RepositoryRestResource<T> | null;
     }>>;
+    onActionClick?: (mode: DialogMode, data: T) => void;
 
 
 }
@@ -31,24 +33,24 @@ function ResourceTable<T>({
     showActions = true,
     dialogState,
     setDialogState,
+    onActionClick,
 }: ResourceTableProps<T>) {
-
-    // const [dialogOpen, setDialogOpen] = useState(false);
-    // const [dialogMode, setDialogMode] = useState<CrudDialogMode>("create");
-    // const [selectedModelResource, setSelectedModelResource] = useState<RepositoryRestResource<T> | null>(null);
-
 
     function getValueByPath(obj: any, path: string) {
         return path.split('.').reduce((acc, part) => acc && acc[part], obj);
     }
+    const useSelectedItemResourceStore = createSelectedItemResourceStore<T>();
 
-    const handleOpenDialog = (mode: DialogMode, id: string) => {
+    const handleOpenDialog = (e: React.MouseEvent, mode: DialogMode, id: string) => {
+        e.stopPropagation();
         const modelResource = data.find((item) => (item as any).id === id) || null;
+        onActionClick?.(mode, modelResource as T);
         setDialogState({
             open: true,
             mode,
             selectedModelResource: modelResource,
         });
+        console.log("Selected Model Resource:", dialogState);
     };
 
     const renderActions = (row: T) => {
@@ -57,8 +59,8 @@ function ResourceTable<T>({
         }
         return (
             <ButtonGroup>
-                <Button variant="contained" size="small" color="warning" onClick={() => handleOpenDialog("edit", row.id)}>Edit</Button>
-                <Button variant="contained" size="small" color="error" onClick={() => handleOpenDialog("delete", row.id)}>Delete</Button>
+                <Button variant="contained" size="small" color="warning" onClick={(e) => handleOpenDialog(e, "edit", row.id)}>Edit</Button>
+                <Button variant="contained" size="small" color="error" onClick={(e) => handleOpenDialog(e, "delete", row.id)}>Delete</Button>
             </ButtonGroup>
         );
     };
@@ -88,10 +90,8 @@ function ResourceTable<T>({
                 </TableHead>
                 <TableBody>
                     {data.map((row, idx) => (
-                        <TableRow key={idx} hover onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenDialog("view", row.id);
-                        }} selected={dialogState.selectedModelResource?.id === row.id} style={{ cursor: "pointer" }} role="checkbox">
+                        <TableRow key={idx} hover onClick={(e) =>
+                            handleOpenDialog(e, "view", row.id)} selected={dialogState.selectedModelResource?.id === row.id} style={{ cursor: "pointer" }} role="checkbox">
                             {showActions && <TableCell padding="checkbox"><Checkbox
                                 color="primary"
                                 // checked={isItemSelected}

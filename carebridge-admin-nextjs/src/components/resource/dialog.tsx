@@ -36,7 +36,7 @@ interface ResourceDialogProps<T = any> {
     onClose: () => void;
     onSubmit?: (data: T | undefined) => void;
     loading?: boolean;
-    children?: React.ReactNode; // usually a form or confirmation
+    children?: React.ReactNode;
     submitLabel?: string;
     deleteLabel?: string;
     maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";

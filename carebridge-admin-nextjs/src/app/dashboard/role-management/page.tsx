@@ -25,13 +25,6 @@ export default function RoleManagementPage() {
         fetchData();
     }, []);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>Error loading users.</div>;
-    }
 
     return (
         <ResourceView<Role>
@@ -45,12 +38,7 @@ export default function RoleManagementPage() {
             onFilterClick={() => console.log("filter")}
             onAddClick={() => console.log("add")}
             onPageChange={handlePageChange}
-            customTableAction={(role) => (
-                <>
-                    <button>Edit</button>
-                    <button>Delete</button>
-                </>
-            )}
+
         />
 
     );
