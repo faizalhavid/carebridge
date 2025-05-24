@@ -1,46 +1,44 @@
 import React, { useState } from "react";
-import { ResourcePagination } from "./pagination";
-import ResourceTableToolbar from "./toolbar";
 import ResourceTable from "./table";
 import { RepositoryRestResource } from "@/interfaces/server-res";
 import { Box } from "@mui/material";
 import ResourceDialog, { DialogMode } from "./dialog";
-
-interface ResourceViewProps<T> {
-    title: string;
-    resource?: RepositoryRestResource<T[]> | null;
-    columns: { key: string; label: string }[]
-    columnComponents?: { [key: string]: React.ComponentType<{ value: any; row: T }> };
-    onSearch?: (value: string) => void;
-    onFilterClick?: () => void;
-    onAddClick?: () => void;
-    onPageChange: (event: React.ChangeEvent<unknown>, value: number) => void;
-    customTableAction?: (row: T) => React.ReactNode;
-    formBuilder: React.ReactNode;
-    onSubmitForm?: (data: any) => void;
-    onActionClick?: (mode: DialogMode, data: T) => void;
-}
+import { BaseEntity } from "@/interfaces/models/base-entity";
+import { ResourceComponentInterface as interfaces } from "./type";
 
 
-function ResourceView<T>({
+function ResourceView<T extends BaseEntity>({
     title,
     resource,
-    columns,
+    headCells,
     columnComponents,
+    showActions = true,
+    formBuilder,
     onSearch,
     onFilterClick,
     onAddClick,
     onPageChange,
     customTableAction: renderActions,
-    formBuilder,
     onSubmitForm,
     onActionClick,
-}: ResourceViewProps<T>) {
-    const [dialogState, setDialogState] = useState({
+}: interfaces.ResourceViewProps<T>) {
+
+    const [dialogState, setDialogState] = useState<interfaces.DialogState<T>>({
         open: false,
         mode: 'create' as DialogMode,
-        selectedModelResource: null as RepositoryRestResource<T> | null,
+        selectedModelResource: null as T | null,
     });
+
+    const [tableState, setTableState] = useState<interfaces.TableState<T>>({
+        order: "asc" as "asc" | "desc",
+        orderBy: headCells.length > 0 ? headCells[0].key : "",
+        selected: [] as number[],
+        page: resource?.page?.number || 0,
+        dense: false,
+        rowsPerPage: resource?.page?.size || 5,
+        search: "",
+    });
+
 
     const data = getEmbeddedData(resource);
 
@@ -58,21 +56,39 @@ function ResourceView<T>({
     }
     return (
         <Box sx={{ padding: 2, display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
-
-            <ResourceTableToolbar
+            <ResourceTable<T>
                 title={title}
+                data={data}
+                resource={resource}
+                showActions={showActions}
                 onSearch={onSearch}
                 onFilterClick={onFilterClick}
                 onAddClick={onAddClick}
+                onPageChange={onPageChange}
+                onSubmitForm={onSubmitForm}
+                onActionClick={onActionClick}
+                formBuilder={formBuilder}
+                headCells={headCells}
+                customTableAction={renderActions}
+                columnComponents={columnComponents}
+                dialogState={dialogState}
+                setDialogState={setDialogState}
+                tableState={tableState}
+                setTableState={setTableState}
             />
-            <ResourceTable<T> data={data} columns={columns} customTableAction={renderActions} columnComponents={columnComponents} dialogState={dialogState} setDialogState={setDialogState} onActionClick={onActionClick} />
             <Box sx={{ flexGrow: 1 }} />
-            <ResourcePagination resource={resource} onChange={onPageChange} />
+
             <ResourceDialog
                 open={dialogState.open}
                 mode={dialogState.mode}
                 title={title}
-                onClose={() => { setDialogState({ ...dialogState, open: false }) }}
+                onClose={() => {
+                    setTableState({
+                        ...tableState,
+                        selected: [],
+                    });
+                    setDialogState({ ...dialogState, open: false })
+                }}
                 onSubmit={() => {
                     if (dialogState.mode === "delete") {
                         // Handle delete logic here
