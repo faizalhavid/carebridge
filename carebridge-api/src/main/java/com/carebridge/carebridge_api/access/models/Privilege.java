@@ -5,9 +5,6 @@ import com.carebridge.carebridge_api.user.models.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -19,11 +16,11 @@ import java.util.Collection;
 
 @Entity
 @Data
-@Table(name = "m_role")
+@Table(name = "m_privilege")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role extends BaseEntity {
+public class Privilege extends BaseEntity {
 
     @Column(name = "name", length = 20)
     private String name;
@@ -31,11 +28,8 @@ public class Role extends BaseEntity {
     @Column(name = "code", length = 20)
     private String code;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "privileges")
     @JsonBackReference
-    private Collection<User> users;
+    private Collection<Role> roles;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "roles_privileges", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "privilege_id"))
-    private Collection<Privilege> privileges;
 }

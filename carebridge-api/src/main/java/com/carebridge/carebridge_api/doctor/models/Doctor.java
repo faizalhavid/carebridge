@@ -19,29 +19,27 @@ import java.util.List;
 @NoArgsConstructor
 public class Doctor extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "biodata_id", insertable = false, updatable = false)
-    public Biodata biodata;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "biodata_id", referencedColumnName = "id")
+    private Biodata biodata;
 
-    @Column(name = "biodata_id")
-    private Long biodataId;
 
     @Column(name = "str", length = 50)
     private String str;
 
-//    @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)
-//    @JsonBackReference
-//    List<CurrentDoctorSpecialization> currentDoctorSpecialization;
+    // @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)
+    // @JsonBackReference
+    // List<CurrentDoctorSpecialization> currentDoctorSpecialization;
 
-    @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
     @JsonBackReference
     List<DoctorOffice> doctorOffices;
 
-//    @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)
-//    @JsonBackReference
-//    List<DoctorTreatment> doctorTreatments;
+    // @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)
+    // @JsonBackReference
+    // List<DoctorTreatment> doctorTreatments;
 
-//    @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)
-//    @JsonBackReference
-//    List<CustomerChat> customerChat;
+    // @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)
+    // @JsonBackReference
+    // List<CustomerChat> customerChat;
 }

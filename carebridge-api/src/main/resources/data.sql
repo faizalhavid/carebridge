@@ -4,11 +4,30 @@ VALUES ('Admin', 'ROLE_ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Customer', 'ROLE_CUSTOMER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Doctor', 'ROLE_DOCTOR', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Medic', 'ROLE_MEDIC', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+-- Insert Privileges into the m_privilege table
+INSERT INTO m_privilege (name, code, created_at, updated_at, is_deleted)
+VALUES ('Create User', 'CREATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Read User', 'READ_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Update User', 'UPDATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Delete User', 'DELETE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Create Role', 'CREATE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Read Role', 'READ_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Update Role', 'UPDATE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Delete Role', 'DELETE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Create Menu', 'CREATE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Read Menu', 'READ_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Update Menu', 'UPDATE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+       ('Delete Menu', 'DELETE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+-- Insert User
+INSERT INTO m_user (email, created_at, updated_at, is_deleted)
+VALUES ('nurfaizal966@gmail.com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
 
--- Insert User Role admin
-INSERT INTO m_user (email, role_id, created_at, updated_at, is_deleted)
-VALUES ('nurfaizal966@gmail.com', (SELECT id FROM m_role WHERE name = 'Admin'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
-        false);
+-- Get the ID of the inserted user
+-- (Assume the ID is 1 for this example)
+
+-- Insert User-Role relationship into the join table
+INSERT INTO users_roles (user_id, role_id)
+VALUES (1, (SELECT id FROM m_role WHERE name = 'Admin'));
 
 
 -- data seed for registration flow
@@ -17,10 +36,18 @@ INSERT INTO t_token (email, token, used_for, created_at, updated_at, expired_at,
 VALUES ('nurhavid123@gmail.com', '123456', 'REGISTRATION', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP + INTERVAL '3 minutes', false);
 
--- verify token otp for registration email
-INSERT INTO m_user (email, role_id, created_at, updated_at, is_deleted)
-VALUES ('nurhavid123@gmail.com', (SELECT id FROM m_role WHERE name = 'Customer'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
-        false);
+-- Insert User
+INSERT INTO m_user (email, created_at, updated_at, is_deleted)
+VALUES ('nurhavid123@gmail.com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+
+-- Get the ID of the inserted user
+-- (Assume the ID is 1 for this example)
+
+-- Insert User-Role relationship into the join table
+INSERT INTO users_roles (user_id, role_id)
+VALUES (2, (SELECT id FROM m_role WHERE name = 'Customer'));
+
+
 
 
 -- data seed menu
