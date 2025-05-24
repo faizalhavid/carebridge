@@ -11,11 +11,20 @@ import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { createSelectedItemResourceStore } from "@/lib/stores/resource_store";
+import { DialogMode } from "@/components/resource/dialog";
+import { useAuthStore } from "@/lib/stores/auth_store";
 
 
-const useUserStore = createApiStore<RepositoryRestResource<User[]>>(
-    () => fetcher('/admin/users', { method: 'GET' }, true)
-);
+const useUserStore = createApiStore<RepositoryRestResource<User[]>, User>({
+    fetchFn: () => fetcher('/admin/users', { method: 'GET' }, true),
+    postFn: (data) => fetcher('/admin/users', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+    }, true),
+
+});
+
 
 const handlePageChange = (
     event: React.ChangeEvent<unknown>,
@@ -34,10 +43,31 @@ const userManagementSchema = yup.object().shape({
 
 
 
-export default function UserManagementPage() {
-    const { data, loading, error, fetchData } = useUserStore();
+const ROLE_PREVILEGES: { [key: string]: string[] } = {
+    SUPER_ADMIN: ["create", "edit", "view", "delete", "manage_password"],
+    ADMIN: ["create", "edit", "view"],
+    MANAGER: ["view"],
+};
 
-    const [selectedUser, setSelectedUser] = useState<User>();
+export default function UserManagementPage() {
+    const { data, loading, error, fetchData, postData } = useUserStore();
+    const { user } = useAuthStore();
+
+    const [pageState, setPageState] = useState(() => {
+        const role = user?.role.name.split("_")[1] || "MANAGER";
+        const privileges = ROLE_PREVILEGES[role] || [];
+        return {
+            selectedUser: null as User | null,
+            dialogMode: "create" as DialogMode,
+            isAuthorizedToCreate: privileges.includes("create"),
+            isAuthorizedToEdit: privileges.includes("edit"),
+            isAuthorizedToView: privileges.includes("view"),
+            isAuthorizedToDelete: privileges.includes("delete"),
+        };
+    });
+
+    console.log("Page State:", pageState);
+    console.log("User:", user);
 
     const handleSubmitUserForm = (data: any) => {
         console.log("Form submitted with data:", data);
@@ -52,9 +82,9 @@ export default function UserManagementPage() {
         resolver: yupResolver(userManagementSchema),
         defaultValues: {
 
-            email: selectedUser?.email ?? "",
-            fullName: selectedUser?.biodata?.fullName ?? "",
-            address: selectedUser?.biodata?.address ?? "",
+            email: pageState.selectedUser?.email ?? "",
+            fullName: pageState.selectedUser?.biodata?.fullName ?? "",
+            address: pageState.selectedUser?.biodata?.address ?? "",
             password: "",
         },
     });
@@ -65,12 +95,12 @@ export default function UserManagementPage() {
 
     useEffect(() => {
         reset({
-            email: selectedUser?.email ?? "",
-            fullName: selectedUser?.biodata?.fullName ?? "",
-            address: selectedUser?.biodata?.address ?? "",
+            email: pageState.selectedUser?.email ?? "",
+            fullName: pageState.selectedUser?.biodata?.fullName ?? "",
+            address: pageState.selectedUser?.biodata?.address ?? "",
             password: "",
         });
-    }, [selectedUser, reset]);
+    }, [pageState.selectedUser, reset]);
 
     return (
         <ResourceView<User>
@@ -90,10 +120,11 @@ export default function UserManagementPage() {
             onFilterClick={() => console.log("filter")}
             onAddClick={() => console.log("add")}
             onActionClick={(mode, user) => {
-                console.log("User clicked:", user);
-                setSelectedUser(user);
-
-                console.log("Selected user:", selectedUser);
+                setPageState((prev) => ({
+                    ...prev,
+                    selectedUser: user,
+                    dialogMode: mode,
+                }));
             }}
             onPageChange={handlePageChange}
             formBuilder={
@@ -133,6 +164,7 @@ export default function UserManagementPage() {
                             <AppTextField
                                 {...field}
                                 variant="outlined"
+                                multiline
                                 sizes="small"
                                 label="Address"
                                 helperText={errors.address?.message || "Enter your address"}
@@ -140,21 +172,26 @@ export default function UserManagementPage() {
                             />
                         )}
                     />
-                    <Controller
-                        name="password"
-                        control={control}
-                        render={({ field }) => (
-                            <AppTextField
-                                {...field}
-                                variant="outlined"
-                                sizes="small"
-                                label="Password"
-                                type="password"
-                                helperText={errors.password?.message || "Enter your password"}
-                                isRequired
-                            />
-                        )}
-                    />
+                    {(pageState.isAuthorizedToEdit || (pageState.isAuthorizedToCreate && pageState.dialogMode === "view")) && (
+                        <Controller
+                            name="password"
+                            control={control}
+                            render={({ field }) => (
+                                <AppTextField
+                                    {...field}
+                                    variant="outlined"
+                                    sizes="small"
+                                    label="Password"
+                                    type="password"
+                                    helperText={!pageState.isAuthorizedToEdit ? "You dont have permission to edit password"
+                                        : errors.password?.message || "Enter your password"}
+                                    isRequired
+                                    isDisabled={pageState.dialogMode === "view" && !pageState.isAuthorizedToEdit}
+                                />
+                            )}
+                        />
+                    )}
+
 
                 </form>
             }

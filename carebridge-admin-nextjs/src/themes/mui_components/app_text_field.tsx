@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import { TextField, InputAdornment } from "@mui/material";
 
 interface AppTextFieldProps {
@@ -13,6 +13,7 @@ interface AppTextFieldProps {
     isDisabled?: boolean;
     isRequired?: boolean;
     isError?: boolean;
+    multiline?: boolean;
     isReadOnly?: boolean;
     value?: string | number;
     defaultValue?: string | number;
@@ -32,20 +33,25 @@ export function AppTextField({
     isDisabled = false,
     isRequired = false,
     isError = false,
+    multiline = false,
     isReadOnly = false,
     value,
     defaultValue,
     onChange,
     onBlur,
 }: AppTextFieldProps) {
+    const [localState, setLocalState] = useState({
+        helperText: helperText || "",
+        isError: isError || false,
+    });
     return (
         <TextField
             variant={variant}
             size={sizes}
             type={type}
             label={label}
-            helperText={helperText}
-            error={isError}
+            helperText={localState.helperText}
+            error={localState.isError}
             disabled={isDisabled}
             required={isRequired}
             slotProps={{
@@ -55,7 +61,33 @@ export function AppTextField({
                     endAdornment: suffix ? <InputAdornment position="end">{suffix}</InputAdornment> : undefined,
                 },
             }}
+            onCopy={(e) => {
+                type === "password" && e.preventDefault();
+                setLocalState((prev) => ({
+                    ...prev,
+                    isError: true,
+                    helperText: "Copying is not allowed for password fields.",
+                }));
+            }}
+            onCut={(e) => {
+                type === "password" && e.preventDefault();
+                setLocalState((prev) => ({
+                    ...prev,
+                    isError: true,
+                    helperText: "Cutting is not allowed for password fields.",
+                }));
+            }}
+            onPaste={(e) => {
+                type === "password" && e.preventDefault();
+                setLocalState((prev) => ({
+                    ...prev,
+                    isError: true,
+                    helperText: "Pasting is not allowed for password fields.",
+                }));
+            }}
             value={value}
+            multiline={multiline}
+            rows={multiline ? 4 : 1}
             defaultValue={defaultValue}
             onChange={onChange}
             onBlur={onBlur}
