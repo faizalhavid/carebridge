@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { User } from "@/interfaces/models/user";
 import { fetcher } from "@/lib/utils/fetcher";
 import { RepositoryRestResource } from "@/interfaces/server-res";
@@ -12,7 +12,6 @@ import * as yup from "yup";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { createSelectedItemResourceStore } from "@/lib/stores/resource_store";
 
-const useSelectedUserStore = createSelectedItemResourceStore<User>();
 
 const useUserStore = createApiStore<RepositoryRestResource<User[]>>(
     () => fetcher('/admin/users', { method: 'GET' }, true)
@@ -37,9 +36,8 @@ const userManagementSchema = yup.object().shape({
 
 export default function UserManagementPage() {
     const { data, loading, error, fetchData } = useUserStore();
-    const { selectedItem, setSelectedItem, clearSelectedItem } = useSelectedUserStore();
 
-
+    const [selectedUser, setSelectedUser] = useState<User>();
 
     const handleSubmitUserForm = (data: any) => {
         console.log("Form submitted with data:", data);
@@ -54,9 +52,9 @@ export default function UserManagementPage() {
         resolver: yupResolver(userManagementSchema),
         defaultValues: {
 
-            email: selectedItem?.email ?? "",
-            fullName: selectedItem?.biodata?.fullName ?? "",
-            address: selectedItem?.biodata?.address ?? "",
+            email: selectedUser?.email ?? "",
+            fullName: selectedUser?.biodata?.fullName ?? "",
+            address: selectedUser?.biodata?.address ?? "",
             password: "",
         },
     });
@@ -67,22 +65,22 @@ export default function UserManagementPage() {
 
     useEffect(() => {
         reset({
-            email: selectedItem?.email ?? "",
-            fullName: selectedItem?.biodata?.fullName ?? "",
-            address: selectedItem?.biodata?.address ?? "",
+            email: selectedUser?.email ?? "",
+            fullName: selectedUser?.biodata?.fullName ?? "",
+            address: selectedUser?.biodata?.address ?? "",
             password: "",
         });
-    }, [selectedItem, reset]);
+    }, [selectedUser, reset]);
 
     return (
         <ResourceView<User>
             title="User Management"
             resource={data}
-            columns={[
-                { key: "id", label: "ID" },
-                { key: "biodata.fullName", label: "Nama" },
-                { key: "email", label: "Email" },
-                { key: "role", label: "Role" },
+            headCells={[
+                { id: "id", label: "ID", numeric: true, disablePadding: true },
+                { id: "biodata", label: "Nama", numeric: false, disablePadding: false, key: "fullName" },
+                { id: "email", label: "Email", numeric: false, disablePadding: false },
+                { id: "role", label: "Role", numeric: false, disablePadding: false },
             ]}
             columnComponents={{
                 role: ({ value }) => <Chip label={value.split("_")[1].toLowerCase()} color="primary" size="small" />,
@@ -93,9 +91,9 @@ export default function UserManagementPage() {
             onAddClick={() => console.log("add")}
             onActionClick={(mode, user) => {
                 console.log("User clicked:", user);
-                setSelectedItem(user);
+                setSelectedUser(user);
 
-                console.log("Selected item:", selectedItem);
+                console.log("Selected user:", selectedUser);
             }}
             onPageChange={handlePageChange}
             formBuilder={

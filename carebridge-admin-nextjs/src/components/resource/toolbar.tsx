@@ -1,91 +1,108 @@
 import React from "react";
-import { Box, Typography, TextField, Button, Stack, IconButton } from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import AddIcon from "@mui/icons-material/Add";
-
-interface TableToolbarProps {
-    title: string;
-    searchPlaceholder?: string;
-    onSearch?: (value: string) => void;
-    onFilterClick?: () => void;
-    onAddClick?: () => void;
-    children?: React.ReactNode;
-}
+import { Toolbar, Typography, TextField, Tooltip, IconButton, Theme, useMediaQuery } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import { Add, UnfoldLess, UnfoldMore } from "@mui/icons-material";
+import { alpha } from '@mui/material/styles';
+import { ResourceComponentInterface as interfaces } from "./type";
 
 
-interface ResourceTableToolbarProps {
-    title: string;
-    onSearch?: (value: string) => void;
-    onFilterClick?: () => void;
-    onAddClick?: () => void;
-    addButtonText?: string;
-    children?: React.ReactNode;
-}
-
-const TableToolbar: React.FC<TableToolbarProps> = ({
+function ResourceTableToolbar<T>({
     title,
-    searchPlaceholder = "Cari...",
+    numSelected,
+    tableState,
     onSearch,
+    setDialogState,
+    setTableState,
     onFilterClick,
-    onAddClick,
-    children,
-}) => {
-    const [search, setSearch] = React.useState("");
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(e.target.value);
-        if (onSearch) onSearch(e.target.value);
-    };
-
+}: interfaces.ResourceTableToolbarProps<T>) {
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     return (
-        <Box
-            sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 2,
-                gap: 2,
-                flexWrap: "wrap",
-            }}
+        <Toolbar
+            sx={[
+                {
+                    pl: { sm: 2 },
+                    pr: { xs: 1, sm: 1 },
+                },
+                numSelected > 0 && {
+                    bgcolor: (theme) =>
+                        alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+                },
+            ]}
         >
-            <Typography variant="subtitle1" component="div">
-                {title}
-            </Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
-                <TextField
-                    size="small"
-                    placeholder={searchPlaceholder}
-                    value={search}
-                    onChange={handleSearchChange}
-                    variant="outlined"
-                />
-                <IconButton color="primary" onClick={onFilterClick}>
-                    <FilterListIcon />
+            {
+                numSelected > 0 ? (
+                    <Typography
+                        sx={{ flex: '1 1 100%' }}
+                        color="inherit"
+                        variant="subtitle1"
+                        component="div"
+                    >
+                        {numSelected} selected
+                    </Typography>
+                ) : (
+                    <>
+                        <Typography
+                            sx={{ flex: '1 1 100%' }}
+                            variant="h6"
+                            id="tableTitle"
+                            component="div"
+                        >
+                            {title}
+                        </Typography>
+                        <TextField
+                            size="small"
+                            placeholder="Search..."
+                            variant="outlined"
+                            value={tableState.search}
+                            onChange={(e) => {
+                                setTableState((prev) => ({
+                                    ...prev,
+                                    search: e.target.value,
+                                }));
+                                if (onSearch) onSearch(e.target.value);
+                            }}
+                            sx={{ marginRight: 2, width: isMobile ? "100%" : "500px" }}
+                        />
+                        <Tooltip title={numSelected > 0 ? "Actions" : "Add New"}>
+                            <IconButton onClick={() => {
+                                setDialogState({
+                                    open: true,
+                                    mode: "create",
+                                    selectedModelResource: {} as T,
+                                });
+                            }}>
+                                <Add />
+                            </IconButton>
+                        </Tooltip>
+                    </>
+                )}
+
+            <Tooltip title="Expand">
+                <IconButton onClick={() => {
+                    setTableState((prev) => ({
+                        ...prev,
+                        dense: !prev.dense,
+                    }));
+                }}>
+                    {tableState.dense ? <UnfoldLess /> : <UnfoldMore />}
                 </IconButton>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    onClick={onAddClick}
-                >
-                    Tambah
-                </Button>
-                {children}
-            </Stack>
-        </Box>
+            </Tooltip>
+            {numSelected > 0 ? (
+                <Tooltip title="Delete">
+                    <IconButton>
+                        <DeleteIcon />
+                    </IconButton>
+                </Tooltip>
+            ) : (
+                <Tooltip title="Filter list">
+                    <IconButton>
+                        <FilterListIcon />
+                    </IconButton>
+                </Tooltip>
+            )}
+        </Toolbar >
     );
-};
-
-
-const ResourceTableToolbar: React.FC<ResourceTableToolbarProps> = (props) => (
-    <TableToolbar
-        title={props.title}
-        onSearch={props.onSearch}
-        onFilterClick={props.onFilterClick}
-        onAddClick={props.onAddClick}
-    >
-        {props.children}
-    </TableToolbar>
-);
+}
 
 export default ResourceTableToolbar;
