@@ -35,9 +35,9 @@ const menuNavbar: Menu[] = [
         parentId: null,
     },
 ];
-const useMenuStore = createApiStore<RepositoryRestResource<Menu[]>>(
-    () => fetcher('/admin/menus', { method: 'GET' }, true)
-);
+const useMenuStore = createApiStore<RepositoryRestResource<Menu[]>>({
+    fetchFn: () => fetcher('/admin/menus', { method: 'GET' }, true)
+});
 
 export default function DashboardLayout({
     children,
