@@ -11,6 +11,7 @@ import com.carebridge.carebridge_api.core.enums.TokenUsedFor;
 import com.carebridge.carebridge_api.core.exceptions.BadRequestException;
 import com.carebridge.carebridge_api.core.helpers.JwtHelper;
 import com.carebridge.carebridge_api.core.utils.SenderMail;
+import com.carebridge.carebridge_api.user.dto.projections.UserProjection;
 import com.carebridge.carebridge_api.user.models.Biodata;
 import com.carebridge.carebridge_api.access.models.Role;
 import com.carebridge.carebridge_api.user.models.User;
@@ -18,8 +19,6 @@ import com.carebridge.carebridge_api.user.repositories.BiodataRepository;
 import com.carebridge.carebridge_api.access.repositories.RoleRepository;
 import com.carebridge.carebridge_api.user.repositories.UserRepository;
 import jakarta.mail.MessagingException;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,10 +66,10 @@ public class AuthService {
     @Autowired
     private JwtHelper jwtHelper;
 
-    @Value("${jwt.refresh-token-expiration}")
+    @Value("${credentials.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    @Value("${jwt.access-token-expiration}")
+    @Value("${credentials.access-token-expiration}")
     private long accessTokenExpiration;
 
     final private int TIME_EXPIRED_TOKEN = 5;
@@ -95,7 +94,8 @@ public class AuthService {
         }
 
         if (user.getDeviceInfos().stream().noneMatch(
-                deviceInfo -> deviceInfo.getDeviceToken().equals(loginRequest.getDeviceInfo().getDeviceToken()))) {
+                deviceInfo -> deviceInfo.getDeviceToken()
+                        .equals(loginRequest.getDeviceInfo().getDeviceToken()))) {
             DeviceInfo newDevice = modelMapper.map(loginRequest.getDeviceInfo(), DeviceInfo.class);
             newDevice.setUser(user); // Ensure the user is set
             user.getDeviceInfos().add(newDevice);
@@ -130,11 +130,11 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         loginResponse.setAccessToken(accessToken);
         loginResponse.setRefreshToken(refreshToken);
-        loginResponse.setUser(user);
+        loginResponse.setUser(modelMapper.map(user, UserProjection.class));
         return loginResponse;
     }
 
-    public LocalDateTime registerEmailService(String email) throws MessagingException, IOException {
+    public LocalDateTime sendMailRegisterAccount(String email) throws MessagingException, IOException {
         Optional<User> user = userRepository.findByEmailAndIsDeletedFalse(email);
         if (user.isPresent())
             throw new BadRequestException("general", "User already verified");
@@ -142,8 +142,9 @@ public class AuthService {
         Optional<Token> existingToken = tokenRepository.findTokenJustCreatedByEmailAndUsedFor(email,
                 TokenUsedFor.REGISTRATION);
         if (existingToken.isPresent() && LocalDateTime.now().isBefore(existingToken.get().getExpiredAt())) {
-            throw new BadRequestException("general", "Token already sent. Please wait for " + TIME_RESEND_TOKEN
-                    + " seconds before requesting a new token.");
+            throw new BadRequestException("general",
+                    "Token already sent. Please wait for " + TIME_RESEND_TOKEN
+                            + " seconds before requesting a new token.");
         }
 
         Token tokenOtp = generateTokenOtp(email, TokenUsedFor.REGISTRATION, user);
@@ -158,12 +159,63 @@ public class AuthService {
         return tokenOtp.getExpiredAt();
     }
 
+    public LocalDateTime sendMailForgotPassword(String email) throws MessagingException, IOException {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+
+        Token tokenOtp = generateTokenOtp(email, TokenUsedFor.FORGOT_PASSWORD, Optional.of(user));
+        long minutesLeft = ChronoUnit.MINUTES.between(LocalDateTime.now(), tokenOtp.getExpiredAt());
+        Map<String, String> mailContext = Map.of(
+                "subject", "Forgot Password",
+                "message",
+                "<p>Forgot your password? Don't worry, we got you covered! Use the code below to reset your password.</p><p class=\"message\">The code above is only valid for <span class=\"highlight-text\">"
+                        + minutesLeft + " minutes</span>.</p>",
+                "additional_component", "<h1 class='otp'>" + tokenOtp.getToken() + "</h1>");
+        senderMail.sendMail(email, mailContext);
+        return tokenOtp.getExpiredAt();
+    }
+
+    public LocalDateTime sendMailChangePassword(String email) throws MessagingException, IOException {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+
+        Token tokenOtp = generateTokenOtp(email, TokenUsedFor.CHANGE_PASSWORD, Optional.of(user));
+        long minutesLeft = ChronoUnit.MINUTES.between(LocalDateTime.now(), tokenOtp.getExpiredAt());
+        Map<String, String> mailContext = Map.of(
+                "subject", "Change Password",
+                "message",
+                "<p>Change your password? Use the code below to change your password.</p><p class=\"message\">The code above is only valid for <span class=\"highlight-text\">"
+                        + minutesLeft + " minutes</span>.</p>",
+                "additional_component", "<h1 class='otp'>" + tokenOtp.getToken() + "</h1>");
+        senderMail.sendMail(email, mailContext);
+        return tokenOtp.getExpiredAt();
+    }
+
+    public LocalDateTime sendMailChangeUserMail(String email) throws MessagingException, IOException {
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+
+        Token token = generateTokenOtp(email, TokenUsedFor.CHANGE_EMAIL, Optional.of(user));
+        long minutesLeft = ChronoUnit.MINUTES.between(LocalDateTime.now(), token.getExpiredAt());
+        Map<String, String> mailContext = Map.of(
+                "subject", "Change Email",
+                "message",
+                "<p>Change your email? Use the code below to change your email.</p><p class=\"message\">The code above is only valid for <span class=\"highlight-text\">"
+                        + minutesLeft + " minutes</span>.</p>",
+                "additional_component", "<h1 class='otp'>" + token.getToken() + "</h1>");
+
+        senderMail.sendMail(email, mailContext);
+        return token.getExpiredAt();
+    }
+
     public void verifyTokenOTPService(VerifyTokenOtpRequest verifyTokenOtpRequest) {
         TokenUsedFor usedForEnum = TokenUsedFor.fromString(verifyTokenOtpRequest.getUsedFor());
         Token tokenOtp = tokenRepository
-                .findTokenByTokenAndEmailAndUsedFor(verifyTokenOtpRequest.getToken(), verifyTokenOtpRequest.getEmail(),
+                .findTokenByTokenAndEmailAndUsedFor(verifyTokenOtpRequest.getToken(),
+                        verifyTokenOtpRequest.getEmail(),
                         usedForEnum)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Invalid token"));
 
         if (tokenOtp.getExpiredAt().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
@@ -184,31 +236,88 @@ public class AuthService {
         user.setEmail(tokenOtp.getEmail());
         userRepository.save(user);
         tokenOtp.setUserId(user.getId());
-        tokenOtp.setIsExpired(true);
-        tokenOtp.setExpiredAt(LocalDateTime.now());
         tokenRepository.save(tokenOtp);
+    }
+
+    public void resetPasswordService(ResetPasswordRequest resetPasswordRequest) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(resetPasswordRequest.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+
+        Token token = tokenRepository
+                .findTokenByTokenAndEmailAndUsedFor(resetPasswordRequest.getToken(), resetPasswordRequest.getEmail(),
+                        TokenUsedFor.fromString(resetPasswordRequest.getUsedFor()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Invalid token"));
+
+        if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
+        }
+        if (!token.getToken().equals(resetPasswordRequest.getToken())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password does not match");
+        }
+
+        if (token.getUsedFor() == TokenUsedFor.CHANGE_PASSWORD && resetPasswordRequest.getOldPassword() != null) {
+            if (!passwordEncoder.matches(resetPasswordRequest.getOldPassword(), user.getPassword())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Old password is incorrect");
+            }
+            if (!passwordEncoder.matches(resetPasswordRequest.getNewPassword(), user.getPassword())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password cannot be the same as old password");
+            }
+        }
+
+        // Reset password
+        user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
+        userRepository.save(user);
+
+        token.setIsExpired(true);
+        token.setExpiredAt(LocalDateTime.now());
+        tokenRepository.save(token);
+    }
+
+    public void changeEmailService(ChangeEmailRequest changeEmailRequest) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(changeEmailRequest.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+
+        Token token = tokenRepository
+                .findTokenByTokenAndEmailAndUsedFor(changeEmailRequest.getToken(), changeEmailRequest.getEmail(),
+                        TokenUsedFor.CHANGE_EMAIL)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Invalid token"));
+
+        if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
+        }
+        if (!token.getToken().equals(changeEmailRequest.getToken())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token");
+        }
+
+        // Change email
+        user.setEmail(changeEmailRequest.getNewEmail());
+        userRepository.save(user);
+
+        token.setIsExpired(true);
+        token.setExpiredAt(LocalDateTime.now());
+        tokenRepository.save(token);
     }
 
     public RegisterAccountResponse registerAccountService(RegisterAccountRequest registerAccountRequest) {
         Token token = tokenRepository
                 .findFirstByTokenAndUsedForOrderByCreatedAtDesc(registerAccountRequest.getToken(),
                         TokenUsedFor.REGISTRATION)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
-
-        // if (token.getExpiredAt().isBefore(LocalDateTime.now()) ||
-        // token.getIsExpired()) {
-        // token.setIsExpired(true);
-        // tokenRepository.save(token);
-        // throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has
-        // expired");
-        // }
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Invalid token"));
+        if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
+        }
 
         User user = userRepository.findByEmailAndIsDeletedFalse(token.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "User not found"));
 
         Role role = roleRepository.findFirstByCode("ROLE_CUSTOMER")
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found"));
-        user.setRole(role);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Role not found"));
+        user.getRoles().add(role);
         if (!registerAccountRequest.getPassword().equals(registerAccountRequest.getConfirmPassword()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password does not match");
         user.setPassword(passwordEncoder.encode(registerAccountRequest.getPassword()));
@@ -221,78 +330,13 @@ public class AuthService {
         return new RegisterAccountResponse(user);
     }
 
-    // public RegisterAccountByAdminResponse registerAccountByAdminService(
-    // RegisterAccountByAdminRequest registerAccountRequest) {
-    // User user =
-    // userRepository.findByEmailAndIsDeletedFalse(registerAccountRequest.getEmail())
-    // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user
-    // found"));
-    // Biodata biodata = modelMapper.map(registerAccountRequest, Biodata.class);
-    // DeviceInfo deviceInfo =
-    // modelMapper.map(registerAccountRequest.getDeviceInfo(), DeviceInfo.class);
-    // RegisterAccountByAdminResponse registerAccountResponse = new
-    // RegisterAccountByAdminResponse();
-    // RoleProjection checkRole = roleRepository.findRoleByCode("ROLE_CUSTOMER");
-    // if (checkRole == null)
-    // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not
-    // found");
-    // user.setRole(modelMapper.map(checkRole, Role.class));
-    // user.setPassword(passwordEncoder.encode(registerAccountRequest.getPassword()));
-    // user.setBiodata(biodata);
-    // userRepository.save(user);
-    // biodataRepository.save(biodata);
-    // deviceInfo.setUser(user);
-    // deviceRepository.save(deviceInfo);
-    //
-    // registerAccountResponse.setUser(user);
-    // registerAccountResponse.setRole(user.getRole());
-    // registerAccountResponse.setAuthorities(user.getAuthorities());
-    //
-    // return registerAccountResponse;
-    // }
-
-    public LocalDateTime forgotPasswordEmailService(String email) throws MessagingException, IOException {
-        Optional<User> user = userRepository.findByEmailAndIsDeletedFalse(email);
-
-        if (!user.isPresent())
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found");
-        Token tokenOtp = generateTokenOtp(email, TokenUsedFor.FORGOT_PASSWORD, user);
-        Map<String, String> mailContext = Map.of(
-                "subject", "Forgot Password",
-                "message",
-                "<p>Forgot your password? Don't worry, we got you covered! Use the code beflow to reset your password.</p><p class=\"message\">The code above is only valid for <span class=\"highlight-text\">"
-                        + (tokenOtp.getExpiredAt().minusMinutes(LocalDateTime.now().getMinute()).getMinute())
-                        + " minutes</span>.</p>",
-                "additional_component", "<h1 class='otp'>" + tokenOtp.getToken() + "</h1>");
-        senderMail.sendMail(email, mailContext);
-        return tokenOtp.getExpiredAt();
-    }
-
-    public void resetPasswordService(ResetPasswordRequest resetPasswordRequest) {
-        Token tokenOtp = tokenRepository
-                .findTokenByTokenAndEmailAndUsedFor(resetPasswordRequest.getToken(), resetPasswordRequest.getEmail(),
-                        TokenUsedFor.FORGOT_PASSWORD)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
-        if (tokenOtp.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token has expired");
-        }
-        if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password does not match");
-        }
-
-        User user = userRepository.findByEmailAndIsDeletedFalse(resetPasswordRequest.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
-        user.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
-        userRepository.save(user);
-        tokenOtp.setIsExpired(true);
-        tokenOtp.setExpiredAt(LocalDateTime.now());
-        tokenRepository.save(tokenOtp);
-    }
 
     public void logoutService(String token) {
         // redisTemplate.delete("refresh_token:" + jwtHelper.extractUserId(token));
-        Token tokenUser = tokenRepository.findTokenByTokenAndUsedFor(token, TokenUsedFor.REFRESH_TOKEN.toString())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
+        Token tokenUser = tokenRepository
+                .findTokenByTokenAndUsedFor(token, TokenUsedFor.REFRESH_TOKEN.toString())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Invalid token"));
         tokenUser.setIsExpired(true);
         tokenUser.setExpiredAt(LocalDateTime.now());
         tokenUser.setDeleteAt(LocalDateTime.now());
@@ -315,14 +359,16 @@ public class AuthService {
                 "refresh_token", newRefreshToken);
     }
 
-    private Token generateTokenOtp(String email, TokenUsedFor usedFor, Optional<User> user) throws BadRequestException {
+    private Token generateTokenOtp(String email, TokenUsedFor usedFor, Optional<User> user)
+            throws BadRequestException {
         Optional<Token> tokenJustCreated = tokenRepository.findTokenJustCreatedByEmailAndUsedFor(email,
                 usedFor);
         if (tokenJustCreated.isPresent()) {
             Token existingToken = tokenJustCreated.get();
             if (LocalDateTime.now().isBefore(existingToken.getCreatedAt().plusSeconds(TIME_RESEND_TOKEN))) {
-                throw new BadRequestException("general", "Token already sent. Please wait for " + TIME_RESEND_TOKEN
-                        + " seconds before requesting a new token.");
+                throw new BadRequestException("general",
+                        "Token already sent. Please wait for " + TIME_RESEND_TOKEN
+                                + " seconds before requesting a new token.");
             }
             existingToken.setExpiredAt(ChronoUnit.MINUTES.addTo(LocalDateTime.now(), TIME_EXPIRED_TOKEN));
             existingToken.setIsExpired(false);

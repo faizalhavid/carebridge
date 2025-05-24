@@ -1,25 +1,30 @@
 package com.carebridge.carebridge_api.user.dto.projections;
 
-    import com.carebridge.carebridge_api.admin.models.Admin;
-    import com.carebridge.carebridge_api.customer.models.Customer;
-    import org.springframework.beans.factory.annotation.Value;
-    import java.util.List;
+import com.carebridge.carebridge_api.admin.models.Admin;
+import com.carebridge.carebridge_api.customer.models.Customer;
+import com.carebridge.carebridge_api.doctor.models.Doctor;
 
-    public interface BiodataProjection {
-        Long getId();
-        String getFullName();
-        String getMobilePhone();
-        String getImagePath();
+import org.springframework.beans.factory.annotation.Value;
+import java.util.List;
 
-        @Value("#{target.customer != null ? target.customer : null}")
-        List<Customer> getCustomer();
+public interface BiodataProjection {
+    Long getId();
 
-        @Value("#{target.admin != null ? target.admin : null}")
-        List<Admin> getAdmin();
+    String getFullName();
 
-//        @Value("#{target.doctor != null ? target.doctor : null}")
-//        List<Doctor> getDoctor();
-//
-//        @Value("#{target.medical != null ? target.medical : null}")
-//        List<Medical> getMedical();
-    }
+    String getMobilePhone();
+
+    String getImagePath();
+
+    @Value("#{target.customer != null ? target.customer : null}")
+    Customer getCustomer();
+
+    @Value("#{target.admin != null ? target.admin : null}")
+    Admin getAdmin();
+
+    @Value("#{target.doctor != null ? target.doctor : null}")
+    Doctor getDoctor();
+    //
+    // @Value("#{target.medical != null ? target.medical : null}")
+    // List<Medical> getMedical();
+}

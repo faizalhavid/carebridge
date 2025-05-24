@@ -21,11 +21,9 @@ import java.util.List;
 @AllArgsConstructor
 public class Customer extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "biodata_id", insertable = false, updatable = false)
-    @JsonManagedReference
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "biodata_id", referencedColumnName = "id")
     private Biodata biodata;
-
 
     @Column(name = "dob")
     private LocalDate dob;

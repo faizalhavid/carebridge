@@ -1,7 +1,9 @@
 package com.carebridge.carebridge_api.access.controllers;
 
 import java.util.List;
+
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,10 +17,10 @@ import com.carebridge.carebridge_api.core.responses.SuccessResponse;
 
 @RestController
 @RequestMapping("/admin/menu-role")
-@AllArgsConstructor
 @CrossOrigin("*")
 public class MenuRoleController {
-    final private MenuRoleService menuRoleService;
+    @Autowired
+    private MenuRoleService menuRoleService;
 
     @GetMapping("/getMenusByRoleId")
     public SuccessResponse<List<MenuRole>, Object> getMenusByRoleId() {

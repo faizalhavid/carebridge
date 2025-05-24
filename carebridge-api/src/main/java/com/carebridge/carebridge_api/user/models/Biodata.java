@@ -3,6 +3,7 @@ package com.carebridge.carebridge_api.user.models;
 import com.carebridge.carebridge_api.admin.models.Admin;
 import com.carebridge.carebridge_api.core.BaseEntity;
 import com.carebridge.carebridge_api.customer.models.Customer;
+import com.carebridge.carebridge_api.doctor.models.Doctor;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,23 +27,21 @@ public class Biodata extends BaseEntity {
     @Column(name = "mobile_phone", length = 15)
     private String mobilePhone;
 
-
     @Column(name = "image_path", length = 255)
     private String imagePath;
 
-    @OneToMany(mappedBy = "biodata", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "biodata")
+    private Customer customer;
+
+    @OneToOne(mappedBy = "biodata")
     @JsonBackReference
-    List<Customer> customer;
+    private Admin admin;
 
-    @OneToMany(mappedBy = "biodata", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "biodata")
     @JsonBackReference
-    List<Admin> admin;
+    private Doctor doctor;
 
-    // @OneToMany(mappedBy="biodata", cascade= CascadeType.ALL)
+    // @OneToOne(mappedBy = "biodata")
     // @JsonBackReference
-    // List<Doctor> doctor;
-
-    // @OneToMany(mappedBy="biodata", cascade= CascadeType.ALL)
-    // @JsonBackReference
-    // List<Medical> medical;
+    // private Medical medical;
 }

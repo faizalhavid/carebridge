@@ -1,6 +1,5 @@
 package com.carebridge.carebridge_api.auth.dto.requests;
 
-
 import com.carebridge.carebridge_api.core.annotations.EnumValidator;
 import com.carebridge.carebridge_api.core.enums.TokenUsedFor;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,10 +22,7 @@ public class VerifyTokenOtpRequest {
     private String email;
 
     @Schema(description = "Used for", example = "REGISTRATION")
-    @EnumValidator(
-            enumClass = TokenUsedFor.class,
-            acceptedValues = {"REGISTRATION", "PASSWORD_RESET"},
-            message = "Invalid value for UsedFor. Allowed values: REGISTRATION, PASSWORD_RESET"
-    )
+    @EnumValidator(enumClass = TokenUsedFor.class, acceptedValues = { "REGISTRATION", "PASSWORD_RESET", "CHANGE_EMAIL",
+            "CHANGE_PASSWORD" }, message = "Invalid value for UsedFor. Allowed values: REGISTRATION, PASSWORD_RESET")
     private String usedFor;
 }

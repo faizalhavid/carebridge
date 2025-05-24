@@ -3,14 +3,15 @@ package com.carebridge.carebridge_api.access.services;
 import com.carebridge.carebridge_api.access.models.MenuRole;
 import com.carebridge.carebridge_api.access.repositories.MenuRoleRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class MenuRoleService {
-    private final MenuRoleRepository menuRoleRepository;
+    @Autowired
+    private MenuRoleRepository menuRoleRepository;
 
     public List<MenuRole> getMenusByRoleId(String role) {
         System.out.println("Role :" + role);

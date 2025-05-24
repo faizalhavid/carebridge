@@ -10,13 +10,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Entity
 @Data
@@ -31,10 +32,10 @@ public class User extends BaseEntity implements UserDetails {
     @JsonManagedReference
     private Biodata biodata;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", insertable = false, updatable = false)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @JsonManagedReference
-    private Role role;
+    private Collection<Role> roles;
 
     @Column(name = "email", length = 100, unique = true)
     private String email;
@@ -57,11 +58,23 @@ public class User extends BaseEntity implements UserDetails {
     private List<DeviceInfo> deviceInfos;
 
     @Override
-    public List<GrantedAuthority> getAuthorities() {
-        if (role == null) {
+    public List<SimpleGrantedAuthority> getAuthorities() {
+        if (roles == null) {
             return Collections.emptyList();
         }
-        return Collections.singletonList(new SimpleGrantedAuthority(role.getCode()));
+        return roles.stream()
+                .flatMap(role -> {
+                    // Role as authority
+                    Stream<SimpleGrantedAuthority> roleAuth = Stream
+                            .of(new SimpleGrantedAuthority("ROLE_" + role.getCode()));
+                    // Privileges as authorities
+                    Stream<SimpleGrantedAuthority> privAuth = role.getPrivileges() == null
+                            ? Stream.empty()
+                            : role.getPrivileges().stream()
+                                    .map(priv -> new SimpleGrantedAuthority(priv.getCode()));
+                    return Stream.concat(roleAuth, privAuth);
+                })
+                .toList();
     }
 
     @Override
