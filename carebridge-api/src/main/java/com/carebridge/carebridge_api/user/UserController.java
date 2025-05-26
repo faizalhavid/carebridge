@@ -18,18 +18,18 @@ public class UserController {
     private UserService userService;
 
     // GET /api/users - Get all users
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR')")
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
+//    @GetMapping
+//    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR')")
+//    public ResponseEntity<List<UserResponse>> getAllUsers() {
+//        return ResponseEntity.ok(userService.getAllUsers());
+//    }
 
     // GET /api/users/{id} - Get user by ID
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR')")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
-    }
+//    @GetMapping("/{id}")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR')")
+//    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+//        return ResponseEntity.ok(userService.getUserById(id));
+//    }
 
     // POST /api/users - Create a new user
     @PostMapping

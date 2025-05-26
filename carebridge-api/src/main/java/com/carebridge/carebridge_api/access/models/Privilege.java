@@ -16,7 +16,7 @@ import java.util.Collection;
 
 @Entity
 @Data
-@Table(name = "m_privilege")
+@Table(name = "m_privileges")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor

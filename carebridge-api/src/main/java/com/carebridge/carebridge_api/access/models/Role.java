@@ -1,8 +1,10 @@
 package com.carebridge.carebridge_api.access.models;
 
 import com.carebridge.carebridge_api.core.BaseEntity;
+import com.carebridge.carebridge_api.core.validators.Views;
 import com.carebridge.carebridge_api.user.models.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,16 +28,20 @@ import java.util.Collection;
 public class Role extends BaseEntity {
 
     @Column(name = "name", length = 20)
+    @JsonView(Views.Public.class)
     private String name;
 
     @Column(name = "code", length = 20)
+    @JsonView(Views.Public.class)
     private String code;
 
     @ManyToMany(mappedBy = "roles")
     @JsonBackReference
+    @JsonView(Views.Public.class)
     private Collection<User> users;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "roles_privileges", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "privilege_id"))
+    @JsonView(Views.Public.class)
     private Collection<Privilege> privileges;
 }

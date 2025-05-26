@@ -9,25 +9,11 @@ import org.springframework.security.core.GrantedAuthority;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Projection(name = "userProjection", types = {UserProjection.class})
-public interface UserProjection {
+@Projection(name = "adminProjection", types = {AdminProjection.class})
+public interface AdminProjection {
     Long getId();
 
     Boolean getIsDeleted();
 
-    LocalDateTime getCreatedAt();
-
-    BiodataProjection getBiodata();
-
-    @Value("#{target.getRole().getCode()}")
-    String getRole();
-
-    String getEmail();
-
-    Boolean getIsLocked();
-    LocalDateTime getLastLogin();
-    List<DeviceInfo> getDeviceInfos();
-
-    List<GrantedAuthority> getAuthorities();
-
+    int getMaxGenerateAdminUser();
 }

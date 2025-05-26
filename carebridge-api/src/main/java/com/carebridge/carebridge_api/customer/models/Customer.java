@@ -1,9 +1,11 @@
 package com.carebridge.carebridge_api.customer.models;
 
 import com.carebridge.carebridge_api.core.BaseEntity;
+import com.carebridge.carebridge_api.core.validators.Views;
 import com.carebridge.carebridge_api.user.models.Biodata;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,45 +25,57 @@ public class Customer extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "biodata_id", referencedColumnName = "id")
+    @JsonView(Views.Internal.class)
     private Biodata biodata;
 
     @Column(name = "dob")
+    @JsonView(Views.Public.class)
     private LocalDate dob;
 
     @Column(name = "gender")
+    @JsonView(Views.Public.class)
     private String gender;
 
     @ManyToOne
     @JoinColumn(name = "blood_group_id", insertable = false, updatable = false)
     @JsonManagedReference
+    @JsonView(Views.Public.class)
     public BloodGroup bloodGroup;
 
     @Column(name = "rhesus_type", length = 5)
+    @JsonView(Views.Public.class)
     private String rhesusType;
 
     @Column(name = "height")
+    @JsonView(Views.Public.class)
     private Float height;
 
     @Column(name = "weight")
+    @JsonView(Views.Public.class)
     private Float weight;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonBackReference
+    @JsonView(Views.Public.class)
     List<CustomerMember> customerMember;
 
     // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
     // @JsonBackReference
+    //@JsonView(Views.Public.class)
     // List<CustomerChat> customerChat;
 
     // @OneToOne(mappedBy="customer" ,cascade=CascadeType.ALL)
     // @JsonBackReference
+    //@JsonView(Views.Public.class)
     // private CustomerWallet customerWallet;
 
     // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
     // @JsonBackReference
+    //@JsonView(Views.Public.class)
     // List<CustomerWalletWithdraw> customerWalletWithdraws;
 
     // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
     // @JsonBackReference
+    //@JsonView(Views.Public.class)
     // List<CustomerCustomNominal> customerCustomNominals;
 }
