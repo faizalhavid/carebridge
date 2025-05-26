@@ -1,8 +1,10 @@
 package com.carebridge.carebridge_api.doctor.models;
 
 import com.carebridge.carebridge_api.core.BaseEntity;
+import com.carebridge.carebridge_api.core.validators.Views;
 import com.carebridge.carebridge_api.user.models.Biodata;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,10 +23,12 @@ public class Doctor extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "biodata_id", referencedColumnName = "id")
+    @JsonView(Views.Public.class)
     private Biodata biodata;
 
 
     @Column(name = "str", length = 50)
+    @JsonView(Views.Public.class)
     private String str;
 
     // @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)
@@ -33,6 +37,7 @@ public class Doctor extends BaseEntity {
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
     @JsonBackReference
+    @JsonView(Views.Public.class)
     List<DoctorOffice> doctorOffices;
 
     // @OneToMany(mappedBy="doctor", cascade=CascadeType.ALL)

@@ -25,7 +25,9 @@ public interface UserProjection {
     String getEmail();
 
     Boolean getIsLocked();
+
     LocalDateTime getLastLogin();
+
     List<DeviceInfo> getDeviceInfos();
 
     List<GrantedAuthority> getAuthorities();

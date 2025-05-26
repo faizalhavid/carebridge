@@ -5,7 +5,7 @@ VALUES ('Admin', 'ROLE_ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Doctor', 'ROLE_DOCTOR', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Medic', 'ROLE_MEDIC', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
 -- Insert Privileges into the m_privilege table
-INSERT INTO m_privilege (name, code, created_at, updated_at, is_deleted)
+INSERT INTO m_privileges (name, code, created_at, updated_at, is_deleted)
 VALUES ('Create User', 'CREATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Read User', 'READ_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Update User', 'UPDATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),

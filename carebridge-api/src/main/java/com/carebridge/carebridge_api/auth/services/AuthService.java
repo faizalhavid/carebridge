@@ -130,7 +130,7 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         loginResponse.setAccessToken(accessToken);
         loginResponse.setRefreshToken(refreshToken);
-        loginResponse.setUser(modelMapper.map(user, UserProjection.class));
+        loginResponse.setUser(user);
         return loginResponse;
     }
 

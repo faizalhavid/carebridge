@@ -6,6 +6,8 @@ import com.carebridge.carebridge_api.auth.services.AuthService;
 import com.carebridge.carebridge_api.core.exceptions.BadRequestException;
 import com.carebridge.carebridge_api.core.responses.SuccessResponse;
 
+import com.carebridge.carebridge_api.core.validators.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -31,12 +34,13 @@ public class AuthController {
     private long refreshTokenExpiration;
 
     @PostMapping("/login")
-    public ResponseEntity<SuccessResponse<?, Object>> loginController(
+    @JsonView(Views.Public.class)
+    public ResponseEntity<SuccessResponse<LoginResponse, Object>> loginController(
             @Valid @RequestBody LoginRequest loginRequestDto)
             throws MessagingException, IOException {
         LoginResponse loginResponse = authService.loginService(loginRequestDto);
         ResponseCookie refreshTokenCookie = createRefreshTokenCookie(loginResponse.getRefreshToken());
-        loginResponse.setRefreshToken(null); // Remove refresh token from response body for security reasons
+        loginResponse.setRefreshToken(null);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(new SuccessResponse<>(loginResponse, "Login successful", 200));

@@ -1,19 +1,20 @@
 package com.carebridge.carebridge_api.user.dto.projections;
 
 
-import com.carebridge.carebridge_api.auth.models.DeviceInfo;
-import org.springframework.beans.factory.annotation.Value;
+import com.carebridge.carebridge_api.customer.models.BloodGroup;
 import org.springframework.data.rest.core.config.Projection;
-import org.springframework.security.core.GrantedAuthority;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDate;
 
-@Projection(name = "adminProjection", types = {AdminProjection.class})
-public interface AdminProjection {
+@Projection(name = "adminProjection", types = {CustomerProjection.class})
+public interface CustomerProjection {
     Long getId();
 
     Boolean getIsDeleted();
-;
-    int maxGenerateAdminUser();
+
+    LocalDate getDob();
+
+    String getGender();
+
+    BloodGroup getBloodGroup();
 }

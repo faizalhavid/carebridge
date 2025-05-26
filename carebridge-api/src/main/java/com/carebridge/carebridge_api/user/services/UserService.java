@@ -46,8 +46,8 @@ public class UserService {
                 .stream()
                 .map(user -> {
                     UserResponse response = new UserResponse();
-                    response.setUser(modelMapper.map(user, UserProjection.class));
-                    response.setBiodata(modelMapper.map(user.getBiodata(), BiodataProjection.class));
+                    response.setUser(user);
+                    response.setBiodata(user.getBiodata());
                     return response;
                 })
                 .toList();
@@ -58,8 +58,8 @@ public class UserService {
         return userRepository.findById(id)
                 .map(user -> {
                     UserResponse response = new UserResponse();
-                    response.setUser(modelMapper.map(user, UserProjection.class));
-                    response.setBiodata(modelMapper.map(user.getBiodata(), BiodataProjection.class));
+                    response.setUser(user);
+                    response.setBiodata(user.getBiodata());
                     return response;
                 })
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
@@ -97,8 +97,8 @@ public class UserService {
         userRepository.save(user);
 
         UserResponse response = new UserResponse();
-        response.setUser(modelMapper.map(user, UserProjection.class));
-        response.setBiodata(modelMapper.map(user.getBiodata(), BiodataProjection.class));
+        response.setUser(user);
+        response.setBiodata(user.getBiodata());
 
         return response;
     }
@@ -112,8 +112,8 @@ public class UserService {
         userRepository.save(user);
 
         UserResponse response = new UserResponse();
-        response.setUser(modelMapper.map(user, UserProjection.class));
-        response.setBiodata(modelMapper.map(user.getBiodata(), BiodataProjection.class));
+        response.setUser(user);
+        response.setBiodata(user.getBiodata());
 
         return response;
     }
