@@ -24,7 +24,6 @@ public class JwtHelper {
     }
 
     private SecretKey getParsedSecretKey() {
-        System.out.println("Secret :" + SECRET_KEY);
         byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, "HmacSHA256");
     }
