@@ -22,11 +22,12 @@ public class ImplUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) {
         User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found"));
+        user.getRoles().forEach(role -> System.out.println("Role: " + role.getCode()));
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .authorities(user.getRoles().stream()
-                        .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority(role.getName()))
+                        .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority(role.getCode()))
                         .toList())
                 .build();
     }

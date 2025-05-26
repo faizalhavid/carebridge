@@ -40,10 +40,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll()
                         .requestMatchers("/api/auth/logout", "/api/menu").authenticated()
-                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
-                        .requestMatchers("/api/medic/**").hasRole("MEDIC")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/customer/**").hasAuthority("ROLE_CUSTOMER")
+                        .requestMatchers("/api/doctor/**").hasAuthority("ROLE_DOCTOR")
+                        .requestMatchers("/api/medic/**").hasAuthority("ROLE_MEDIC")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Changed to hasAuthority
                         .anyRequest().permitAll())
                 .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

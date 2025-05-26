@@ -76,7 +76,7 @@ public class User extends BaseEntity implements UserDetails {
                 .flatMap(role -> {
                     // Role as authority
                     Stream<SimpleGrantedAuthority> roleAuth = Stream
-                            .of(new SimpleGrantedAuthority("ROLE_" + role.getCode()));
+                            .of(new SimpleGrantedAuthority(role.getCode()));
                     // Privileges as authorities
                     Stream<SimpleGrantedAuthority> privAuth = role.getPrivileges() == null
                             ? Stream.empty()
