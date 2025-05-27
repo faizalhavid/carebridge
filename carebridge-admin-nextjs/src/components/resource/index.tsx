@@ -39,6 +39,8 @@ function ResourceView<T extends BaseEntity>({
         search: "",
     });
 
+    console.log("ResourceView rendered with resource:", resource);
+
 
     const data = getEmbeddedData(resource);
 

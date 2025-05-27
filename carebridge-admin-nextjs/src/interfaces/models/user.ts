@@ -20,7 +20,7 @@ export interface User extends BaseEntity {
     lastLogin: Date;
     // deviceInfo: DeviceInfo[];
     // authority: Authority[];
-    role: Role;
+    roles: Role[];
     biodata: Biodata;
 }
 
