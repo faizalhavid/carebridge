@@ -13,11 +13,12 @@ import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { createSelectedItemResourceStore } from "@/lib/stores/resource_store";
 import { DialogMode } from "@/components/resource/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
+import { time } from "console";
 
 
 const useUserStore = createApiStore<RepositoryRestResource<User[]>, User>({
     fetchFn: () => fetcher('/admin/users', { method: 'GET' }, true),
-    postFn: (data) => fetcher('/admin/users', {
+    postFn: (data) => fetcher('/admin/manage-user', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' },
@@ -54,7 +55,7 @@ export default function UserManagementPage() {
     const { user } = useAuthStore();
 
     const [pageState, setPageState] = useState(() => {
-        const role = user?.role.name.split("_")[1] || "MANAGER";
+        const role = user?.roles.find((r) => r.name.startsWith("ROLE_"))?.name || "ROLE_USER";
         const privileges = ROLE_PREVILEGES[role] || [];
         return {
             selectedUser: null as User | null,
@@ -65,9 +66,6 @@ export default function UserManagementPage() {
             isAuthorizedToDelete: privileges.includes("delete"),
         };
     });
-
-    console.log("Page State:", pageState);
-    console.log("User:", user);
 
     const handleSubmitUserForm = (data: any) => {
         console.log("Form submitted with data:", data);
@@ -91,6 +89,7 @@ export default function UserManagementPage() {
 
     useEffect(() => {
         fetchData();
+        console.log("Fetching user data...");
     }, []);
 
     useEffect(() => {
@@ -107,10 +106,10 @@ export default function UserManagementPage() {
             title="User Management"
             resource={data}
             headCells={[
-                { id: "id", label: "ID", numeric: true, disablePadding: true },
-                { id: "biodata", label: "Nama", numeric: false, disablePadding: false, key: "fullName" },
-                { id: "email", label: "Email", numeric: false, disablePadding: false },
-                { id: "role", label: "Role", numeric: false, disablePadding: false },
+                { key: "user.id", label: "ID", numeric: true, disablePadding: true },
+                { key: "biodata.fullName", label: "Nama", numeric: false, disablePadding: false, },
+                { key: "user.email", label: "Email", numeric: false, disablePadding: false },
+                { key: "user.roles", label: "Role", numeric: false, disablePadding: false },
             ]}
             columnComponents={{
                 role: ({ value }) => <Chip label={value.split("_")[1].toLowerCase()} color="primary" size="small" />,

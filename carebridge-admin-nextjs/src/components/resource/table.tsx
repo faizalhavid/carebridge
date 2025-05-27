@@ -200,7 +200,7 @@ function ResourceTable<T extends BaseEntity>({
                                                 />
                                             </TableCell>}
                                         {headCells.map((col) => {
-                                            const value = col.key ? (row as any)[col.id][col.key] : (row as any)[col.id];
+                                            const value = col.key?.split('.').reduce((acc, part) => acc && (acc as Record<string, any>)[part], row);
                                             const CustomComponent = columnComponents[String(col.key ?? col.id)];
                                             return (
                                                 <TableCell

@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+// @JsonView(Views.Public.class)
 public class UserResponse {
-    @JsonView(Views.Public.class)
     private User user;
-    @JsonView(Views.Public.class)
     private Biodata biodata;
+
 }

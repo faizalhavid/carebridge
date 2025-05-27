@@ -16,7 +16,6 @@ function ResourceTableHead<T extends BaseEntity>({
     headCells,
     showActions
 }: interfaces.ResourceTableHeadProps<T>) {
-    console.log("showActions", showActions);
     return (
         <TableHead>
             <TableRow>

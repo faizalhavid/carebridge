@@ -31,11 +31,11 @@ namespace ResourceComponentInterface {
     }
 
     export interface ResourceTableHeadCell<T extends BaseEntity> {
-        id: keyof T;
+        id?: keyof T;
         label: string;
         numeric: boolean;
         disablePadding: boolean;
-        key?: string | undefined; // for nested properties
+        key: string | undefined; // for nested properties
     }
 
 
