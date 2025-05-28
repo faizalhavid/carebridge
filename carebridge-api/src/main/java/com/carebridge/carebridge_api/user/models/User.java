@@ -3,7 +3,7 @@ package com.carebridge.carebridge_api.user.models;
 import com.carebridge.carebridge_api.access.models.Role;
 import com.carebridge.carebridge_api.auth.models.DeviceInfo;
 import com.carebridge.carebridge_api.core.BaseEntity;
-import com.carebridge.carebridge_api.core.validators.Views;
+import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonView;

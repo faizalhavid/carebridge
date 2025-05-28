@@ -2,7 +2,7 @@ package com.carebridge.carebridge_api.auth.models;
 
 
 import com.carebridge.carebridge_api.core.BaseEntity;
-import com.carebridge.carebridge_api.core.validators.Views;
+import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.carebridge.carebridge_api.user.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;

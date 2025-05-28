@@ -1,7 +1,7 @@
 package com.carebridge.carebridge_api.admin.models;
 
 import com.carebridge.carebridge_api.core.BaseEntity;
-import com.carebridge.carebridge_api.core.validators.Views;
+import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.carebridge.carebridge_api.user.models.Biodata;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;

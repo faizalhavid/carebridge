@@ -1,4 +1,4 @@
-package com.carebridge.carebridge_api.core.responses;
+package com.carebridge.carebridge_api.core.general_dto.responses;
 
 
 import lombok.AllArgsConstructor;

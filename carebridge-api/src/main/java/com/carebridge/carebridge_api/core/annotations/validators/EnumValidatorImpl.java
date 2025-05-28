@@ -1,4 +1,4 @@
-package com.carebridge.carebridge_api.core.validators;
+package com.carebridge.carebridge_api.core.annotations.validators;
 
 import com.carebridge.carebridge_api.core.annotations.EnumValidator;
 import jakarta.validation.ConstraintValidator;

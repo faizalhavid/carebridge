@@ -1,8 +1,8 @@
 package com.carebridge.carebridge_api.core.helpers;
 
 import com.carebridge.carebridge_api.auth.services.ImplUserDetailService;
-import com.carebridge.carebridge_api.core.responses.ErrorDetails;
-import com.carebridge.carebridge_api.core.responses.ErrorResponse;
+import com.carebridge.carebridge_api.core.general_dto.responses.ErrorDetails;
+import com.carebridge.carebridge_api.core.general_dto.responses.ErrorResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -65,7 +64,7 @@ public class TokenAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             filterChain.doFilter(request, response);
-       } catch (JwtException e) {
+        } catch (JwtException e) {
             log.error("Access Denied: {}", e.getMessage(), e);
             List<ErrorDetails> errors = new ArrayList<>();
             errors.add(new ErrorDetails("authorization", e.getMessage()));
@@ -80,12 +79,12 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         }
     }
 
-private String convertObjectToJson(Object object) throws JsonProcessingException {
-    if (object == null) {
-        return null;
+    private String convertObjectToJson(Object object) throws JsonProcessingException {
+        if (object == null) {
+            return null;
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        return mapper.writeValueAsString(object);
     }
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.registerModule(new JavaTimeModule());
-    return mapper.writeValueAsString(object);
-}
 }

@@ -1,6 +1,6 @@
-package com.carebridge.carebridge_api.core.responses;
+package com.carebridge.carebridge_api.core.general_dto.responses;
 
-import com.carebridge.carebridge_api.core.validators.Views;
+import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;

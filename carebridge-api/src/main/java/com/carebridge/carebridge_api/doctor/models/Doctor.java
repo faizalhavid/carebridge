@@ -1,7 +1,7 @@
 package com.carebridge.carebridge_api.doctor.models;
 
 import com.carebridge.carebridge_api.core.BaseEntity;
-import com.carebridge.carebridge_api.core.validators.Views;
+import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.carebridge.carebridge_api.user.models.Biodata;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonView;
