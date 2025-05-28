@@ -25,7 +25,6 @@ public class UserController {
 
     // GET /api/users - Get all users
     @GetMapping
-    @JsonView(Views.Public.class)
     public ResponseEntity<PagedModel<EntityModel<UserResponse>>> getUsers(Pageable pageable) {
         Page<UserResponse> users = userService.getAllUsers(pageable);
 
@@ -56,7 +55,8 @@ public class UserController {
     // PUT /api/users/{id} - Update an existing user
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SuccessResponse<UserResponse, Object>> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+    public ResponseEntity<SuccessResponse<UserResponse, Object>> updateUser(@PathVariable Long id,
+            @RequestBody UserRequest userRequest) {
         UserResponse user = userService.updateUser(id, userRequest);
         return ResponseEntity.ok(new SuccessResponse<>(user, "Update user successful", 200));
     }
@@ -68,10 +68,11 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok(new SuccessResponse<>(null, "Delete user successful", 200));
     }
-    
+
     @PutMapping("/update-profile/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR')")
-    public ResponseEntity<SuccessResponse<UserResponse, Object>> updateProfile(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+    public ResponseEntity<SuccessResponse<UserResponse, Object>> updateProfile(@PathVariable Long id,
+            @RequestBody UserRequest userRequest) {
         UserResponse user = userService.updateProfile(id, userRequest);
         return ResponseEntity.ok(new SuccessResponse<>(user, "Update profile successful", 200));
     }

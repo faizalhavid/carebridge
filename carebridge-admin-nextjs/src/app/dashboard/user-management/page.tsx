@@ -106,18 +106,27 @@ export default function UserManagementPage() {
             title="User Management"
             resource={data}
             headCells={[
-                { key: "user.id", label: "ID", numeric: true, disablePadding: true },
+                { key: "id", label: "ID", numeric: true, disablePadding: true },
                 { key: "biodata.fullName", label: "Nama", numeric: false, disablePadding: false, },
-                { key: "user.email", label: "Email", numeric: false, disablePadding: false },
-                { key: "user.roles", label: "Role", numeric: false, disablePadding: false },
+                { key: "email", label: "Email", numeric: false, disablePadding: false },
+                { key: "roles", label: "Role", numeric: false, disablePadding: false },
             ]}
             columnComponents={{
                 role: ({ value }) => <Chip label={value.split("_")[1].toLowerCase()} color="primary" size="small" />,
-
             }}
             onSearch={(v) => console.log(v)}
             onFilterClick={() => console.log("filter")}
             onAddClick={() => console.log("add")}
+            onCloseDialog={
+                () => {
+                    if (pageState.dialogMode == 'edit' || pageState.dialogMode == 'view') {
+                        setPageState((prev) => ({
+                            ...prev,
+                            selectedUser: null,
+                        }));
+                    }
+                }
+            }
             onActionClick={(mode, user) => {
                 setPageState((prev) => ({
                     ...prev,

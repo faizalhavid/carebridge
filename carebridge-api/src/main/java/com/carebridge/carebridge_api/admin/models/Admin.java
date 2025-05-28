@@ -3,6 +3,7 @@ package com.carebridge.carebridge_api.admin.models;
 import com.carebridge.carebridge_api.core.BaseEntity;
 import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.carebridge.carebridge_api.user.models.Biodata;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class Admin extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "biodata_id", referencedColumnName = "id")
     @JsonView(Views.Internal.class)
+    @JsonBackReference
     private Biodata biodata;
 
     @Column(nullable = true, columnDefinition = "int default 2")
