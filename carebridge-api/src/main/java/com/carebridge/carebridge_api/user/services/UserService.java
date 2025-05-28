@@ -6,6 +6,7 @@ import com.carebridge.carebridge_api.access.models.Role;
 import com.carebridge.carebridge_api.access.repositories.RoleRepository;
 import com.carebridge.carebridge_api.admin.models.Admin;
 
+import com.carebridge.carebridge_api.user.dto.responses.ProfileResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -42,9 +43,10 @@ public class UserService {
     public Page<UserResponse> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(user -> {
-                    UserResponse response = new UserResponse();
-                    response.setUser(user);
-                    response.setBiodata(user.getBiodata());
+                    UserResponse response = modelMapper.map(user, UserResponse.class);
+                    if (user.getBiodata() != null) {
+                        response.setBiodata(modelMapper.map(user.getBiodata(), ProfileResponse.class));
+                    }
                     return response;
                 });
     }
@@ -53,9 +55,10 @@ public class UserService {
     public UserResponse getUserById(Long id) {
         return userRepository.findById(id)
                 .map(user -> {
-                    UserResponse response = new UserResponse();
-                    response.setUser(user);
-                    response.setBiodata(user.getBiodata());
+                    UserResponse response = modelMapper.map(user, UserResponse.class);
+                    if (user.getBiodata() != null) {
+                        response.setBiodata(modelMapper.map(user.getBiodata(), ProfileResponse.class));
+                    }
                     return response;
                 })
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
@@ -68,7 +71,7 @@ public class UserService {
         });
 
         User authenticatedUser = userRepository.findById(
-                (Long) ((SecurityContext) SecurityContextHolder.getContext()).getAuthentication().getDetails())
+                        (Long) ((SecurityContext) SecurityContextHolder.getContext()).getAuthentication().getDetails())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         Admin authenticatedAdmin = authenticatedUser.getBiodata().getAdmin();
         if (userRequest.getRoles() != null && userRequest.getRoles().contains("ADMIN")) {
@@ -92,11 +95,7 @@ public class UserService {
         user.setRoles(roles);
         userRepository.save(user);
 
-        UserResponse response = new UserResponse();
-        response.setUser(user);
-        response.setBiodata(user.getBiodata());
-
-        return response;
+        return modelMapper.map(user, UserResponse.class);
     }
 
     // putUser : admin : update
@@ -107,11 +106,7 @@ public class UserService {
         modelMapper.map(userRequest, user);
         userRepository.save(user);
 
-        UserResponse response = new UserResponse();
-        response.setUser(user);
-        response.setBiodata(user.getBiodata());
-
-        return response;
+        return modelMapper.map(user, UserResponse.class);
     }
 
     // deleteUser : admin : delete
@@ -122,4 +117,29 @@ public class UserService {
         user.setIsDeleted(true);
         userRepository.save(user);
     }
+
+    public UserResponse updateProfile(Long id, UserRequest userRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        if (userRequest.getEmail() != null && !userRequest.getEmail().isEmpty()) {
+            user.setEmail(userRequest.getEmail());
+        }
+
+        userRepository.save(user);
+
+        return modelMapper.map(user, UserResponse.class);
+    }
+
+//    public  void updateImage(Long id, String imageUrl) {
+//        User user = userRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+//
+//        if (user.getBiodata() == null) {
+//            throw new RuntimeException("User does not have biodata to update image.");
+//        }
+//
+//        user.getBiodata().setImage(imageUrl);
+//        userRepository.save(user);
+//    }
 }

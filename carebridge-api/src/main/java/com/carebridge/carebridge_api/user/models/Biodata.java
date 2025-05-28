@@ -2,7 +2,7 @@ package com.carebridge.carebridge_api.user.models;
 
 import com.carebridge.carebridge_api.admin.models.Admin;
 import com.carebridge.carebridge_api.core.BaseEntity;
-import com.carebridge.carebridge_api.core.validators.Views;
+import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.carebridge.carebridge_api.customer.models.Customer;
 import com.carebridge.carebridge_api.doctor.models.Doctor;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -12,8 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Table(name = "m_biodata")

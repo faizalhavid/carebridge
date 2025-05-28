@@ -1,15 +1,12 @@
 package com.carebridge.carebridge_api.user.dto.projections;
 
 import com.carebridge.carebridge_api.admin.models.Admin;
-import com.carebridge.carebridge_api.core.validators.Views;
+import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.carebridge.carebridge_api.customer.models.Customer;
 import com.carebridge.carebridge_api.doctor.models.Doctor;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.List;
 
 public interface BiodataProjection {
     Long getId();

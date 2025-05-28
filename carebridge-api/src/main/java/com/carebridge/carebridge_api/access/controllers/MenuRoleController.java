@@ -2,7 +2,6 @@ package com.carebridge.carebridge_api.access.controllers;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.carebridge.carebridge_api.access.models.MenuRole;
 import com.carebridge.carebridge_api.access.services.MenuRoleService;
-import com.carebridge.carebridge_api.core.responses.SuccessResponse;
+import com.carebridge.carebridge_api.core.general_dto.responses.SuccessResponse;
 
 @RestController
 @RequestMapping("/admin/menu-role")

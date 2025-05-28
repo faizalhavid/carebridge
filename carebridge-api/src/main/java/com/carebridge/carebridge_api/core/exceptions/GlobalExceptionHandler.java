@@ -1,8 +1,8 @@
 package com.carebridge.carebridge_api.core.exceptions;
 
 
-import com.carebridge.carebridge_api.core.responses.ErrorDetails;
-import com.carebridge.carebridge_api.core.responses.ErrorResponse;
+import com.carebridge.carebridge_api.core.general_dto.responses.ErrorDetails;
+import com.carebridge.carebridge_api.core.general_dto.responses.ErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -28,7 +28,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

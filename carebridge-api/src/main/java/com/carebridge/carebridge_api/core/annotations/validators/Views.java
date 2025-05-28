@@ -1,4 +1,4 @@
-package com.carebridge.carebridge_api.core.validators;
+package com.carebridge.carebridge_api.core.annotations.validators;
 
 public class Views {
     public static class Public {

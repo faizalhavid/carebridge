@@ -4,17 +4,22 @@ import { Biodata } from "./biodata";
 import { DeviceInfo } from "./device-info";
 
 
+export interface Privilege {
+    id: number;
+    name: string;
+}
+
 export interface Role extends BaseEntity {
     id: number;
     name: string;
-    description: string;
+    privileges: Privilege[];
 }
 
 export interface User extends BaseEntity {
     id: number;
     name: string;
     email: string;
-    password: string;
+    // password: string;
     loginAttempt: number;
     isLocked: boolean;
     lastLogin: Date;
