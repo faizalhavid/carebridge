@@ -81,6 +81,7 @@ namespace ResourceComponentInterface {
         onFilterClick?: () => void;
         onAddClick?: () => void;
         onPageChange: (event: React.ChangeEvent<unknown>, value: number) => void;
+        onCloseDialog: () => void;
         customTableAction?: (row: T) => React.ReactNode;
         onSubmitForm?: (data: any) => void;
         onActionClick?: (mode: DialogMode, data: T) => void;

@@ -60,7 +60,7 @@ export default function NavbarDashboard({ isSidebarExpanded, items, toggleSideba
                     </IconButton>
                 )}
                 <Box sx={{ display: "flex", justifyContent: isMobile ? "center" : "flex-start", alignItems: "center", flexGrow: isMobile ? 1 : 0 }}>
-                    {(isMobile || !isSidebarExpanded) && <AppLogo size="small" variant="light" />}
+                    {(isMobile || !isSidebarExpanded) && <AppLogo size="small" variant={scrolled ? 'dark' : 'light'} />}
                 </Box>
 
                 <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -83,11 +83,13 @@ export default function NavbarDashboard({ isSidebarExpanded, items, toggleSideba
                     color="inherit"
                     sx={{
                         marginLeft: "auto",
-                        color: scrolled ? "primary" : "white",
+
                         display: { xs: 'none', md: 'flex' },
                     }}
                 >
-                    <AccountCircle />
+                    <AccountCircle sx={{
+                        color: scrolled ? "black" : "white",
+                    }} />
                 </IconButton>
 
 

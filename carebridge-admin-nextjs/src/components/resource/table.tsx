@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, ButtonGroup, Typography, Checkbox, TableSortLabel, Toolbar, IconButton, Tooltip, TextField, Box, TablePagination } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, ButtonGroup, Typography, Checkbox, TableSortLabel, Toolbar, IconButton, Tooltip, TextField, Box, TablePagination, Chip } from "@mui/material";
 import { BaseEntity } from "@/interfaces/models/base-entity";
 import ResourceTableToolbar from "./toolbar";
 import { ResourceComponentInterface as interfaces } from "./type";
@@ -200,8 +200,18 @@ function ResourceTable<T extends BaseEntity>({
                                                 />
                                             </TableCell>}
                                         {headCells.map((col) => {
-                                            const value = col.key?.split('.').reduce((acc, part) => acc && (acc as Record<string, any>)[part], row);
+                                            let value;
+                                            if (col.key) {
+                                                value = (col.key ?? "id").split('.').reduce(
+                                                    (acc, part) => acc && (acc as Record<string, any>)[part],
+                                                    row as Record<string, any>
+                                                );
+                                            } else {
+                                                value = row[col.id as keyof T];
+                                            }
+
                                             const CustomComponent = columnComponents[String(col.key ?? col.id)];
+
                                             return (
                                                 <TableCell
                                                     key={String(col.key ?? col.id)}
@@ -209,10 +219,24 @@ function ResourceTable<T extends BaseEntity>({
                                                     scope={idx === 0 ? "row" : undefined}
                                                     padding={col.disablePadding ? "none" : "normal"}
                                                 >
-                                                    {CustomComponent
-                                                        ? <CustomComponent value={value} row={row} />
-                                                        : <Typography variant="body2" color="text.secondary">{String(value)}</Typography>
-                                                    }
+                                                    {Array.isArray(value) ? (
+                                                        value.length > 0 ? (
+                                                            value.map((item: any, i: number) => (
+                                                                <Chip
+                                                                    key={i}
+                                                                    label={item.name || item.label || String(item)}
+                                                                    size="small"
+                                                                    sx={{ mr: 0.5, mb: 0.5 }}
+                                                                />
+                                                            ))
+                                                        ) : (
+                                                            <Typography variant="body2" color="text.secondary">-</Typography>
+                                                        )
+                                                    ) : CustomComponent ? (
+                                                        <CustomComponent value={value} row={row} />
+                                                    ) : (
+                                                        <Typography variant="body2" color="text.secondary">{String(value)}</Typography>
+                                                    )}
                                                 </TableCell>
                                             );
                                         })}

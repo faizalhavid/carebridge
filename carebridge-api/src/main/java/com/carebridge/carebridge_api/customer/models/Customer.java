@@ -26,6 +26,7 @@ public class Customer extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "biodata_id", referencedColumnName = "id")
     @JsonView(Views.Internal.class)
+    @JsonBackReference
     private Biodata biodata;
 
     @Column(name = "dob")
@@ -61,21 +62,21 @@ public class Customer extends BaseEntity {
 
     // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
     // @JsonBackReference
-    //@JsonView(Views.Public.class)
+    // @JsonView(Views.Public.class)
     // List<CustomerChat> customerChat;
 
     // @OneToOne(mappedBy="customer" ,cascade=CascadeType.ALL)
     // @JsonBackReference
-    //@JsonView(Views.Public.class)
+    // @JsonView(Views.Public.class)
     // private CustomerWallet customerWallet;
 
     // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
     // @JsonBackReference
-    //@JsonView(Views.Public.class)
+    // @JsonView(Views.Public.class)
     // List<CustomerWalletWithdraw> customerWalletWithdraws;
 
     // @OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
     // @JsonBackReference
-    //@JsonView(Views.Public.class)
+    // @JsonView(Views.Public.class)
     // List<CustomerCustomNominal> customerCustomNominals;
 }

@@ -24,8 +24,8 @@ public class Doctor extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "biodata_id", referencedColumnName = "id")
     @JsonView(Views.Public.class)
+    @JsonBackReference
     private Biodata biodata;
-
 
     @Column(name = "str", length = 50)
     @JsonView(Views.Public.class)

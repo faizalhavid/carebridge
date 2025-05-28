@@ -18,6 +18,7 @@ function ResourceView<T extends BaseEntity>({
     onFilterClick,
     onAddClick,
     onPageChange,
+    onCloseDialog,
     customTableAction: renderActions,
     onSubmitForm,
     onActionClick,
@@ -90,6 +91,7 @@ function ResourceView<T extends BaseEntity>({
                         selected: [],
                     });
                     setDialogState({ ...dialogState, open: false })
+                    onCloseDialog();
                 }}
                 onSubmit={() => {
                     if (dialogState.mode === "delete") {
