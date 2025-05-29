@@ -132,8 +132,8 @@ function ResourceTable<T extends BaseEntity>({
     };
 
     return (
-        <Box sx={{ width: '100%' }}>
-            <Paper sx={{ maxHeight: 440, padding: 2, boxShadow: "0 6px 20px rgba(0,0,0,0.18)" }}>
+        <Box sx={{ width: '100%', overflowX: 'auto' }}>
+            <Paper sx={{ width: '100%', padding: 2, boxShadow: "0 6px 20px rgba(0,0,0,0.18)" }}>
                 <ResourceTableToolbar<T>
                     title={title}
                     numSelected={tableState.selected.length}
@@ -143,10 +143,19 @@ function ResourceTable<T extends BaseEntity>({
                     onSearch={onSearch}
                     onFilterClick={onFilterClick}
                 />
-                <TableContainer>
-                    <Table size={tableState.dense ? "small" : "medium"}
-                        sx={{ minWidth: 750 }}
+                <TableContainer
+                    component={Box}
+                    sx={{
+                        minWidth: 650,
+                        overflowX: 'auto',
+                        maxHeight: 345
+                    }}
+                >
+                    <Table
+                        size={tableState.dense ? "small" : "medium"}
+                        sx={{ minWidth: 650 }}
                         aria-labelledby="tableTitle"
+                        stickyHeader
                     >
                         <ResourceTableHead
                             numSelected={tableState.selected.length}

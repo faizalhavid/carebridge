@@ -79,8 +79,6 @@ function ResourceView<T extends BaseEntity>({
                 tableState={tableState}
                 setTableState={setTableState}
             />
-            <Box sx={{ flexGrow: 1 }} />
-
             <ResourceDialog
                 open={dialogState.open}
                 mode={dialogState.mode}

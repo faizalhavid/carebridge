@@ -1,30 +1,49 @@
 -- Insert roles into the m_role table
+-- 3 Type admin : Admin Customer Service, Admin Credentials, Admin Data Master
 INSERT INTO m_role (name, code, created_at, updated_at, is_deleted)
-VALUES ('Admin', 'ROLE_ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Customer', 'ROLE_CUSTOMER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Doctor', 'ROLE_DOCTOR', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Medic', 'ROLE_MEDIC', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+VALUES
+  ('Admin Customer Service', 'ROLE_ADMIN_CS', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+  ('Admin Credentials', 'ROLE_ADMIN_CREDENTIALS', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+  ('Admin Data Master', 'ROLE_ADMIN_DATA_MASTER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+  ('Super Admin', 'ROLE_ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+  ('Customer', 'ROLE_CUSTOMER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+  ('Doctor', 'ROLE_DOCTOR', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+  ('Medic', 'ROLE_MEDIC', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
 
 -- Insert Privileges into the m_privilege table
 INSERT INTO m_privileges (name, code, created_at, updated_at, is_deleted)
 VALUES ('Create User', 'CREATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Read User', 'READ_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Update User', 'UPDATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Delete User', 'DELETE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Create Role', 'CREATE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Read Role', 'READ_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Update Role', 'UPDATE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Delete Role', 'DELETE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Create Menu', 'CREATE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Read Menu', 'READ_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Update Menu', 'UPDATE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
-       ('Delete Menu', 'DELETE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+        ('Read User', 'READ_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Update User', 'UPDATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Delete User', 'DELETE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Create Role', 'CREATE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Read Role', 'READ_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Update Role', 'UPDATE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Delete Role', 'DELETE_ROLE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Create Menu', 'CREATE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Read Menu', 'READ_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Update Menu', 'UPDATE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+        ('Delete Menu', 'DELETE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
 
--- Admin: Semua privileges
+-- Admin Customer Service: Semua privileges
 INSERT INTO roles_privileges (role_id, privilege_id)
 SELECT r.id, p.id
 FROM m_role r, m_privileges p
-WHERE r.name = 'Admin';
+WHERE r.name = 'Admin Customer Service';
+
+-- Admin Credentials: Hanya CREATE_USER, READ_USER, UPDATE_USER, DELETE_USER, CREATE_ROLE, READ_ROLE, UPDATE_ROLE, DELETE_ROLE
+INSERT INTO roles_privileges (role_id, privilege_id)
+SELECT r.id, p.id
+FROM m_role r, m_privileges p
+WHERE r.name = 'Admin Credentials'
+  AND p.code IN ('CREATE_USER', 'READ_USER', 'UPDATE_USER', 'DELETE_USER', 'CREATE_ROLE', 'READ_ROLE', 'UPDATE_ROLE', 'DELETE_ROLE');
+
+-- Admin Data Master: Hanya CREATE_MENU, READ_MENU, UPDATE_MENU, DELETE_MENU
+INSERT INTO roles_privileges (role_id, privilege_id)
+SELECT r.id, p.id
+FROM m_role r, m_privileges p
+WHERE r.name = 'Admin Data Master'
+  AND p.code IN ('CREATE_MENU', 'READ_MENU', 'UPDATE_MENU', 'DELETE_MENU');
 
 -- Customer: Hanya READ_USER, READ_MENU, READ_ROLE, READ_NEWS, dll
 INSERT INTO roles_privileges (role_id, privilege_id)
@@ -57,7 +76,7 @@ VALUES ('nurfaizal966@gmail.com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
 
 -- Insert User-Role relationship into the join table
 INSERT INTO users_roles (user_id, role_id)
-VALUES (1, (SELECT id FROM m_role WHERE name = 'Admin'));
+VALUES (1, (SELECT id FROM m_role WHERE name = 'Super Admin'));
 
 
 -- data seed for registration flow
