@@ -40,7 +40,7 @@ function ResourceView<T extends BaseEntity>({
         search: "",
     });
 
-    console.log("ResourceView rendered with resource:", resource);
+
 
 
     const data = getEmbeddedData(resource);
@@ -93,18 +93,18 @@ function ResourceView<T extends BaseEntity>({
                     setDialogState({ ...dialogState, open: false })
                     onCloseDialog();
                 }}
-                onSubmit={() => {
+                onSubmit={(_data) => {
                     if (dialogState.mode === "delete") {
                         // Handle delete logic here
                     } else {
                         // Handle create/edit logic here
+
                         if (onSubmitForm) {
-                            onSubmitForm(dialogState.selectedModelResource);
+                            onSubmitForm(_data)
                         }
                     }
-                    setDialogState({ ...dialogState, open: false });
-                }
-                }
+                    // setDialogState({ ...dialogState, open: false });
+                }}
                 submitLabel="Create"
                 deleteLabel="Delete"
                 loading={false}

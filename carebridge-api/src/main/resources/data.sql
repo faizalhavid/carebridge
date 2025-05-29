@@ -4,6 +4,7 @@ VALUES ('Admin', 'ROLE_ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Customer', 'ROLE_CUSTOMER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Doctor', 'ROLE_DOCTOR', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Medic', 'ROLE_MEDIC', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+
 -- Insert Privileges into the m_privilege table
 INSERT INTO m_privileges (name, code, created_at, updated_at, is_deleted)
 VALUES ('Create User', 'CREATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
@@ -18,6 +19,35 @@ VALUES ('Create User', 'CREATE_USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, fals
        ('Read Menu', 'READ_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Update Menu', 'UPDATE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ('Delete Menu', 'DELETE_MENU', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+
+-- Admin: Semua privileges
+INSERT INTO roles_privileges (role_id, privilege_id)
+SELECT r.id, p.id
+FROM m_role r, m_privileges p
+WHERE r.name = 'Admin';
+
+-- Customer: Hanya READ_USER, READ_MENU, READ_ROLE, READ_NEWS, dll
+INSERT INTO roles_privileges (role_id, privilege_id)
+SELECT r.id, p.id
+FROM m_role r, m_privileges p
+WHERE r.name = 'Customer'
+  AND p.code IN ('READ_USER', 'READ_MENU', 'READ_ROLE');
+
+-- Doctor: Hanya READ_USER, READ_MENU, READ_ROLE, CREATE_PRESCRIPTION, dll
+INSERT INTO roles_privileges (role_id, privilege_id)
+SELECT r.id, p.id
+FROM m_role r, m_privileges p
+WHERE r.name = 'Doctor'
+  AND p.code IN ('READ_USER', 'READ_MENU', 'READ_ROLE', 'CREATE_PRESCRIPTION');
+
+-- Medic: Hanya READ_USER, READ_MENU, READ_ROLE, UPDATE_USER, dll
+INSERT INTO roles_privileges (role_id, privilege_id)
+SELECT r.id, p.id
+FROM m_role r, m_privileges p
+WHERE r.name = 'Medic'
+  AND p.code IN ('READ_USER', 'READ_MENU', 'READ_ROLE', 'UPDATE_USER');
+
+
 -- Insert User
 INSERT INTO m_user (email, created_at, updated_at, is_deleted)
 VALUES ('nurfaizal966@gmail.com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);

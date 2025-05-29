@@ -10,10 +10,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
-import { createSelectedItemResourceStore } from "@/lib/stores/resource_store";
 import { DialogMode } from "@/components/resource/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
-import { time } from "console";
+import { AppButton } from "@/themes/mui_components/app_button";
 
 
 const useUserStore = createApiStore<RepositoryRestResource<User[]>, User>({
@@ -52,10 +51,10 @@ const ROLE_PREVILEGES: { [key: string]: string[] } = {
 
 export default function UserManagementPage() {
     const { data, loading, error, fetchData, postData } = useUserStore();
-    const { user } = useAuthStore();
+    const { user: authenticatedUser } = useAuthStore();
 
     const [pageState, setPageState] = useState(() => {
-        const role = user?.roles.find((r) => r.name.startsWith("ROLE_"))?.name || "ROLE_USER";
+        const role = authenticatedUser?.roles.find((r) => r.name.startsWith("ROLE_"))?.name || "ROLE_USER";
         const privileges = ROLE_PREVILEGES[role] || [];
         return {
             selectedUser: null as User | null,
@@ -67,7 +66,7 @@ export default function UserManagementPage() {
         };
     });
 
-    const handleSubmitUserForm = (data: any) => {
+    const handleSubmitUserForm = async (data: any) => {
         console.log("Form submitted with data:", data);
     }
 
@@ -79,7 +78,6 @@ export default function UserManagementPage() {
     } = useForm({
         resolver: yupResolver(userManagementSchema),
         defaultValues: {
-
             email: pageState.selectedUser?.email ?? "",
             fullName: pageState.selectedUser?.biodata?.fullName ?? "",
             address: pageState.selectedUser?.biodata?.address ?? "",
@@ -89,7 +87,6 @@ export default function UserManagementPage() {
 
     useEffect(() => {
         fetchData();
-        console.log("Fetching user data...");
     }, []);
 
     useEffect(() => {
@@ -135,6 +132,8 @@ export default function UserManagementPage() {
                 }));
             }}
             onPageChange={handlePageChange}
+            showActions={false}
+            onSubmitForm={handleSubmit(handleSubmitUserForm)}
             formBuilder={
                 <form onSubmit={handleSubmit(handleSubmitUserForm)} noValidate className="flex flex-col gap-4">
                     <Controller
@@ -147,6 +146,7 @@ export default function UserManagementPage() {
                                 sizes="small"
                                 label="Fullname"
                                 helperText={errors.fullName?.message || "Enter your name"}
+                                isError={!!errors.fullName}
                                 isRequired
                             />
                         )}
@@ -161,6 +161,7 @@ export default function UserManagementPage() {
                                 sizes="small"
                                 label="Email"
                                 helperText={errors.email?.message || "Enter your email"}
+                                isError={!!errors.email}
                                 isRequired
                             />
                         )}
@@ -194,6 +195,7 @@ export default function UserManagementPage() {
                                     helperText={!pageState.isAuthorizedToEdit ? "You dont have permission to edit password"
                                         : errors.password?.message || "Enter your password"}
                                     isRequired
+                                    isError={!!errors.password}
                                     isDisabled={pageState.dialogMode === "view" && !pageState.isAuthorizedToEdit}
                                 />
                             )}
@@ -203,7 +205,6 @@ export default function UserManagementPage() {
 
                 </form>
             }
-
         />
 
     );

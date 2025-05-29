@@ -88,6 +88,21 @@ namespace ResourceComponentInterface {
         formBuilder: React.ReactNode;
     }
 
+    export interface ResourceDialogProps<T = any> {
+        open: boolean;
+        mode: DialogMode;
+        title?: string;
+        initialData?: T | null;
+        showAction?: boolean;
+        onClose: () => void;
+        onSubmit?: (data: T | undefined) => void;
+        loading?: boolean;
+        children?: React.ReactNode;
+        submitLabel?: string;
+        deleteLabel?: string;
+        maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
+    }
+
 
 }
 

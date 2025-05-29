@@ -35,7 +35,7 @@ const menuNavbar: Menu[] = [
         parentId: null,
     },
 ];
-const useMenuStore = createApiStore<RepositoryRestResource<Menu[]>>({
+const useMenuStore = createApiStore<RepositoryRestResource<Menu[]>, Menu>({
     fetchFn: () => fetcher('/admin/menus', { method: 'GET' }, true)
 });
 
