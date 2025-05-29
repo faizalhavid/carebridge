@@ -27,10 +27,10 @@ import java.util.Collection;
 @AllArgsConstructor
 public class Role extends BaseEntity {
 
-    @Column(name = "name", length = 20)
+    @Column(name = "name", length = 80)
     private String name;
 
-    @Column(name = "code", length = 20)
+    @Column(name = "code", length = 60)
     private String code;
 
     @ManyToMany(mappedBy = "roles")
