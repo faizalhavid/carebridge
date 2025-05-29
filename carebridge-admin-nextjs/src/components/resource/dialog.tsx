@@ -9,7 +9,7 @@ import {
     Typography
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-
+import { ResourceComponentInterface as interfaces } from "./type";
 
 
 const modeTitle: Record<DialogMode, string> = {
@@ -28,19 +28,7 @@ const modeSubmitLabel: Record<DialogMode, string> = {
 
 export type DialogMode = "create" | "edit" | "delete" | "view";
 
-interface ResourceDialogProps<T = any> {
-    open: boolean;
-    mode: DialogMode;
-    title?: string;
-    initialData?: T | null;
-    onClose: () => void;
-    onSubmit?: (data: T | undefined) => void;
-    loading?: boolean;
-    children?: React.ReactNode;
-    submitLabel?: string;
-    deleteLabel?: string;
-    maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
-}
+
 
 function ResourceDialog<T>({
     open,
@@ -52,9 +40,10 @@ function ResourceDialog<T>({
     loading = false,
     children,
     submitLabel,
+    showAction = true,
     deleteLabel,
-    maxWidth = "sm"
-}: ResourceDialogProps<T>) {
+    maxWidth = "sm",
+}: interfaces.ResourceDialogProps<T>) {
 
 
     return (
@@ -70,7 +59,7 @@ function ResourceDialog<T>({
             <DialogContent dividers>
                 {children}
             </DialogContent>
-            {mode !== "view" && (
+            {(mode !== "view" && showAction) && (
                 <DialogActions>
                     <Button onClick={onClose} color="inherit" disabled={loading}>
                         Batal

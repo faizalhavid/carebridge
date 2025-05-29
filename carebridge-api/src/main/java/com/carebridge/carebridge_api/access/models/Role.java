@@ -28,20 +28,16 @@ import java.util.Collection;
 public class Role extends BaseEntity {
 
     @Column(name = "name", length = 20)
-    @JsonView(Views.Public.class)
     private String name;
 
     @Column(name = "code", length = 20)
-    @JsonView(Views.Public.class)
     private String code;
 
     @ManyToMany(mappedBy = "roles")
     @JsonBackReference
-    @JsonView(Views.Public.class)
     private Collection<User> users;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "roles_privileges", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "privilege_id"))
-    @JsonView(Views.Public.class)
     private Collection<Privilege> privileges;
 }
