@@ -1,12 +1,9 @@
 package com.carebridge.carebridge_api.user;
 
-import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.carebridge.carebridge_api.core.general_dto.responses.SuccessResponse;
 import com.carebridge.carebridge_api.user.dto.requests.UserRequest;
 import com.carebridge.carebridge_api.user.dto.responses.UserResponse;
 import com.carebridge.carebridge_api.user.services.UserService;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
