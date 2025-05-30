@@ -170,7 +170,34 @@ VALUES ((SELECT id FROM m_menu WHERE name = 'Dashboard'), (SELECT id FROM m_role
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
        ((SELECT id FROM m_menu WHERE name = 'Prescription Management'), (SELECT id FROM m_role WHERE name = 'Doctor'),
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+-- Parent menu
+INSERT INTO m_menu (name, url, small_icon, big_icon, parent_id, created_at, updated_at, is_deleted)
+VALUES ('Management', '/management', 'management_small', 'management_big', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
 
+-- Children menu (parent_id mengacu ke menu 'Management')
+INSERT INTO m_menu (name, url, small_icon, big_icon, parent_id, created_at, updated_at, is_deleted)
+VALUES 
+  ('User Management', '/user-management', 'user_small', 'user_big', 
+    (SELECT id FROM m_menu WHERE name = 'Management'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+  ('Role Management', '/role-management', 'role_small', 'role_big', 
+    (SELECT id FROM m_menu WHERE name = 'Management'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false),
+  ('Menu Management', '/menu-management', 'menu_small', 'menu_big', 
+    (SELECT id FROM m_menu WHERE name = 'Management'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
+
+-- Untuk parent menu
+INSERT INTO m_menu_role (menu_id, role_id, created_at, updated_at, is_deleted)
+VALUES (
+  (SELECT id FROM m_menu WHERE name = 'Management'),
+  (SELECT id FROM m_role WHERE name = 'Admin'),
+  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false
+);
+
+INSERT INTO m_menu_role (menu_id, role_id, created_at, updated_at, is_deleted)
+VALUES (
+  (SELECT id FROM m_menu WHERE name = 'User Management'),
+  (SELECT id FROM m_role WHERE name = 'Customer'),
+  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false
+);
 -- data seed author
 -- Insert dummy data for Biodata
 INSERT INTO m_biodata (full_name, mobile_phone, image_path, created_at, updated_at, is_deleted)

@@ -27,9 +27,6 @@ public class Menu extends BaseEntity {
     @JoinColumn(name = "parent_id", insertable = false, updatable = false)
     private Menu parent;
 
-    @Column(name = "parent_id")
-    private Long parentId;
-
     @OneToMany(mappedBy = "parent")
     private List<Menu> children;
 
