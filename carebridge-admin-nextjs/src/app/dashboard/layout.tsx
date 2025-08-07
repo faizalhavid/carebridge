@@ -3,14 +3,12 @@ import React, { useEffect, useRef } from "react";
 import SidebarDashboard from "./_components/sidebar";
 import DashboardFooter from "./_components/footer";
 import NavbarDashboard from "./_components/navbar";
-import { Menu } from "@/interfaces/models/menu";
 import { ChevronLeft, Dashboard } from "@mui/icons-material";
 import { Box, IconButton, useMediaQuery, Theme } from "@mui/material";
 import { useAuthStore, useIsAuthenticated } from "@/lib/stores/auth_store";
-import DashboardService from "@/lib/api/dashboard-service";
-import { fetcher } from "@/lib/utils/fetcher";
-import { RepositoryRestResource } from "@/interfaces/server-res";
 import { createApiStore } from "@/lib/stores/api_store";
+import { Menu } from "@/types/models/menu";
+import { RepositoryRestResource } from "@/types/api";
 
 
 

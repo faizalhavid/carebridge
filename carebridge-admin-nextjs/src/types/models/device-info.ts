@@ -1,6 +1,7 @@
 import { BaseEntity } from "./base-entity";
 
-export interface DeviceInfo extends BaseEntity {
+export interface DeviceInfo extends Omit<BaseEntity, 'id'> {
+    id?: string;
     deviceType: string;
     operatingSystem: string;
     osVersion: string;

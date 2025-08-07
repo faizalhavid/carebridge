@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect } from "react";
-import { fetcher } from "@/lib/utils/fetcher";
-import { RepositoryRestResource } from "@/interfaces/server-res";
+import { fetcher } from "@/lib/services/axios";
+import { RepositoryRestResource } from "@/interfaces/api/api-response";
 import { createApiStore } from "@/lib/stores/api_store";
-import ResourceView from "@/components/resource";
+import ResourceView from "@/components/Resources";
 import { Role } from "@/interfaces/models/user";
 import * as yup from "yup";
 import { useAuthStore } from "@/lib/stores/auth_store";

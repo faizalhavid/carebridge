@@ -4,7 +4,7 @@ import { AppBar, Box, Button, IconButton, Menu, MenuItem, Theme, Toolbar, Typogr
 import MenuIcon from "@mui/icons-material/Menu";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import React from "react";
-import AppLogo from "@/components/app-logo";
+import AppLogo from "@/components/AppLogo";
 import { Menu as MenuInterface } from "@/interfaces/models/menu";
 import pages from "next/dist/build/templates/pages";
 

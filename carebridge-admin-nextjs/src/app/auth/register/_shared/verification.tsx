@@ -1,6 +1,6 @@
 "use client";
-import AppLogo from "@/components/app-logo";
-import { RegisterPageProps } from "@/interfaces/register-page";
+import AppLogo from "@/components/AppLogo";
+import { StepperRegisterProps } from "@/interfaces/components/stepper-register";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import * as yup from "yup";
 import OtpFields from "../../_components/otp_fields";
-import AuthService from "@/lib/api/auth-service";
+import AuthService from "@/lib/services/apis/auth";
 
 const verificationSchema = yup.object().shape({
     otp: yup

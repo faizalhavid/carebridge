@@ -3,11 +3,13 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import { QueryClientProvider } from '@tanstack/react-query';
 import appThemes from "@/themes/app_themes";
 import { useEffect } from "react";
 import { useAuthStore } from "@/lib/stores/auth_store";
-import AuthService from "@/lib/api/auth-service";
+import AuthService from "@/lib/services/apis/auth";
 import { usePathname, useRouter } from "next/navigation";
+import { queryClient } from "@/lib/services/queries";
 
 // @ts-ignore
 const theme = createTheme(appThemes);
@@ -50,8 +52,10 @@ export default function AppClientProvider({
     return (
         <AppRouterCacheProvider options={{ key: "mui" }}>
             <ThemeProvider theme={theme}>
-                <CssBaseline />
-                {children}
+                <QueryClientProvider client={queryClient}>
+                    <CssBaseline />
+                    {children}
+                </QueryClientProvider>
             </ThemeProvider>
         </AppRouterCacheProvider>
     );

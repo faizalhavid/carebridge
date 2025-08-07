@@ -1,14 +1,15 @@
+import { RepositoryRestResource } from '@/types/api';
+import { ResourceComponentInterface } from '@/types/components/resources';
+import { BaseEntity } from '@/types/models/base-entity';
 import React, { createContext, useContext, ReactNode, useMemo, useCallback, useState } from 'react';
-import { BaseEntity } from '@/interfaces/models/base-entity';
-import { RepositoryRestResource } from '@/interfaces/server-res';
-import { ResourceComponentInterface as interfaces } from '../interfaces/resources';
+
 
 interface ResourceContextValue<T extends BaseEntity> {
     // Data
     title: string;
     data: T[];
     resource?: RepositoryRestResource<T[]> | null;
-    headCells: interfaces.ResourceTableHeadCell<T>[];
+    headCells: ResourceComponentInterface.ResourceTableHeadCell<T>[];
 
     // Configuration
     showActions?: boolean;
@@ -17,12 +18,12 @@ interface ResourceContextValue<T extends BaseEntity> {
     formBuilder?: React.ReactNode;
 
     // State
-    dialogState: interfaces.DialogState<T>;
-    tableState: interfaces.TableState<T>;
+    dialogState: ResourceComponentInterface.DialogState<T>;
+    tableState: ResourceComponentInterface.TableState<T>;
 
     // Actions
-    setDialogState: React.Dispatch<React.SetStateAction<interfaces.DialogState<T>>>;
-    setTableState: React.Dispatch<React.SetStateAction<interfaces.TableState<T>>>;
+    setDialogState: React.Dispatch<React.SetStateAction<ResourceComponentInterface.DialogState<T>>>;
+    setTableState: React.Dispatch<React.SetStateAction<ResourceComponentInterface.TableState<T>>>;
 
     // Computed/Derived State (Memoized)
     visibleRows: T[];
@@ -52,7 +53,7 @@ interface ResourceContextValue<T extends BaseEntity> {
     onAddClick?: () => void;
     onPageChange?: (event: React.ChangeEvent<unknown>, value: number) => void;
     onSubmitForm?: (data: any) => void;
-    onActionClick?: (mode: interfaces.DialogState<T>['mode'], data: T) => void;
+    onActionClick?: (mode: ResourceComponentInterface.DialogState<T>['mode'], data: T) => void;
     onCloseDialog?: () => void;
 }
 
@@ -64,7 +65,7 @@ interface ResourceProviderProps<T extends BaseEntity> {
     title: string;
     data: T[];
     resource?: RepositoryRestResource<T[]> | null;
-    headCells: interfaces.ResourceTableHeadCell<T>[];
+    headCells: ResourceComponentInterface.ResourceTableHeadCell<T>[];
     showActions?: boolean;
     columnComponents?: { [id: string]: React.ComponentType<{ value: any; row: T }> };
     customTableAction?: (row: T) => React.ReactNode;
@@ -75,7 +76,7 @@ interface ResourceProviderProps<T extends BaseEntity> {
     onAddClick?: () => void;
     onPageChange?: (event: React.ChangeEvent<unknown>, value: number) => void;
     onSubmitForm?: (data: any) => void;
-    onActionClick?: (mode: interfaces.DialogState<T>['mode'], data: T) => void;
+    onActionClick?: (mode: ResourceComponentInterface.DialogState<T>['mode'], data: T) => void;
     onCloseDialog?: () => void;
 }
 
@@ -98,13 +99,13 @@ export function ResourceProvider<T extends BaseEntity>({
     onCloseDialog
 }: ResourceProviderProps<T>) {
     // Internal state
-    const [dialogState, setDialogState] = useState<interfaces.DialogState<T>>({
+    const [dialogState, setDialogState] = useState<ResourceComponentInterface.DialogState<T>>({
         open: false,
         mode: 'create',
         selectedModelResource: null,
     });
 
-    const [tableState, setTableState] = useState<interfaces.TableState<T>>({
+    const [tableState, setTableState] = useState<ResourceComponentInterface.TableState<T>>({
         order: 'asc',
         orderBy: undefined,
         selected: [],

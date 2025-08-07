@@ -17,10 +17,10 @@ import {
 } from "@mui/material";
 import { BaseEntity } from "@/interfaces/models/base-entity";
 import ResourceTableToolbar from "./toolbar";
-import { ResourceComponentInterface as interfaces } from "../../interfaces/resources";
+import { ResourceComponentInterface as interfaces } from "../../interfaces/components/resources";
 import ResourceTableHead from "./table-head";
 import { Delete, Edit } from "@mui/icons-material";
-import { useResourceContext } from "../../hooks/resource-context";
+import { useResourceContext } from "../../hooks/resource-provider";
 
 function ResourceTable<T extends BaseEntity>() {
     // Get all data from context

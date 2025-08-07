@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import { TableHead, TableRow, TableCell, Checkbox, TableSortLabel, Box } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
-import { useResourceContext } from "../../hooks/resource-context";
-import { BaseEntity } from "@/interfaces/models/base-entity";
+import { useResourceContext } from "../../hooks/resource-provider";
+import { BaseEntity } from "@/types/models/base-entity";
 
 function ResourceTableHead<T extends BaseEntity>() {
     // Get all data from context
@@ -32,9 +32,9 @@ function ResourceTableHead<T extends BaseEntity>() {
     const onSelectAllClick = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
             const newSelecteds = data.map((n: T) => Number(n.id));
-            setTableState(prev => ({ ...prev, selected: newSelecteds }));
+            setTableState((prev: any) => ({ ...prev, selected: newSelecteds }));
         } else {
-            setTableState(prev => ({ ...prev, selected: [] }));
+            setTableState((prev: any) => ({ ...prev, selected: [] }));
         }
     }, [data, setTableState]);
 
@@ -44,7 +44,7 @@ function ResourceTableHead<T extends BaseEntity>() {
         const sortKey = headCell?.key || String(property);
 
         const isAsc = tableState.orderBy === sortKey && tableState.order === 'asc';
-        setTableState(prev => ({
+        setTableState((prev: any) => ({
             ...prev,
             order: isAsc ? 'desc' : 'asc',
             orderBy: sortKey

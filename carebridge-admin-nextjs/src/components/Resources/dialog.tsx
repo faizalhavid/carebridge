@@ -8,7 +8,7 @@ import {
     IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { ResourceComponentInterface as interfaces } from "../../interfaces/resources";
+import { ResourceComponentInterface as interfaces } from "../../interfaces/components/resources";
 
 export type DialogMode = "create" | "edit" | "delete" | "view";
 

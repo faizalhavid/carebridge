@@ -1,5 +1,6 @@
-import { BaseEntity } from "@/interfaces/models/base-entity";
-import { RepositoryRestResource } from "@/interfaces/server-res";
+import { RepositoryRestResource } from "../api";
+import { BaseEntity } from "../models/base-entity";
+
 
 namespace ResourceComponentInterface {
     type DialogMode = 'create' | 'edit' | 'view' | 'delete';

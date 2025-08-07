@@ -1,5 +1,5 @@
 
-import AppLogo from "@/components/app-logo";
+import AppLogo from "@/components/AppLogo";
 import { Menu } from "@/interfaces/models/menu"
 import { AppButton } from "@/themes/mui_components/app_button";
 import { Box, Divider, Drawer, Icon, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Theme, useMediaQuery } from "@mui/material";

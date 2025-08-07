@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
 import ResourceTable from "./table";
-import { RepositoryRestResource } from "@/interfaces/server-res";
 import { Box } from "@mui/material";
 import ResourceDialog from "./dialog";
-import { BaseEntity } from "@/interfaces/models/base-entity";
-import { ResourceComponentInterface as interfaces } from "../../interfaces/resources";
-import { ResourceProvider, useResourceContext } from "../../hooks/resource-context";
+import { ResourceProvider, useResourceContext } from "../../hooks/resource-provider";
+import { BaseEntity } from "@/types/models/base-entity";
+import { ResourceComponentInterface } from "@/types/components/resources";
+import { RepositoryRestResource } from "@/types/api";
 
 // Extract embedded data utility
 function getEmbeddedData<T>(resource?: RepositoryRestResource<T[]> | null): T[] {
@@ -70,10 +70,10 @@ function ResourceView<T extends BaseEntity>({
     customTableAction,
     onSubmitForm,
     onActionClick,
-}: interfaces.ResourceViewProps<T>) {
+}: ResourceComponentInterface.ResourceViewProps<T>) {
 
     // Memoized data extraction
-    const data = useMemo(() => getEmbeddedData(resource), [resource]);
+    const data = useMemo(() => getEmbeddedData(resource) as T[], [resource]);
 
     return (
         <ResourceProvider

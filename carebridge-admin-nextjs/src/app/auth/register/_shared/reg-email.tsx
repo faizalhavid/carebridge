@@ -1,7 +1,7 @@
 "use client";
-import AppLogo from "@/components/app-logo";
-import { RegisterPageProps } from "@/interfaces/register-page";
-import AuthService from "@/lib/api/auth-service";
+import AppLogo from "@/components/AppLogo";
+import { StepperRegisterProps } from "@/interfaces/components/stepper-register";
+import AuthService from "@/lib/services/apis/auth";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
@@ -16,7 +16,7 @@ const regEmailSchema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Email is required"),
 });
 
-export const RegEmail: React.FC<RegisterPageProps> = ({
+export const RegEmail: React.FC<StepperRegisterProps> = ({
     activeStep,
     setActiveStep
 }) => {

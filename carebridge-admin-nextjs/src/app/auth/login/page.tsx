@@ -1,6 +1,6 @@
 "use client";
-import AppLogo from "@/components/app-logo";
-import AuthService from "@/lib/api/auth-service";
+import AppLogo from "@/components/AppLogo";
+import AuthService from "@/lib/services/apis/auth";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
 import { AppTextField } from "@/themes/mui_components/app_text_field";

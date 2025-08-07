@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import DashboardService from "../api/dashboard-service";
+import DashboardService from "../services/apis/dashboard";
 import { Menu } from "@/interfaces/models/menu";
 
 type MenuState = {
