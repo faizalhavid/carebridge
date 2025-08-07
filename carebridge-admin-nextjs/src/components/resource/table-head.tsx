@@ -1,59 +1,110 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { TableHead, TableRow, TableCell, Checkbox, TableSortLabel, Box } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
-import { ResourceComponentInterface as interfaces } from "./type";
+import { useResourceContext } from "../../hooks/resource-context";
 import { BaseEntity } from "@/interfaces/models/base-entity";
 
+function ResourceTableHead<T extends BaseEntity>() {
+    // Get all data from context
+    const {
+        headCells,
+        showActions = true,
+        tableState,
+        setTableState,
+        data // Use data instead of filteredData
+    } = useResourceContext<T>();
 
+    const numSelected = tableState.selected.length;
+    const rowCount = data.length; // Use data from context
 
-function ResourceTableHead<T extends BaseEntity>({
-    numSelected,
-    onRequestSort,
-    onSelectAllClick,
-    order,
-    orderBy,
-    rowCount,
-    headCells,
-    showActions
-}: interfaces.ResourceTableHeadProps<T>) {
+    // Memoized checkbox state
+    const isIndeterminate = useMemo(() =>
+        numSelected > 0 && numSelected < rowCount,
+        [numSelected, rowCount]
+    );
+
+    const isAllSelected = useMemo(() =>
+        rowCount > 0 && numSelected === rowCount,
+        [numSelected, rowCount]
+    );
+
+    // Memoized handlers
+    const onSelectAllClick = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            const newSelecteds = data.map((n: T) => Number(n.id));
+            setTableState(prev => ({ ...prev, selected: newSelecteds }));
+        } else {
+            setTableState(prev => ({ ...prev, selected: [] }));
+        }
+    }, [data, setTableState]);
+
+    const onRequestSort = useCallback((event: React.MouseEvent<unknown>, property: keyof T) => {
+        // Get the actual sort key - use headCell.key for nested properties, otherwise use headCell.id
+        const headCell = headCells.find(cell => (cell.key || cell.id) === property);
+        const sortKey = headCell?.key || String(property);
+
+        const isAsc = tableState.orderBy === sortKey && tableState.order === 'asc';
+        setTableState(prev => ({
+            ...prev,
+            order: isAsc ? 'desc' : 'asc',
+            orderBy: sortKey
+        }));
+    }, [headCells, tableState.orderBy, tableState.order, setTableState]);
+
+    // Memoized sort handler creator
+    const createSortHandler = useCallback((property: keyof T) =>
+        (event: React.MouseEvent<unknown>) => onRequestSort(event, property),
+        [onRequestSort]
+    );
+
     return (
         <TableHead>
             <TableRow>
-                {showActions &&
+                {showActions && (
                     <TableCell padding="checkbox">
                         <Checkbox
                             color="primary"
-                            indeterminate={numSelected > 0 && numSelected < rowCount}
-                            checked={rowCount > 0 && numSelected === rowCount}
+                            indeterminate={isIndeterminate}
+                            checked={isAllSelected}
                             onChange={onSelectAllClick}
                             inputProps={{
-                                'aria-label': 'select all desserts',
+                                'aria-label': 'select all items',
                             }}
                         />
                     </TableCell>
-                }
-                {headCells.map((headCell) => (
-                    <TableCell
-                        key={String(headCell.key ?? headCell.id)}
-                        align={'left'}
-                        padding={headCell.disablePadding ? 'none' : 'normal'}
-                        sortDirection={orderBy === headCell.id ? order : false}
-                    >
-                        <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : 'asc'}
-                            onClick={(event) => onRequestSort(event, headCell.id as keyof T)}
+                )}
+
+                {headCells.map((headCell) => {
+                    const sortKey = headCell.key || headCell.id;
+                    const isActive = tableState.orderBy === sortKey;
+                    return (
+                        <TableCell
+                            key={String(headCell.key ?? headCell.id)}
+                            align="left"
+                            padding={headCell.disablePadding ? 'none' : 'normal'}
+                            sortDirection={isActive ? tableState.order : false}
                         >
-                            {headCell.label}
-                            {orderBy === headCell.id ? (
-                                <Box component="span" sx={visuallyHidden}>
-                                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                                </Box>
-                            ) : null}
-                        </TableSortLabel>
+                            <TableSortLabel
+                                active={isActive}
+                                direction={isActive ? tableState.order : 'asc'}
+                                onClick={createSortHandler((headCell.key || headCell.id) as keyof T)}
+                            >
+                                {headCell.label}
+                                {isActive && (
+                                    <Box component="span" sx={visuallyHidden}>
+                                        {tableState.order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                                    </Box>
+                                )}
+                            </TableSortLabel>
+                        </TableCell>
+                    );
+                })}
+
+                {showActions && (
+                    <TableCell align="center" sx={{ minWidth: 120 }}>
+                        Actions
                     </TableCell>
-                ))}
-                {showActions && <TableCell>Actions</TableCell>}
+                )}
             </TableRow>
         </TableHead>
     );

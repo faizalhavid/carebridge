@@ -23,8 +23,8 @@ export default function SidebarDashboard({ items, isExpand = true, onClickButton
             <Divider sx={{ my: 1 }} />
             <Box sx={{ flex: 1, overflowY: "auto" }}>
                 <List>
-                    {items.map((item) => (
-                        <ListItem key={item.name} onClick={() => redirect(`/dashboard/${item.url}`)} disablePadding>
+                    {items.map((item, index) => (
+                        <ListItem key={`${item.id}-${index}`} onClick={() => redirect(`/dashboard/${item.url}`)} disablePadding>
                             <ListItemButton selected={currentPath.includes(item.url)} sx={{ borderRadius: 1 }}>
                                 <ListItemIcon>
                                     <Icon color={currentPath.includes(item.url) ? "primary" : "disabled"} sx={{ fontSize: 20 }}>

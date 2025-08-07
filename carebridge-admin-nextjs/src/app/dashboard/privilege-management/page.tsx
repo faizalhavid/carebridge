@@ -8,11 +8,11 @@ import ResourceView from "@/components/resource";
 import { Chip } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
-import * as yup from "yup";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { DialogMode } from "@/components/resource/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
+import { userManagementSchema } from "@/interfaces/schemas/user-schema";
 
 
 const useUserStore = createApiStore<RepositoryRestResource<User[]>, User>({
@@ -33,13 +33,6 @@ const handlePageChange = (
     // Handle page change logic here
     console.log("Page changed to:", value);
 }
-
-const userManagementSchema = yup.object().shape({
-    email: yup.string().email("Invalid email").required("Email is required"),
-    fullName: yup.string().required("Name is required"),
-    address: yup.string().required("Address is required"),
-    password: yup.string().required("Password is required"),
-});
 
 
 

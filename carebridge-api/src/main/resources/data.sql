@@ -194,7 +194,7 @@ VALUES (
 
 INSERT INTO m_menu_role (menu_id, role_id, created_at, updated_at, is_deleted)
 VALUES (
-  (SELyECT id FROM m_menu WHERE name = 'User Management'),
+  (SELECT id FROM m_menu WHERE name = 'Payment Management'),
   (SELECT id FROM m_role WHERE name = 'Customer'),
   CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false
 );

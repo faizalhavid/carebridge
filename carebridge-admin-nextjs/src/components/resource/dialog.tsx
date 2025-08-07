@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import {
     Dialog,
     DialogTitle,
@@ -6,11 +6,11 @@ import {
     DialogActions,
     Button,
     IconButton,
-    Typography
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { ResourceComponentInterface as interfaces } from "./type";
+import { ResourceComponentInterface as interfaces } from "../../interfaces/resources";
 
+export type DialogMode = "create" | "edit" | "delete" | "view";
 
 const modeTitle: Record<DialogMode, string> = {
     create: "Tambah Data",
@@ -25,10 +25,6 @@ const modeSubmitLabel: Record<DialogMode, string> = {
     delete: "Hapus",
     view: ""
 };
-
-export type DialogMode = "create" | "edit" | "delete" | "view";
-
-
 
 function ResourceDialog<T>({
     open,
@@ -45,36 +41,73 @@ function ResourceDialog<T>({
     maxWidth = "sm",
 }: interfaces.ResourceDialogProps<T>) {
 
+    // Memoized dialog title
+    const dialogTitle = useMemo(() =>
+        `${title} ${modeTitle[mode]}`,
+        [title, mode]
+    );
+
+    // Memoized submit button label
+    const buttonLabel = useMemo(() => {
+        if (mode === "delete") {
+            return deleteLabel || modeSubmitLabel.delete;
+        }
+        return submitLabel || modeSubmitLabel[mode];
+    }, [mode, deleteLabel, submitLabel]);
+
+    // Memoized submit handler
+    const handleSubmit = useCallback(() => {
+        onSubmit?.(initialData ?? undefined);
+    }, [onSubmit, initialData]);
+
+    // Determine if actions should be shown
+    const showActions = useMemo(() =>
+        mode !== "view" && showAction,
+        [mode, showAction]
+    );
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth={maxWidth} fullWidth>
-            <DialogTitle sx={{ m: 0, p: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-
-                {`${title} ${modeTitle[mode]}`}
-
-                <IconButton aria-label="close" onClick={onClose} size="small">
+            <DialogTitle sx={{
+                m: 0,
+                p: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between"
+            }}>
+                {dialogTitle}
+                <IconButton
+                    aria-label="close"
+                    onClick={onClose}
+                    size="small"
+                    disabled={loading}
+                >
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
-            <DialogContent dividers>
+
+            <DialogContent dividers sx={{ minHeight: 120 }}>
                 {children}
             </DialogContent>
-            {(mode !== "view" && showAction) && (
-                <DialogActions>
-                    <Button onClick={onClose} color="inherit" disabled={loading}>
+
+            {showActions && (
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button
+                        onClick={onClose}
+                        color="inherit"
+                        disabled={loading}
+                        variant="outlined"
+                    >
                         Batal
                     </Button>
                     {onSubmit && (
                         <Button
-                            onClick={() => onSubmit(initialData ?? undefined)}
+                            onClick={handleSubmit}
                             variant="contained"
                             color={mode === "delete" ? "error" : "primary"}
                             disabled={loading}
                         >
-                            {mode === "delete"
-                                ? (deleteLabel || modeSubmitLabel.delete)
-                                : (submitLabel || modeSubmitLabel[mode])
-                            }
+                            {buttonLabel}
                         </Button>
                     )}
                 </DialogActions>

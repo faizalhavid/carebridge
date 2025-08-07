@@ -1,11 +1,59 @@
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import ResourceTable from "./table";
 import { RepositoryRestResource } from "@/interfaces/server-res";
 import { Box } from "@mui/material";
-import ResourceDialog, { DialogMode } from "./dialog";
+import ResourceDialog from "./dialog";
 import { BaseEntity } from "@/interfaces/models/base-entity";
-import { ResourceComponentInterface as interfaces } from "./type";
+import { ResourceComponentInterface as interfaces } from "../../interfaces/resources";
+import { ResourceProvider, useResourceContext } from "../../hooks/resource-context";
 
+// Extract embedded data utility
+function getEmbeddedData<T>(resource?: RepositoryRestResource<T[]> | null): T[] {
+    if (!resource?._embedded) return [];
+    const key = Object.keys(resource._embedded)[0];
+    const embedded = resource._embedded[key];
+
+    if (Array.isArray(embedded)) {
+        return embedded.length > 0 && Array.isArray(embedded[0])
+            ? (embedded as unknown as T[][]).flat()
+            : embedded as T[];
+    }
+    return [];
+}
+
+// Dialog component that uses context
+function ResourceDialogWrapper<T extends BaseEntity>() {
+    const {
+        dialogState,
+        title,
+        formBuilder,
+        handleCloseDialog,
+        handleSubmitDialog
+    } = useResourceContext<T>();
+
+    return (
+        <ResourceDialog
+            open={dialogState.open}
+            mode={dialogState.mode}
+            title={title}
+            initialData={dialogState.selectedModelResource}
+            onClose={handleCloseDialog}
+            onSubmit={handleSubmitDialog}
+            submitLabel={dialogState.mode === "create" ? "Create" : dialogState.mode === "edit" ? "Update" : "Delete"}
+            deleteLabel="Delete"
+            loading={false}
+            maxWidth="sm"
+        >
+            {dialogState.mode === "delete" ? (
+                <Box sx={{ py: 2 }}>
+                    Are you sure you want to delete this item?
+                </Box>
+            ) : (
+                formBuilder
+            )}
+        </ResourceDialog>
+    );
+}
 
 function ResourceView<T extends BaseEntity>({
     title,
@@ -19,100 +67,47 @@ function ResourceView<T extends BaseEntity>({
     onAddClick,
     onPageChange,
     onCloseDialog,
-    customTableAction: renderActions,
+    customTableAction,
     onSubmitForm,
     onActionClick,
 }: interfaces.ResourceViewProps<T>) {
 
-    const [dialogState, setDialogState] = useState<interfaces.DialogState<T>>({
-        open: false,
-        mode: 'create' as DialogMode,
-        selectedModelResource: null as T | null,
-    });
+    // Memoized data extraction
+    const data = useMemo(() => getEmbeddedData(resource), [resource]);
 
-    const [tableState, setTableState] = useState<interfaces.TableState<T>>({
-        order: "asc" as "asc" | "desc",
-        orderBy: headCells.length > 0 ? headCells[0].key : "",
-        selected: [] as number[],
-        page: resource?.page?.number || 0,
-        dense: false,
-        rowsPerPage: resource?.page?.size || 5,
-        search: "",
-    });
-
-
-
-
-    const data = getEmbeddedData(resource);
-
-    function getEmbeddedData<T>(resource?: RepositoryRestResource<T[]> | null): T[] {
-        if (!resource || !resource._embedded) return [];
-        const key = Object.keys(resource._embedded)[0];
-        const embedded = resource._embedded[key];
-        if (Array.isArray(embedded)) {
-            if (embedded.length > 0 && Array.isArray(embedded[0])) {
-                return (embedded as unknown as T[][]).flat();
-            }
-            return embedded as T[];
-        }
-        return [];
-    }
     return (
-        <Box sx={{ padding: 2, display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
-            <ResourceTable<T>
-                title={title}
-                data={data}
-                resource={resource}
-                showActions={showActions}
-                onSearch={onSearch}
-                onFilterClick={onFilterClick}
-                onAddClick={onAddClick}
-                onPageChange={onPageChange}
-                onSubmitForm={onSubmitForm}
-                onActionClick={onActionClick}
-                formBuilder={formBuilder}
-                headCells={headCells}
-                customTableAction={renderActions}
-                columnComponents={columnComponents}
-                dialogState={dialogState}
-                setDialogState={setDialogState}
-                tableState={tableState}
-                setTableState={setTableState}
-            />
-            <ResourceDialog
-                open={dialogState.open}
-                mode={dialogState.mode}
-                title={title}
-                onClose={() => {
-                    setTableState({
-                        ...tableState,
-                        selected: [],
-                    });
-                    setDialogState({ ...dialogState, open: false })
-                    onCloseDialog();
+        <ResourceProvider
+            title={title}
+            data={data}
+            resource={resource}
+            headCells={headCells}
+            showActions={showActions}
+            columnComponents={columnComponents}
+            customTableAction={customTableAction}
+            formBuilder={formBuilder}
+            onSearch={onSearch}
+            onFilterClick={onFilterClick}
+            onAddClick={onAddClick}
+            onPageChange={onPageChange}
+            onSubmitForm={onSubmitForm}
+            onActionClick={onActionClick}
+            onCloseDialog={onCloseDialog}
+        >
+            <Box
+                sx={{
+                    padding: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    flexGrow: 1,
+                    height: "100%",
+                    overflow: "hidden"
                 }}
-                onSubmit={(_data) => {
-                    if (dialogState.mode === "delete") {
-                        // Handle delete logic here
-                    } else {
-                        // Handle create/edit logic here
-
-                        if (onSubmitForm) {
-                            onSubmitForm(_data)
-                        }
-                    }
-                    // setDialogState({ ...dialogState, open: false });
-                }}
-                submitLabel="Create"
-                deleteLabel="Delete"
-                loading={false}
-                maxWidth="sm"
-                children={dialogState.mode === "delete" ? (
-                    <p>Are you sure you want to delete this item?</p>
-
-                ) : formBuilder}
-            />
-        </Box>
+            >
+                <ResourceTable<T> />
+                <ResourceDialogWrapper<T> />
+            </Box>
+        </ResourceProvider>
     );
 }
 

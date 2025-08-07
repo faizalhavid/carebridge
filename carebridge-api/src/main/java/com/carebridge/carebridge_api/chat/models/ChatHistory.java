@@ -21,12 +21,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChatHistory extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "customer_chat_id", insertable = false, updatable = false)
+    @JoinColumn(name = "chat_id")
     @JsonManagedReference
     private Chat chat;
-
-    @Column(name = "customer_chat_id")
-    private Long customerChatId;
 
     @Column(name = "chat_content")
     private String chatContent;

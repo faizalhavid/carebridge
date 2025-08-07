@@ -43,7 +43,7 @@ public class Chat extends BaseEntity {
     @Column(name = "doctor_id")
     private Long doctorId;
 
-    @OneToMany(mappedBy = "customerChat", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
     @JsonBackReference
     List<ChatHistory> customerChatHistorys;
 }

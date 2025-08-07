@@ -1,105 +1,181 @@
-import React, { useState } from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, ButtonGroup, Typography, Checkbox, TableSortLabel, Toolbar, IconButton, Tooltip, TextField, Box, TablePagination, Chip } from "@mui/material";
+import React, { useState, useMemo, useCallback } from "react";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
+    Paper,
+    ButtonGroup,
+    Typography,
+    Checkbox,
+    Box,
+    TablePagination,
+    Chip,
+    IconButton,
+    Tooltip
+} from "@mui/material";
 import { BaseEntity } from "@/interfaces/models/base-entity";
 import ResourceTableToolbar from "./toolbar";
-import { ResourceComponentInterface as interfaces } from "./type";
-import { createComparator } from "@/lib/utils/create-comparator";
+import { ResourceComponentInterface as interfaces } from "../../interfaces/resources";
 import ResourceTableHead from "./table-head";
 import { Delete, Edit } from "@mui/icons-material";
+import { useResourceContext } from "../../hooks/resource-context";
 
-function ResourceTable<T extends BaseEntity>({
-    title,
-    data,
-    resource,
-    headCells,
-    columnComponents = {},
-    customTableAction,
-    showActions,
-    dialogState,
-    tableState,
-    setTableState,
-    setDialogState,
-    onFilterClick,
-    onActionClick,
-    onSearch
-}: interfaces.ResourceTableProps<T>) {
+function ResourceTable<T extends BaseEntity>() {
+    // Get all data from context
+    const {
+        title,
+        data,
+        resource,
+        headCells,
+        columnComponents = {},
+        customTableAction,
+        showActions = true,
+        dialogState,
+        tableState,
+        setTableState,
+        setDialogState,
+        onFilterClick,
+        onActionClick,
+        onSearch
+    } = useResourceContext<T>();
 
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setTableState((prev) => ({
-            ...prev,
-            page: newPage,
-        }));
-    }
+    // Memoized handlers
+    const handleChangePage = useCallback((event: unknown, newPage: number) => {
+        setTableState((prev) => ({ ...prev, page: newPage }));
+    }, [setTableState]);
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setTableState((prev) => ({
             ...prev,
             rowsPerPage: parseInt(event.target.value, 10),
             page: 0,
         }));
-    }
+    }, [setTableState]);
 
-    const emptyRows =
-        tableState.rowsPerPage - Math.min(tableState.rowsPerPage, data.length - tableState.page * tableState.rowsPerPage);
+    // Helper function to extract all values from nested objects
+    const extractAllValues = useCallback((obj: any, visited = new Set()): string => {
+        if (obj === null || obj === undefined) return '';
 
-    const visibleRows = React.useMemo(
-        () => {
-            let filteredData = data;
-            if (tableState.search.trim()) {
-                filteredData = data.filter((row) =>
-                    Object.values(row)
-                        .join(" ")
-                        .toLowerCase()
-                        .includes(tableState.search.toLowerCase())
-                );
+        // Prevent circular references
+        if (visited.has(obj)) return '';
+        visited.add(obj);
+
+        const values: string[] = [];
+
+        if (typeof obj === 'object') {
+            if (Array.isArray(obj)) {
+                // Handle arrays
+                obj.forEach(item => {
+                    values.push(extractAllValues(item, visited));
+                });
+            } else {
+                // Handle objects - extract all property values recursively
+                Object.values(obj).forEach(value => {
+                    if (typeof value === 'string' || typeof value === 'number') {
+                        values.push(String(value));
+                    } else if (typeof value === 'object') {
+                        values.push(extractAllValues(value, visited));
+                    }
+                });
             }
-            return [...filteredData]
-                .sort((a, b) =>
-                    createComparator(
-                        tableState.orderBy as keyof T,
-                        tableState.order,
-                    )(a as any, b as any)
-                )
-                .slice(
-                    tableState.page * tableState.rowsPerPage,
-                    tableState.page * tableState.rowsPerPage + tableState.rowsPerPage
+        } else {
+            values.push(String(obj));
+        }
+
+        return values.filter(v => v.trim()).join(' ');
+    }, []);
+
+    // Memoized cell value getter
+    const getCellValue = useCallback((row: T, col: any) => {
+        if (col.key) {
+            return col.key.split('.').reduce(
+                (acc: any, part: string) => acc && acc[part],
+                row
+            );
+        }
+        return row[col.id as keyof T];
+    }, []);
+
+    // Enhanced search function that handles both regular search and key:value filters
+    const searchInRow = useCallback((row: any, searchTerm: string): boolean => {
+        if (!searchTerm.trim()) return true;
+
+        // Check for key:value patterns
+        const keyValuePattern = /(\w+):([^\s]+)/g;
+        const keyValueMatches = Array.from(searchTerm.matchAll(keyValuePattern));
+
+        if (keyValueMatches.length > 0) {
+            // Handle structured search (key:value format)
+            return keyValueMatches.every(match => {
+                const [, key, value] = match;
+                const rowValue = getCellValue(row, { key });
+
+                if (rowValue === null || rowValue === undefined) return false;
+
+                const searchableValue = extractAllValues(rowValue).toLowerCase();
+                return searchableValue.includes(value.toLowerCase());
+            });
+        } else {
+            // Handle regular text search across all fields
+            const searchableText = extractAllValues(row).toLowerCase();
+            return searchableText.includes(searchTerm.toLowerCase());
+        }
+    }, [extractAllValues, getCellValue]);
+
+    // Enhanced comparator that handles nested properties
+    const createNestedComparator = useCallback((orderBy: string, order: 'asc' | 'desc') => {
+        return (a: T, b: T) => {
+            // Extract values using the same logic as getCellValue
+            const getNestedValue = (obj: any, path: string) => {
+                if (!path) return obj;
+                return path.split('.').reduce(
+                    (acc: any, part: string) => acc && acc[part],
+                    obj
                 );
-        },
-        [data, tableState.order, tableState.orderBy, tableState.page, tableState.rowsPerPage, tableState.search]
+            };
+
+            const aValue = getNestedValue(a, orderBy);
+            const bValue = getNestedValue(b, orderBy);
+
+            // Handle null/undefined values
+            if (aValue == null && bValue == null) return 0;
+            if (aValue == null) return 1;
+            if (bValue == null) return -1;
+
+            // Convert to string for comparison if needed
+            const aComp = typeof aValue === 'object' ? String(aValue) : aValue;
+            const bComp = typeof bValue === 'object' ? String(bValue) : bValue;
+
+            if (aComp < bComp) return order === 'asc' ? -1 : 1;
+            if (aComp > bComp) return order === 'asc' ? 1 : -1;
+            return 0;
+        };
+    }, []);
+
+    // Memoized filtered and sorted data
+    const visibleRows = useMemo(() => {
+        let filteredData = data;
+        if (tableState.search.trim()) {
+            filteredData = data.filter((row) => searchInRow(row, tableState.search));
+        }
+        return [...filteredData]
+            .sort(createNestedComparator(tableState.orderBy || '', tableState.order))
+            .slice(
+                tableState.page * tableState.rowsPerPage,
+                tableState.page * tableState.rowsPerPage + tableState.rowsPerPage
+            );
+    }, [data, tableState.order, tableState.orderBy, tableState.page, tableState.rowsPerPage, tableState.search, searchInRow, createNestedComparator]);
+
+    const emptyRows = useMemo(() =>
+        tableState.rowsPerPage - Math.min(tableState.rowsPerPage, data.length - tableState.page * tableState.rowsPerPage),
+        [tableState.rowsPerPage, data.length, tableState.page]
     );
 
-
-    const handleRequestSort = (
-        event: React.MouseEvent<unknown>,
-        property: keyof T,
-    ) => {
-        const isAsc = tableState.orderBy === property && tableState.order === "asc";
-        setTableState({
-            ...tableState,
-            order: isAsc ? "desc" : "asc",
-            orderBy: property as string,
-        });
-    }
-
-    const handleSelectAllCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.checked) {
-            const newSelecteds = visibleRows.map((n) => n.id).filter((id): id is number => typeof id === "number");
-            setTableState({
-                ...tableState,
-                selected: newSelecteds,
-            });
-            //createSelectedItemResourceStore.setState({ selectedItemResource: newSelecteds });
-            return;
-        }
-        setTableState({
-            ...tableState,
-            selected: [],
-        });
-    }
-
-    const handleOpenDialog = (e: React.MouseEvent, mode: any, id: number) => {
+    const handleOpenDialog = useCallback((e: React.MouseEvent, mode: any, id: number) => {
         e.stopPropagation();
-        const modelResource = visibleRows.find((item) => (item as any).id === id);
+        const modelResource = visibleRows.find((item: T) => (item as any).id === id);
         if (modelResource) {
             onActionClick?.(mode, modelResource as unknown as T);
         }
@@ -108,41 +184,64 @@ function ResourceTable<T extends BaseEntity>({
             mode,
             selectedModelResource: modelResource,
         });
+    }, [visibleRows, onActionClick, setDialogState]);
 
-    };
+    // Memoized row click handler
+    const handleRowClick = useCallback((e: React.MouseEvent, row: T, isItemSelected: boolean) => {
+        const rowId = Number(row.id);
+        setTableState((prev) => ({
+            ...prev,
+            selected: isItemSelected
+                ? prev.selected.filter((id) => id !== rowId)
+                : [...prev.selected, rowId],
+        }));
+        handleOpenDialog(e, "view", rowId);
+    }, [setTableState, handleOpenDialog]);
 
-    const renderActions = (row: T) => {
+    // Memoized checkbox click handler  
+    const handleCheckboxClick = useCallback((e: React.MouseEvent, row: T, isItemSelected: boolean) => {
+        e.stopPropagation();
+        const rowId = Number(row.id);
+        setTableState((prev) => ({
+            ...prev,
+            selected: isItemSelected
+                ? prev.selected.filter((id) => id !== rowId)
+                : [...prev.selected, rowId],
+        }));
+    }, [setTableState]);
+
+    const renderActions = useCallback((row: T) => {
         if (customTableAction) {
             return customTableAction(row);
         }
         return (
             <ButtonGroup>
                 <Tooltip title="Edit">
-                    <IconButton color="warning" onClick={(e) => handleOpenDialog(e, "edit", row.id as any)}>
+                    <IconButton
+                        color="warning"
+                        onClick={(e) => handleOpenDialog(e, "edit", row.id as any)}
+                        size="small"
+                    >
                         <Edit fontSize="small" />
                     </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete">
-                    <IconButton color="error" onClick={(e) => handleOpenDialog(e, "delete", row.id as any)}>
+                    <IconButton
+                        color="error"
+                        onClick={(e) => handleOpenDialog(e, "delete", row.id as any)}
+                        size="small"
+                    >
                         <Delete fontSize="small" />
                     </IconButton>
                 </Tooltip>
             </ButtonGroup>
         );
-    };
+    }, [customTableAction, handleOpenDialog]);
 
     return (
         <Box sx={{ width: '100%', overflowX: 'auto' }}>
             <Paper sx={{ width: '100%', padding: 2, boxShadow: "0 6px 20px rgba(0,0,0,0.18)" }}>
-                <ResourceTableToolbar<T>
-                    title={title}
-                    numSelected={tableState.selected.length}
-                    tableState={tableState}
-                    setTableState={setTableState}
-                    setDialogState={setDialogState}
-                    onSearch={onSearch}
-                    onFilterClick={onFilterClick}
-                />
+                <ResourceTableToolbar<T> />
                 <TableContainer
                     component={Box}
                     sx={{
@@ -157,68 +256,35 @@ function ResourceTable<T extends BaseEntity>({
                         aria-labelledby="tableTitle"
                         stickyHeader
                     >
-                        <ResourceTableHead
-                            numSelected={tableState.selected.length}
-                            onRequestSort={handleRequestSort}
-                            onSelectAllClick={handleSelectAllCheckbox}
-                            order={tableState.order}
-                            orderBy={tableState.orderBy}
-                            rowCount={visibleRows.length}
-                            headCells={headCells}
-                            showActions={showActions}
-                        />
+                        <ResourceTableHead<T> />
 
                         <TableBody>
-                            {visibleRows.map((row, idx) => {
+                            {visibleRows.map((row: T, idx: number) => {
                                 const isItemSelected = tableState.selected.includes(Number(row.id));
                                 return (
                                     <TableRow
                                         hover
-                                        key={idx}
-                                        onClick={(e) => {
-                                            setTableState((prev) => ({
-                                                ...prev,
-                                                selected: isItemSelected
-                                                    ? prev.selected.filter((id) => id !== Number(row.id))
-                                                    : [...prev.selected, Number(row.id)],
-                                            }));
-                                            handleOpenDialog(e, "view", Number(row.id))
-                                        }}
+                                        key={`${row.id}-${idx}`}
+                                        onClick={(e) => handleRowClick(e, row, isItemSelected)}
                                         aria-checked={isItemSelected}
                                         selected={isItemSelected}
                                         style={{ cursor: "pointer" }}
-                                        role="checkbox">
-                                        {showActions &&
+                                        role="checkbox"
+                                    >
+                                        {showActions && (
                                             <TableCell padding="checkbox">
                                                 <Checkbox
                                                     color="primary"
                                                     checked={isItemSelected}
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        setTableState((prev) => ({
-                                                            ...prev,
-                                                            selected: isItemSelected
-                                                                ? prev.selected.filter((id) => id !== Number(row.id))
-                                                                : [...prev.selected, Number(row.id)],
-                                                        }));
-
-                                                    }}
+                                                    onClick={(e) => handleCheckboxClick(e, row, isItemSelected)}
                                                     inputProps={{
                                                         'aria-labelledby': `enhanced-table-checkbox-${idx}`,
                                                     }}
                                                 />
-                                            </TableCell>}
+                                            </TableCell>
+                                        )}
                                         {headCells.map((col) => {
-                                            let value;
-                                            if (col.key) {
-                                                value = (col.key ?? "id").split('.').reduce(
-                                                    (acc, part) => acc && (acc as Record<string, any>)[part],
-                                                    row as Record<string, any>
-                                                );
-                                            } else {
-                                                value = row[col.id as keyof T];
-                                            }
-
+                                            const value = getCellValue(row, col);
                                             const CustomComponent = columnComponents[String(col.key ?? col.id)];
 
                                             return (
@@ -232,7 +298,7 @@ function ResourceTable<T extends BaseEntity>({
                                                         value.length > 0 ? (
                                                             value.map((item: any, i: number) => (
                                                                 <Chip
-                                                                    key={i}
+                                                                    key={`${col.key}-${i}`}
                                                                     label={item.name || item.label || String(item)}
                                                                     size="small"
                                                                     sx={{ mr: 0.5, mb: 0.5 }}
@@ -244,7 +310,9 @@ function ResourceTable<T extends BaseEntity>({
                                                     ) : CustomComponent ? (
                                                         <CustomComponent value={value} row={row} />
                                                     ) : (
-                                                        <Typography variant="body2" color="text.secondary">{String(value)}</Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {String(value ?? "-")}
+                                                        </Typography>
                                                     )}
                                                 </TableCell>
                                             );
@@ -259,7 +327,7 @@ function ResourceTable<T extends BaseEntity>({
                                         height: (tableState.dense ? 33 : 53) * emptyRows,
                                     }}
                                 >
-                                    <TableCell colSpan={6} />
+                                    <TableCell colSpan={headCells.length + (showActions ? 2 : 1)} />
                                 </TableRow>
                             )}
                         </TableBody>

@@ -13,6 +13,7 @@ import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { DialogMode } from "@/components/resource/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
+import { userManagementSchema } from "@/interfaces/schemas/user-schema";
 
 
 const useUserStore = createApiStore<RepositoryRestResource<User[]>, User>({
@@ -34,12 +35,7 @@ const handlePageChange = (
     console.log("Page changed to:", value);
 }
 
-const userManagementSchema = yup.object().shape({
-    email: yup.string().email("Invalid email").required("Email is required"),
-    fullName: yup.string().required("Name is required"),
-    address: yup.string().required("Address is required"),
-    password: yup.string().required("Password is required"),
-});
+
 
 
 
