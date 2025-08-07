@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import DashboardService from "../services/apis/dashboard";
-import { Menu } from "@/interfaces/models/menu";
+import { Menu } from "@/types/models/menu";
 
 type MenuState = {
     menus: Menu[] | null;

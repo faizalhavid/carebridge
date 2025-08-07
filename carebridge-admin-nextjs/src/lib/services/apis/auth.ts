@@ -1,7 +1,7 @@
-import { DeviceInfo } from "@/interfaces/models/device-info";
+import { DeviceInfo } from "@/types/models/device-info";
 import { get, post } from "../axios";
 import { getDeviceInfo } from "../../utils/get-device-info";
-import { SuccessResponse } from "@/interfaces/api/api-response";
+import { SuccessResponse } from "@/types/api";
 
 class AuthService {
     private static deviceToken = "1234567890";

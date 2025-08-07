@@ -17,7 +17,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Add, UnfoldLess, UnfoldMore } from "@mui/icons-material";
 import { alpha } from '@mui/material/styles';
 import { useResourceContext } from "../../hooks/resource-provider";
-import { BaseEntity } from "@/interfaces/models/base-entity";
+import { BaseEntity } from "@/types/models/base-entity";
 
 function ResourceTableToolbar<T extends BaseEntity>() {
     // Get all data from context

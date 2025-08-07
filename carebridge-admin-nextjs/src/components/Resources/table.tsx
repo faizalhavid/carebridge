@@ -15,7 +15,7 @@ import {
     IconButton,
     Tooltip
 } from "@mui/material";
-import { BaseEntity } from "@/interfaces/models/base-entity";
+import { BaseEntity } from "@/types/models/base-entity";
 import ResourceTableToolbar from "./toolbar";
 import { ResourceComponentInterface as interfaces } from "../../interfaces/components/resources";
 import ResourceTableHead from "./table-head";

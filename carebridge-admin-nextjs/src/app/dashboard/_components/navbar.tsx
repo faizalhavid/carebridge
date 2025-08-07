@@ -5,7 +5,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import React from "react";
 import AppLogo from "@/components/AppLogo";
-import { Menu as MenuInterface } from "@/interfaces/models/menu";
+import { Menu as MenuInterface } from "@/types/models/menu";
 import pages from "next/dist/build/templates/pages";
 
 interface NavbarDashboardProps {

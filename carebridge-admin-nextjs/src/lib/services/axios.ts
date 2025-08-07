@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
-import { ErrorResponse, ServerErrorResponse } from "@/interfaces/api/api-response";
 import { useAuthStore } from "../stores/auth_store";
+import { ErrorResponse, ServerErrorResponse } from "@/types/api";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL!;
 const version = process.env.NEXT_PUBLIC_API_VERSION!;

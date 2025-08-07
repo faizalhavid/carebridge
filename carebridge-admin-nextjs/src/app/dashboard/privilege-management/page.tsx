@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { User } from "@/interfaces/models/user";
+import { User } from "@/types/models/user";
 import { fetcher } from "@/lib/services/axios";
-import { RepositoryRestResource } from "@/interfaces/api/api-response";
+import { RepositoryRestResource } from "@/types/api/api-response";
 import { createApiStore } from "@/lib/stores/api_store";
 import ResourceView from "@/components/Resources";
 import { Chip } from "@mui/material";
@@ -12,7 +12,7 @@ import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { DialogMode } from "@/components/Resources/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
-import { userManagementSchema } from "@/interfaces/schemas/user-schema";
+import { userManagementSchema } from "@/types/schemas/user-schema";
 
 
 const useUserStore = createApiStore<RepositoryRestResource<User[]>, User>({

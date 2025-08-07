@@ -1,6 +1,6 @@
 "use client";
 import AppLogo from "@/components/AppLogo";
-import { StepperRegisterProps } from "@/interfaces/components/stepper-register";
+import { StepperRegisterProps } from "@/types/components/stepper-register";
 import AuthService from "@/lib/services/apis/auth";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";

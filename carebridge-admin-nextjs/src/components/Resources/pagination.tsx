@@ -1,7 +1,7 @@
 import { PaginationProps, Box, Typography } from "@mui/material";
 import { useMemo } from "react";
 import AppPagination, { AppPaginationProps } from "../AppPagination";
-import { RepositoryRestResource } from "@/interfaces/api";
+import { RepositoryRestResource } from "@/types/api";
 
 type ResourcePaginationProps<T> = AppPaginationProps & {
     resource?: RepositoryRestResource<T>;

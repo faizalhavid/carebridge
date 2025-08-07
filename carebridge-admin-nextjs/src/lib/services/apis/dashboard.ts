@@ -1,7 +1,7 @@
-import { RepositoryRestResource, SuccessResponse } from "@/interfaces/api/api-response";
+import { RepositoryRestResource } from "@/types/api";
 import { useAuthStore } from "../../stores/auth_store";
 import { get } from "../axios";
-import { Menu } from "@/interfaces/models/menu";
+import { Menu } from "@/types/models/menu";
 
 
 export function getMenus(): Promise<RepositoryRestResource<Menu[]>> {

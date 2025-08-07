@@ -1,98 +1,99 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { User } from "@/interfaces/models/user";
-import { fetcher } from "@/lib/services/axios";
-import { RepositoryRestResource } from "@/interfaces/api/api-response";
-import { createApiStore } from "@/lib/stores/api_store";
+import React, { useEffect } from "react";
+import { User } from "@/types/models/user";
 import ResourceView from "@/components/Resources";
 import { Chip } from "@mui/material";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Controller, useForm } from "react-hook-form";
-import * as yup from "yup";
-import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { DialogMode } from "@/components/Resources/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
-import { AppButton } from "@/themes/mui_components/app_button";
-import { userManagementSchema } from "@/interfaces/schemas/user-schema";
+import { useUserManagement } from "@/hooks/use-user-management";
+import { UserForm, UserFormData } from "./_components/user-form";
 
-
-const useUserStore = createApiStore<RepositoryRestResource<User[]>, User>({
-    fetchFn: () => fetcher('/admin/users', { method: 'GET' }, true),
-    postFn: (data) => fetcher('/admin/manage-user', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' },
-    }, true),
-
-});
-
-
-const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-) => {
-    // Handle page change logic here
-    console.log("Page changed to:", value);
-}
-
-
-
-
-
-const ROLE_PREVILEGES: { [key: string]: string[] } = {
+const ROLE_PRIVILEGES: { [key: string]: string[] } = {
     SUPER_ADMIN: ["create", "edit", "view", "delete", "manage_password"],
     ADMIN: ["create", "edit", "view"],
     MANAGER: ["view"],
 };
 
 export default function UserManagementPage() {
-    const { data, loading, error, fetchData, postData } = useUserStore();
     const { user: authenticatedUser } = useAuthStore();
 
-    const [pageState, setPageState] = useState(() => {
-        const role = authenticatedUser?.roles.find((r) => r.name.startsWith("ROLE_"))?.name || "ROLE_USER";
-        const privileges = ROLE_PREVILEGES[role] || [];
-        return {
-            selectedUser: null as User | null,
-            dialogMode: "create" as DialogMode,
-            isAuthorizedToCreate: privileges.includes("create"),
-            isAuthorizedToEdit: privileges.includes("edit"),
-            isAuthorizedToView: privileges.includes("view"),
-            isAuthorizedToDelete: privileges.includes("delete"),
-        };
-    });
-
-    const handleSubmitUserForm = async (data: any) => {
-        console.log("Form submitted with data:", data);
-    }
+    // Get user privileges based on role
+    const role = authenticatedUser?.roles.find((r) => r.name.startsWith("ROLE_"))?.name || "ROLE_USER";
+    const privileges = ROLE_PRIVILEGES[role] || [];
 
     const {
-        control,
-        handleSubmit,
-        formState: { errors },
-        reset,
-    } = useForm({
-        resolver: yupResolver(userManagementSchema),
-        defaultValues: {
-            email: pageState.selectedUser?.email ?? "",
-            fullName: pageState.selectedUser?.biodata?.fullName ?? "",
-            address: pageState.selectedUser?.biodata?.address ?? "",
-            password: "",
-        },
-    });
+        data,
+        loading,
+        error,
+        fetchData,
+        pageState,
+        handleCreateUser,
+        handleUpdateUser,
+        handleDeleteUser,
+        openCreateDialog,
+        openEditDialog,
+        openViewDialog,
+        openDeleteDialog,
+        closeDialog,
+    } = useUserManagement(
+        privileges.includes("create"),
+        privileges.includes("edit"),
+        privileges.includes("view"),
+        privileges.includes("delete")
+    );
+
+    const handleSubmitUserForm = async (formData: UserFormData) => {
+        try {
+            if (pageState.dialogMode === "create") {
+                await handleCreateUser({
+                    email: formData.email,
+                    fullName: formData.fullName,
+                    address: formData.address,
+                    password: formData.password,
+                });
+            } else if (pageState.dialogMode === "edit" && pageState.selectedUser) {
+                await handleUpdateUser({
+                    id: pageState.selectedUser.id,
+                    email: formData.email,
+                    fullName: formData.fullName,
+                    address: formData.address,
+                    ...(formData.password && { password: formData.password }),
+                });
+            } else if (pageState.dialogMode === "delete" && pageState.selectedUser) {
+                await handleDeleteUser(pageState.selectedUser.id);
+            }
+
+            closeDialog();
+        } catch (error) {
+            console.error("Form submission error:", error);
+        }
+    };
+
+    const handlePageChange = (
+        event: React.ChangeEvent<unknown>,
+        value: number
+    ) => {
+        // Handle page change logic here
+        console.log("Page changed to:", value);
+    };
+
+    const handleActionClick = (mode: DialogMode, user: User) => {
+        switch (mode) {
+            case "view":
+                openViewDialog(user);
+                break;
+            case "edit":
+                openEditDialog(user);
+                break;
+            case "delete":
+                openDeleteDialog(user);
+                break;
+        }
+    };
 
     useEffect(() => {
         fetchData();
-    }, []);
-
-    useEffect(() => {
-        reset({
-            email: pageState.selectedUser?.email ?? "",
-            fullName: pageState.selectedUser?.biodata?.fullName ?? "",
-            address: pageState.selectedUser?.biodata?.address ?? "",
-            password: "",
-        });
-    }, [pageState.selectedUser, reset]);
+    }, [fetchData]);
 
     return (
         <ResourceView<User>
@@ -100,108 +101,40 @@ export default function UserManagementPage() {
             resource={data}
             headCells={[
                 { key: "id", label: "ID", numeric: true, disablePadding: true },
-                { key: "biodata.fullName", label: "Nama", numeric: false, disablePadding: false, },
+                { key: "biodata.fullName", label: "Full Name", numeric: false, disablePadding: false },
                 { key: "email", label: "Email", numeric: false, disablePadding: false },
                 { key: "roles", label: "Role", numeric: false, disablePadding: false },
             ]}
             columnComponents={{
-                role: ({ value }) => <Chip label={value.split("_")[1].toLowerCase()} color="primary" size="small" />,
+                roles: ({ value }) => {
+                    const role = Array.isArray(value) ? value[0]?.name : value;
+                    const roleName = role ? role.split("_")[1]?.toLowerCase() : "user";
+                    return <Chip label={roleName} color="primary" size="small" />;
+                },
             }}
-            onSearch={(v) => console.log(v)}
-            onFilterClick={() => console.log("filter")}
-            onAddClick={() => console.log("add")}
-            onCloseDialog={
-                () => {
-                    if (pageState.dialogMode == 'edit' || pageState.dialogMode == 'view') {
-                        setPageState((prev) => ({
-                            ...prev,
-                            selectedUser: null,
-                        }));
-                    }
-                }
-            }
-            onActionClick={(mode, user) => {
-                setPageState((prev) => ({
-                    ...prev,
-                    selectedUser: user,
-                    dialogMode: mode,
-                }));
+            onSearch={(searchTerm) => {
+                console.log("Search term:", searchTerm);
+                // Implement search logic here
             }}
+            onFilterClick={() => {
+                console.log("Filter clicked");
+                // Implement filter logic here
+            }}
+            onAddClick={openCreateDialog}
+            onCloseDialog={closeDialog}
+            onActionClick={handleActionClick}
             onPageChange={handlePageChange}
-            showActions={false}
-            onSubmitForm={handleSubmit(handleSubmitUserForm)}
+            showActions={true}
+            onSubmitForm={handleSubmitUserForm}
             formBuilder={
-                <form onSubmit={handleSubmit(handleSubmitUserForm)} noValidate className="flex flex-col gap-4">
-                    <Controller
-                        name="fullName"
-                        control={control}
-                        render={({ field }) => (
-                            <AppTextField
-                                {...field}
-                                variant="outlined"
-                                sizes="small"
-                                label="Fullname"
-                                helperText={errors.fullName?.message || "Enter your name"}
-                                isError={!!errors.fullName}
-                                isRequired
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="email"
-                        control={control}
-                        render={({ field }) => (
-                            <AppTextField
-                                {...field}
-                                variant="outlined"
-                                sizes="small"
-                                label="Email"
-                                helperText={errors.email?.message || "Enter your email"}
-                                isError={!!errors.email}
-                                isRequired
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="address"
-                        control={control}
-                        render={({ field }) => (
-                            <AppTextField
-                                {...field}
-                                variant="outlined"
-                                multiline
-                                sizes="small"
-                                label="Address"
-                                helperText={errors.address?.message || "Enter your address"}
-                                isRequired
-                            />
-                        )}
-                    />
-                    {(pageState.isAuthorizedToEdit || (pageState.isAuthorizedToCreate && pageState.dialogMode === "view")) && (
-                        <Controller
-                            name="password"
-                            control={control}
-                            render={({ field }) => (
-                                <AppTextField
-                                    {...field}
-                                    variant="outlined"
-                                    sizes="small"
-                                    label="Password"
-                                    type="password"
-                                    helperText={!pageState.isAuthorizedToEdit ? "You dont have permission to edit password"
-                                        : errors.password?.message || "Enter your password"}
-                                    isRequired
-                                    isError={!!errors.password}
-                                    isDisabled={pageState.dialogMode === "view" && !pageState.isAuthorizedToEdit}
-                                />
-                            )}
-                        />
-                    )}
-
-
-                </form>
+                <UserForm
+                    selectedUser={pageState.selectedUser}
+                    dialogMode={pageState.dialogMode}
+                    isAuthorizedToEdit={pageState.isAuthorizedToEdit}
+                    isAuthorizedToCreate={pageState.isAuthorizedToCreate}
+                    onSubmit={handleSubmitUserForm}
+                />
             }
         />
-
     );
 }
