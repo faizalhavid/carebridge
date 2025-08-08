@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+/* import { useState, useCallback } from "react";
 import { User } from "@/types/models/user";
 import { DialogMode } from "@/components/Resources/dialog";
 import {
@@ -6,11 +6,9 @@ import {
     createUser,
     updateUser,
     deleteUser,
-    CreateUserRequest,
-    UpdateUserRequest
 } from "@/lib/services/apis/user-management";
-import { createApiStore } from "@/lib/stores/api_store";
 import { RepositoryRestResource } from "@/types/api/repository";
+import { UserManagementFormData } from "@/types/schemas/user-schema";
 
 export interface UserPageState {
     selectedUser: User | null;
@@ -19,12 +17,12 @@ export interface UserPageState {
     isAuthorizedToEdit: boolean;
     isAuthorizedToView: boolean;
     isAuthorizedToDelete: boolean;
-}
+} */
 
 /* 
 TODO : REFACTORY THIS TO BE GENERIC AS CAN DO SOMETHING BASED ON ROLE : 1. getLocalUser 2. getRole 3. getAccessbility 4. returnAction
 */
-
+/* 
 export interface UserManagementHookResult {
     // Store state
     data: RepositoryRestResource<User[]> | null;
@@ -39,8 +37,8 @@ export interface UserManagementHookResult {
     setPageState: React.Dispatch<React.SetStateAction<UserPageState>>;
 
     // User operations
-    handleCreateUser: (userData: CreateUserRequest) => Promise<void>;
-    handleUpdateUser: (userData: UpdateUserRequest) => Promise<void>;
+    handleCreateUser: (userData: UserManagementFormData) => Promise<void>;
+    handleUpdateUser: (userData: UserManagementFormData) => Promise<void>;
     handleDeleteUser: (userId: string | number) => Promise<void>;
 
     // UI Actions
@@ -51,9 +49,6 @@ export interface UserManagementHookResult {
     closeDialog: () => void;
 }
 
-const useUserStore = createApiStore<RepositoryRestResource<User[]>, CreateUserRequest>({
-    fetchFn: () => getUsers(),
-});
 
 export function useUserManagement(
     isAuthorizedToCreate: boolean,
@@ -72,7 +67,7 @@ export function useUserManagement(
         isAuthorizedToDelete,
     });
 
-    const handleCreateUser = useCallback(async (userData: CreateUserRequest) => {
+    const handleCreateUser = useCallback(async (userData: UserManagementFormData) => {
         try {
             await createUser(userData);
             await fetchData(true); // Refresh data
@@ -158,3 +153,4 @@ export function useUserManagement(
         closeDialog,
     };
 }
+ */

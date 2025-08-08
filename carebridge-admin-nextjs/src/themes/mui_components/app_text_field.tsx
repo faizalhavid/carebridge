@@ -17,6 +17,8 @@ interface AppTextFieldProps {
     isReadOnly?: boolean;
     value?: string | number;
     defaultValue?: string | number;
+    isAutoComplete?: boolean;
+    disableAutofill?: boolean; // New prop for explicit autofill disabling
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
 }
@@ -35,6 +37,8 @@ export function AppTextField({
     isError = false,
     multiline = false,
     isReadOnly = false,
+    isAutoComplete = false,
+    disableAutofill = false,
     value,
     defaultValue,
     onChange,
@@ -44,6 +48,25 @@ export function AppTextField({
         helperText: helperText || "",
         isError: isError || false,
     });
+
+    // Generate autocomplete attributes to disable autofill
+    const getAutocompleteProps = () => {
+        // If explicitly disabled or isAutoComplete is false
+        const shouldDisableAutofill = disableAutofill || !isAutoComplete;
+
+        if (!shouldDisableAutofill) {
+            return { autoComplete: "on" };
+        }
+
+        // More aggressive autofill prevention
+        return {
+            autoComplete: "new-password", // Tricks browsers into not autofilling
+            autoCorrect: "off",
+            autoCapitalize: "off",
+            spellCheck: false,
+        };
+    };
+
     return (
         <TextField
             variant={variant}
@@ -54,11 +77,18 @@ export function AppTextField({
             error={localState.isError}
             disabled={isDisabled}
             required={isRequired}
+            {...getAutocompleteProps()}
             slotProps={{
                 input: {
                     readOnly: isReadOnly,
                     startAdornment: prefix ? <InputAdornment position="start">{prefix}</InputAdornment> : undefined,
                     endAdornment: suffix ? <InputAdornment position="end">{suffix}</InputAdornment> : undefined,
+                    // Additional props to prevent autofill
+                    ...((disableAutofill || !isAutoComplete) && {
+                        'data-form-type': 'other',
+                        'data-lpignore': 'true', // LastPass ignore
+                        'data-1p-ignore': 'true', // 1Password ignore
+                    }),
                 },
             }}
             onCopy={(e) => {

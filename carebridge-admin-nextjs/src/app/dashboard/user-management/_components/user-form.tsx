@@ -1,40 +1,32 @@
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { User } from "@/types/models/user";
-import { userManagementSchema } from "@/types/schemas/user-schema";
+import { UserFormSchema, userSchema } from "@/types/schemas/user-schema";
 import { DialogMode } from "@/components/Resources/dialog";
 
-export interface UserFormData {
-    email: string;
-    fullName: string;
-    address: string;
-    password: string;
-}
+
 
 interface UserFormProps {
     selectedUser?: User | null;
     dialogMode: DialogMode;
-    isAuthorizedToEdit: boolean;
-    isAuthorizedToCreate: boolean;
-    onSubmit: (data: UserFormData) => void;
+    onSubmit: (data: UserFormSchema) => void;
 }
 
 export function UserForm({
     selectedUser,
     dialogMode,
-    isAuthorizedToEdit,
-    isAuthorizedToCreate,
     onSubmit
 }: UserFormProps) {
+    const isAuthorizedToEdit = true, isAuthorizedToCreate = true;
     const {
         control,
         handleSubmit,
         formState: { errors },
         reset,
-    } = useForm<UserFormData>({
-        resolver: yupResolver(userManagementSchema),
+    } = useForm<UserFormSchema>({
+        resolver: zodResolver(userSchema as any),
         defaultValues: {
             email: selectedUser?.email ?? "",
             fullName: selectedUser?.biodata?.fullName ?? "",

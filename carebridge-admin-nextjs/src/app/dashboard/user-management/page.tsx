@@ -1,66 +1,87 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { User } from "@/types/models/user";
 import ResourceView from "@/components/Resources";
 import { Chip } from "@mui/material";
 import { DialogMode } from "@/components/Resources/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
-import { useUserManagement } from "@/hooks/use-user-management";
-import { UserForm, UserFormData } from "./_components/user-form";
-
-const ROLE_PRIVILEGES: { [key: string]: string[] } = {
-    SUPER_ADMIN: ["create", "edit", "view", "delete", "manage_password"],
-    ADMIN: ["create", "edit", "view"],
-    MANAGER: ["view"],
-};
+import { UserForm } from "./_components/user-form";
+import { useUserQuery } from "@/lib/services/queries/user-query";
+import { UserFormSchema } from "@/types/schemas/user-schema";
 
 export default function UserManagementPage() {
     const { user: authenticatedUser } = useAuthStore();
 
-    // Get user privileges based on role
-    const role = authenticatedUser?.roles.find((r) => r.name.startsWith("ROLE_"))?.name || "ROLE_USER";
-    const privileges = ROLE_PRIVILEGES[role] || [];
+    const { data, refetch } = useUserQuery();
 
-    const {
-        data,
-        loading,
-        error,
-        fetchData,
-        pageState,
-        handleCreateUser,
-        handleUpdateUser,
-        handleDeleteUser,
-        openCreateDialog,
-        openEditDialog,
-        openViewDialog,
-        openDeleteDialog,
-        closeDialog,
-    } = useUserManagement(
-        privileges.includes("create"),
-        privileges.includes("edit"),
-        privileges.includes("view"),
-        privileges.includes("delete")
-    );
+    const [pageState, setPageState] = useState<{
+        selectedUser: User | null;
+        dialogMode: DialogMode;
+    }>({
+        selectedUser: null,
+        dialogMode: "create"
+    });
 
-    const handleSubmitUserForm = async (formData: UserFormData) => {
+
+    const closeDialog = useCallback(() => {
+        setPageState(prev => ({
+            ...prev,
+            selectedUser: null,
+        }));
+    }, []);
+
+    const openViewDialog = useCallback((user: User) => {
+        setPageState(prev => ({
+            ...prev,
+            selectedUser: user,
+            dialogMode: "view",
+        }));
+    }, []);
+
+    const openCreateDialog = useCallback(() => {
+        setPageState(prev => ({
+            ...prev,
+            selectedUser: null,
+            dialogMode: "create",
+        }));
+    }, []);
+
+    const openEditDialog = useCallback((user: User) => {
+        setPageState(prev => ({
+            ...prev,
+            selectedUser: user,
+            dialogMode: "edit",
+        }));
+    }, []);
+
+    const openDeleteDialog = useCallback((user: User) => {
+        setPageState(prev => ({
+            ...prev,
+            selectedUser: user,
+            dialogMode: "delete",
+        }));
+    }, []);
+
+
+    const handleSubmitUserForm = async (formData: UserFormSchema) => {
         try {
             if (pageState.dialogMode === "create") {
-                await handleCreateUser({
-                    email: formData.email,
-                    fullName: formData.fullName,
-                    address: formData.address,
-                    password: formData.password,
-                });
+                // await handleCreateUser({
+                //     email: formData.email,
+                //     fullName: formData.fullName,
+                //     address: formData.address,
+                //     password: formData.password,
+                // });
             } else if (pageState.dialogMode === "edit" && pageState.selectedUser) {
-                await handleUpdateUser({
-                    id: pageState.selectedUser.id,
-                    email: formData.email,
-                    fullName: formData.fullName,
-                    address: formData.address,
-                    ...(formData.password && { password: formData.password }),
-                });
+                // await handleUpdateUser({
+                //     id: pageState.selectedUser.id,
+                //     email: formData.email,
+                //     fullName: formData.fullName,
+                //     address: formData.address,
+                //     ...(formData.password && { password: formData.password }),
+                // });
             } else if (pageState.dialogMode === "delete" && pageState.selectedUser) {
-                await handleDeleteUser(pageState.selectedUser.id);
+                // await handleDeleteUser(pageState.selectedUser.id);
             }
 
             closeDialog();
@@ -92,8 +113,8 @@ export default function UserManagementPage() {
     };
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        refetch();
+    }, []);
 
     return (
         <ResourceView<User>
@@ -130,8 +151,6 @@ export default function UserManagementPage() {
                 <UserForm
                     selectedUser={pageState.selectedUser}
                     dialogMode={pageState.dialogMode}
-                    isAuthorizedToEdit={pageState.isAuthorizedToEdit}
-                    isAuthorizedToCreate={pageState.isAuthorizedToCreate}
                     onSubmit={handleSubmitUserForm}
                 />
             }

@@ -6,9 +6,9 @@ import NavbarDashboard from "./_components/navbar";
 import { ChevronLeft, Dashboard } from "@mui/icons-material";
 import { Box, IconButton, useMediaQuery, Theme } from "@mui/material";
 import { useAuthStore, useIsAuthenticated } from "@/lib/stores/auth_store";
-import { createApiStore } from "@/lib/stores/api_store";
 import { Menu } from "@/types/models/menu";
 import { RepositoryRestResource } from "@/types/api";
+import { useMenuQuery } from "@/lib/services/queries/menu-query";
 
 
 
@@ -33,9 +33,9 @@ const menuNavbar: Menu[] = [
         parentId: null,
     },
 ];
-const useMenuStore = createApiStore<RepositoryRestResource<Menu[]>, Menu>({
-    fetchFn: () => fetcher('/admin/menus', { method: 'GET' }, true)
-});
+
+
+
 
 export default function DashboardLayout({
     children,
@@ -45,15 +45,12 @@ export default function DashboardLayout({
 
     const [isSidebarExpanded, setIsSidebarExpanded] = React.useState(true);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const { data, loading, error, fetchData } = useMenuStore();
+    const { data, refetch } = useMenuQuery();
     useEffect(() => {
         setIsSidebarExpanded(!isMobile);
     }, [isMobile]);
 
 
-    useEffect(() => {
-        fetchData();
-    }, []);
 
 
 

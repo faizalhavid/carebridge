@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import DashboardService from "../services/apis/dashboard";
 import { Menu } from "@/types/models/menu";
+import { getMenus } from "../services/apis/dashboard";
 
 type MenuState = {
     menus: Menu[] | null;
@@ -17,7 +17,7 @@ export const useMenuStore = create<MenuState>((set, get) => ({
         if (get().menus) return;
         set({ loading: true, error: null });
         try {
-            const res = await DashboardService.getMenus();
+            const res = await getMenus();
             const menus = res._embedded.menus.flat();
             set({ menus, loading: false });
         } catch (e: any) {

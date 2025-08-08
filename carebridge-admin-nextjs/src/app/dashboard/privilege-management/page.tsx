@@ -1,9 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { User } from "@/types/models/user";
-import { fetcher } from "@/lib/services/axios";
-import { RepositoryRestResource } from "@/types/api/api-response";
-import { createApiStore } from "@/lib/stores/api_store";
 import ResourceView from "@/components/Resources";
 import { Chip } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -12,7 +9,7 @@ import { AppTextField } from "@/themes/mui_components/app_text_field";
 import { DialogMode } from "@/components/Resources/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { AppButton } from "@/themes/mui_components/app_button";
-import { userManagementSchema } from "@/types/schemas/user-schema";
+import { userSchema } from "@/types/schemas/user-schema";
 
 
 const useUserStore = createApiStore<RepositoryRestResource<User[]>, User>({
@@ -63,7 +60,7 @@ export default function UserManagementPage() {
         formState: { errors },
         reset,
     } = useForm({
-        resolver: yupResolver(userManagementSchema),
+        resolver: yupResolver(userSchema),
         defaultValues: {
             email: pageState.selectedUser?.email ?? "",
             fullName: pageState.selectedUser?.biodata?.fullName ?? "",
