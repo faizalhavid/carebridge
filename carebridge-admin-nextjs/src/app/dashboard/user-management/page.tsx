@@ -6,13 +6,14 @@ import { Chip } from "@mui/material";
 import { DialogMode } from "@/components/Resources/dialog";
 import { useAuthStore } from "@/lib/stores/auth_store";
 import { UserForm } from "./_components/user-form";
-import { useUserQuery } from "@/lib/services/queries/user-query";
+import { useMutationUserQuery, useUserQuery } from "@/lib/services/queries/user-query";
 import { UserFormSchema } from "@/types/schemas/user-schema";
 
 export default function UserManagementPage() {
     const { user: authenticatedUser } = useAuthStore();
 
     const { data, refetch } = useUserQuery();
+    const { mutate: createUser } = useMutationUserQuery();
 
     const [pageState, setPageState] = useState<{
         selectedUser: User | null;
@@ -22,12 +23,12 @@ export default function UserManagementPage() {
         dialogMode: "create"
     });
 
-
     const closeDialog = useCallback(() => {
         setPageState(prev => ({
             ...prev,
             selectedUser: null,
         }));
+        return true;
     }, []);
 
     const openViewDialog = useCallback((user: User) => {
@@ -66,12 +67,15 @@ export default function UserManagementPage() {
     const handleSubmitUserForm = async (formData: UserFormSchema) => {
         try {
             if (pageState.dialogMode === "create") {
-                // await handleCreateUser({
-                //     email: formData.email,
-                //     fullName: formData.fullName,
-                //     address: formData.address,
-                //     password: formData.password,
-                // });
+                await createUser({
+                    email: formData.email,
+                    fullName: formData.fullName,
+                    address: formData.address,
+                    password: formData.password,
+                });
+                refetch();
+            } else if (pageState.dialogMode === "view") {
+                // No action needed for view mode
             } else if (pageState.dialogMode === "edit" && pageState.selectedUser) {
                 // await handleUpdateUser({
                 //     id: pageState.selectedUser.id,

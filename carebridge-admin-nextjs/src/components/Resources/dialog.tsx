@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import {
     Dialog,
     DialogTitle,
@@ -8,7 +8,7 @@ import {
     IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { ResourceComponentInterface as interfaces } from "../../interfaces/components/resources";
+import { ResourceComponentInterface as interfaces } from "../../types/components/resources";
 
 export type DialogMode = "create" | "edit" | "delete" | "view";
 
@@ -40,6 +40,7 @@ function ResourceDialog<T>({
     deleteLabel,
     maxWidth = "sm",
 }: interfaces.ResourceDialogProps<T>) {
+    const [isClosing, setIsClosing] = useState(false);
 
     // Memoized dialog title
     const dialogTitle = useMemo(() =>
@@ -60,6 +61,41 @@ function ResourceDialog<T>({
         onSubmit?.(initialData ?? undefined);
     }, [onSubmit, initialData]);
 
+    // Handle close with control
+    const handleClose = useCallback(async () => {
+        if (isClosing) return; // Prevent multiple simultaneous close attempts
+
+        setIsClosing(true);
+        try {
+            const result = onClose();
+
+            // If onClose returns a boolean or Promise<boolean>, respect that decision
+            if (typeof result === 'boolean') {
+                if (!result) {
+                    setIsClosing(false);
+                    return; // Don't close if result is false
+                }
+            } else if (result instanceof Promise) {
+                const shouldClose = await result;
+                if (!shouldClose) {
+                    setIsClosing(false);
+                    return; // Don't close if promise resolves to false
+                }
+            }
+
+            // If we get here, either:
+            // 1. onClose returned void (original behavior)
+            // 2. onClose returned true
+            // 3. onClose returned Promise<true>
+            // In all these cases, the dialog should close (handled by parent component)
+        } catch (error) {
+            console.error('Error in onClose handler:', error);
+            // On error, don't close the dialog
+        } finally {
+            setIsClosing(false);
+        }
+    }, [onClose, isClosing]);
+
     // Determine if actions should be shown
     const showActions = useMemo(() =>
         mode !== "view" && showAction,
@@ -67,7 +103,7 @@ function ResourceDialog<T>({
     );
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth={maxWidth} fullWidth>
+        <Dialog open={open} onClose={handleClose} maxWidth={maxWidth} fullWidth>
             <DialogTitle sx={{
                 m: 0,
                 p: 2,
@@ -78,9 +114,9 @@ function ResourceDialog<T>({
                 {dialogTitle}
                 <IconButton
                     aria-label="close"
-                    onClick={onClose}
+                    onClick={handleClose}
                     size="small"
-                    disabled={loading}
+                    disabled={loading || isClosing}
                 >
                     <CloseIcon />
                 </IconButton>
@@ -93,9 +129,9 @@ function ResourceDialog<T>({
             {showActions && (
                 <DialogActions sx={{ p: 2, gap: 1 }}>
                     <Button
-                        onClick={onClose}
+                        onClick={handleClose}
                         color="inherit"
-                        disabled={loading}
+                        disabled={loading || isClosing}
                         variant="outlined"
                     >
                         Batal
@@ -105,7 +141,7 @@ function ResourceDialog<T>({
                             onClick={handleSubmit}
                             variant="contained"
                             color={mode === "delete" ? "error" : "primary"}
-                            disabled={loading}
+                            disabled={loading || isClosing}
                         >
                             {buttonLabel}
                         </Button>

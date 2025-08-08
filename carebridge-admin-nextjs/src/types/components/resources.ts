@@ -82,7 +82,7 @@ namespace ResourceComponentInterface {
         onFilterClick?: () => void;
         onAddClick?: () => void;
         onPageChange: (event: React.ChangeEvent<unknown>, value: number) => void;
-        onCloseDialog: () => void;
+        onCloseDialog: () => void | boolean | Promise<boolean>;
         customTableAction?: (row: T) => React.ReactNode;
         onSubmitForm?: (data: any) => void;
         onActionClick?: (mode: DialogMode, data: T) => void;
@@ -95,7 +95,7 @@ namespace ResourceComponentInterface {
         title?: string;
         initialData?: T | null;
         showAction?: boolean;
-        onClose: () => void;
+        onClose: () => void | boolean | Promise<boolean>;
         onSubmit?: (data: T | undefined) => void;
         loading?: boolean;
         children?: React.ReactNode;
