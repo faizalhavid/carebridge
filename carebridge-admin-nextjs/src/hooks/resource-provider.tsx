@@ -1,411 +1,384 @@
-import { RepositoryRestResource } from '@/types/api';
-import { ResourceComponentInterface } from '@/types/components/resources';
+import React, { useContext, createContext, ReactNode, useState, useMemo, useCallback } from 'react';
+import { ResourceProvider as ResourceDialogProvider } from '@/components/Resources/Dialog/provider';
+import { ResourceTableProvider } from '@/components/Resources/Table/provider';
+import { DialogState, DialogMode } from '@/components/Resources/Dialog/type';
+import { TableState } from '@/components/Resources/Table/type';
 import { BaseEntity } from '@/types/models/base-entity';
-import React, { createContext, useContext, ReactNode, useMemo, useCallback, useState } from 'react';
+import { ResourceTableHeadCell } from '@/components/Resources/Table/type';
+import { RepositoryRestResource } from '@/types/api/repository';
 
+// Props interface for the ResourceProvider component
+export interface ResourceProviderProps<T extends BaseEntity> {
+  children?: ReactNode;
+  title: string;
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'small' | 'medium' | 'large';
+  resource: RepositoryRestResource<T> | null;
+  headCells: ResourceTableHeadCell<T>[];
+  showActions?: boolean;
+  columnComponents?: { [key: string]: React.ComponentType<{ value: any; row: T }> };
+  customTableAction?: (row: T) => React.ReactNode;
+  formBuilder?: React.ReactNode;
 
-interface ResourceContextValue<T extends BaseEntity> {
-    // Data
-    title: string;
-    data: T[];
-    resource?: RepositoryRestResource<T[]> | null;
-    headCells: ResourceComponentInterface.ResourceTableHeadCell<T>[];
+  // Callback functions
+  onRefreshData?: () => Promise<any>;
+  onSubmitForm?: (data: any, mode: keyof typeof DialogMode) => Promise<void>;
+  onError?: (error: any) => void;
+  onSuccess?: (message: string) => void;
+  onSearch?: (value: string) => void;
+  onFilterClick?: () => void;
+  onAddClick?: () => void;
+  onPageChange?: (event: React.ChangeEvent<unknown>, page: number) => void;
+}
 
-    // Configuration
-    showActions?: boolean;
-    columnComponents?: { [id: string]: React.ComponentType<{ value: any; row: T }> };
-    customTableAction?: (row: T) => React.ReactNode;
-    formBuilder?: React.ReactNode;
+// Shared data interface that both table and dialog can access
+export interface SharedResourceData<T extends BaseEntity> {
+  isLoading: boolean;
+  selectedItems: T[];
+  currentItem: T | null;
+  hasUnsavedChanges: boolean;
+  lastAction: string | null;
+  filters: Record<string, any>;
+}
 
-    // State
-    dialogState: ResourceComponentInterface.DialogState<T>;
-    tableState: ResourceComponentInterface.TableState<T>;
+// Context interfaces
+export interface ResourceContextValue<T extends BaseEntity> {
+  // Table context
+  tableContextValue: any;
 
-    // Actions
-    setDialogState: React.Dispatch<React.SetStateAction<ResourceComponentInterface.DialogState<T>>>;
-    setTableState: React.Dispatch<React.SetStateAction<ResourceComponentInterface.TableState<T>>>;
+  // Dialog context
+  dialogContextValue: any;
 
-    // Computed/Derived State (Memoized)
-    visibleRows: T[];
-    emptyRows: number;
-    isIndeterminate: boolean;
-    isAllSelected: boolean;
-    numSelected: number;
-    rowCount: number;
+  // Shared state
+  sharedData: SharedResourceData<T>;
+  setSharedData: React.Dispatch<React.SetStateAction<SharedResourceData<T>>>;
 
-    // Memoized Handlers
-    handleSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    handleRequestSort: (event: React.MouseEvent<unknown>, property: keyof T | string) => void;
-    handleRowClick: (e: React.MouseEvent, row: T, isItemSelected: boolean) => void;
-    handleCheckboxClick: (e: React.MouseEvent, row: T, isItemSelected: boolean) => void;
-    handleOpenDialog: (e: React.MouseEvent, mode: any, id: number) => void;
-    handleCloseDialog: () => void;
-    handleSubmitDialog: (data: any) => void;
-    handleAddClick: () => void;
-    handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    getCellValue: (row: T, col: any) => any;
-    searchInRow: (row: any, searchTerm: string) => boolean;
-    renderActions: (row: T) => React.ReactNode;
-
-    // Event Handlers
-    onSearch?: (value: string) => void;
-    onFilterClick?: () => void;
-    onAddClick?: () => void;
-    onPageChange?: (event: React.ChangeEvent<unknown>, value: number) => void;
-    onSubmitForm?: (data: any) => void;
-    onActionClick?: (mode: ResourceComponentInterface.DialogState<T>['mode'], data: T) => void;
-    onCloseDialog?: () => void;
+  // Shared functions
+  refreshData: () => Promise<void>;
+  selectItem: (item: T) => void;
+  selectMultipleItems: (items: T[]) => void;
+  clearSelection: () => void;
+  openDialogWithItem: (mode: keyof typeof DialogMode, item?: T | number) => void;
+  closeDialogAndRefresh: () => Promise<void>;
+  handleError: (error: any) => void;
+  handleSuccess: (message: string) => void;
 }
 
 const ResourceContext = createContext<ResourceContextValue<any> | null>(null);
 
-interface ResourceProviderProps<T extends BaseEntity> {
-    children: ReactNode;
-    // Basic props
-    title: string;
-    data: T[];
-    resource?: RepositoryRestResource<T[]> | null;
-    headCells: ResourceComponentInterface.ResourceTableHeadCell<T>[];
-    showActions?: boolean;
-    columnComponents?: { [id: string]: React.ComponentType<{ value: any; row: T }> };
-    customTableAction?: (row: T) => React.ReactNode;
-    formBuilder?: React.ReactNode;
-    // Event handlers
-    onSearch?: (value: string) => void;
-    onFilterClick?: () => void;
-    onAddClick?: () => void;
-    onPageChange?: (event: React.ChangeEvent<unknown>, value: number) => void;
-    onSubmitForm?: (data: any) => void;
-    onActionClick?: (mode: ResourceComponentInterface.DialogState<T>['mode'], data: T) => void;
-    onCloseDialog?: () => void;
-}
+// Main ResourceProvider component that acts as a bridge between table and dialog
+export function ResourceProvider<T extends BaseEntity>({ children, title, maxWidth = 'md', size = 'medium', resource, headCells, showActions = true, columnComponents, customTableAction, formBuilder, onRefreshData, onSubmitForm, onError, onSuccess, onSearch, onFilterClick, onAddClick, onPageChange }: ResourceProviderProps<T>) {
+  console.log('ResourceProvider rendering with resource:', resource);
 
-export function ResourceProvider<T extends BaseEntity>({
-    children,
-    title,
-    data,
-    resource,
-    headCells,
-    showActions = true,
-    columnComponents = {},
-    customTableAction,
-    formBuilder,
-    onSearch,
-    onFilterClick,
-    onAddClick,
-    onPageChange,
-    onSubmitForm,
-    onActionClick,
-    onCloseDialog
-}: ResourceProviderProps<T>) {
-    // Internal state
-    const [dialogState, setDialogState] = useState<ResourceComponentInterface.DialogState<T>>({
-        open: false,
-        mode: 'create',
-        selectedModelResource: null,
-    });
+  // Initialize table state
+  const [tableState, setTableState] = useState<TableState<T>>({
+    search: '',
+    sorting: { order: 'asc', orderBy: '' },
+    pagination: { page: 0, rowsPerPage: 10, emptyRows: 0 },
+    selection: { selectedIdData: [], isIndeterminate: false, isAllSelected: false, numSelected: 0, rowCount: 0 },
+    display: {
+      dense: false,
+      headCells,
+      visibleRows: [],
+      showTableActions: showActions,
+    },
+  });
 
-    const [tableState, setTableState] = useState<ResourceComponentInterface.TableState<T>>({
-        order: 'asc',
-        orderBy: undefined,
-        selected: [],
-        page: 0,
-        dense: false,
-        rowsPerPage: 10,
-        search: '',
-    });
+  // Initialize dialog state
+  const [dialogState, setDialogState] = useState<DialogState<T>>({
+    open: false,
+    mode: DialogMode.CREATE,
+    selectedModelResource: null,
+    isLoading: false,
+    hasValidationErrors: false,
+  });
 
-    // Memoized cell value getter
-    const getCellValue = useCallback((row: T, col: any) => {
-        if (col.key) {
-            return col.key.split('.').reduce(
-                (acc: any, part: string) => acc && acc[part],
-                row
-            );
-        }
-        return row[col.id as keyof T];
-    }, []);
+  // Initialize shared data state
+  const [sharedData, setSharedData] = useState<SharedResourceData<T>>({
+    isLoading: false,
+    selectedItems: [],
+    currentItem: null,
+    hasUnsavedChanges: false,
+    lastAction: null,
+    filters: {},
+  });
 
-    // Helper function to extract all values from nested objects
-    const extractAllValues = useCallback((obj: any): string => {
-        if (obj === null || obj === undefined) return '';
-        if (typeof obj === 'string' || typeof obj === 'number') return String(obj);
-        if (Array.isArray(obj)) return obj.map(extractAllValues).join(' ');
-        if (typeof obj === 'object') {
-            return Object.values(obj).map(extractAllValues).join(' ');
-        }
-        return String(obj);
-    }, []);
-
-    // Enhanced search function
-    const searchInRow = useCallback((row: any, searchTerm: string): boolean => {
-        if (!searchTerm.trim()) return true;
-
-        const keyValuePattern = /(\w+):([^\s]+)/g;
-        const keyValueMatches = Array.from(searchTerm.matchAll(keyValuePattern));
-
-        if (keyValueMatches.length > 0) {
-            return keyValueMatches.every(match => {
-                const [, key, value] = match;
-                const rowValue = getCellValue(row, { key });
-                if (rowValue === null || rowValue === undefined) return false;
-                const searchableValue = extractAllValues(rowValue).toLowerCase();
-                return searchableValue.includes(value.toLowerCase());
-            });
-        } else {
-            const searchableText = extractAllValues(row).toLowerCase();
-            return searchableText.includes(searchTerm.toLowerCase());
-        }
-    }, [extractAllValues, getCellValue]);
-
-    // Enhanced comparator that handles nested properties
-    const createNestedComparator = useCallback((orderBy: string, order: 'asc' | 'desc') => {
-        return (a: T, b: T) => {
-            const getNestedValue = (obj: any, path: string) => {
-                if (!path) return obj;
-                return path.split('.').reduce(
-                    (acc: any, part: string) => acc && acc[part],
-                    obj
-                );
-            };
-
-            const aValue = getNestedValue(a, orderBy);
-            const bValue = getNestedValue(b, orderBy);
-
-            if (aValue == null && bValue == null) return 0;
-            if (aValue == null) return 1;
-            if (bValue == null) return -1;
-
-            const aComp = typeof aValue === 'object' ? String(aValue) : aValue;
-            const bComp = typeof bValue === 'object' ? String(bValue) : bValue;
-
-            if (aComp < bComp) return order === 'asc' ? -1 : 1;
-            if (aComp > bComp) return order === 'asc' ? 1 : -1;
-            return 0;
-        };
-    }, []);
-
-    // Memoized filtered and sorted data
-    const visibleRows = useMemo(() => {
-        let filteredData = data;
-        if (tableState.search.trim()) {
-            filteredData = data.filter((row) => searchInRow(row, tableState.search));
-        }
-        return [...filteredData]
-            .sort(createNestedComparator(tableState.orderBy || '', tableState.order))
-            .slice(
-                tableState.page * tableState.rowsPerPage,
-                tableState.page * tableState.rowsPerPage + tableState.rowsPerPage
-            );
-    }, [data, tableState.order, tableState.orderBy, tableState.page, tableState.rowsPerPage, tableState.search, searchInRow, createNestedComparator]);
-
-    // Computed values
-    const emptyRows = useMemo(() =>
-        tableState.rowsPerPage - Math.min(tableState.rowsPerPage, data.length - tableState.page * tableState.rowsPerPage),
-        [tableState.rowsPerPage, data.length, tableState.page]
-    );
-
-    const numSelected = useMemo(() => tableState.selected.length, [tableState.selected.length]);
-    const rowCount = useMemo(() => data.length, [data.length]);
-
-    const isIndeterminate = useMemo(() =>
-        numSelected > 0 && numSelected < rowCount,
-        [numSelected, rowCount]
-    );
-
-    const isAllSelected = useMemo(() =>
-        rowCount > 0 && numSelected === rowCount,
-        [numSelected, rowCount]
-    );
-
-    // Memoized handlers
-    const handleSelectAllClick = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.checked) {
-            const newSelecteds = data.map((n: T) => Number(n.id));
-            setTableState(prev => ({ ...prev, selected: newSelecteds }));
-        } else {
-            setTableState(prev => ({ ...prev, selected: [] }));
-        }
-    }, [data]);
-
-    const handleRequestSort = useCallback((event: React.MouseEvent<unknown>, property: keyof T | string) => {
-        const headCell = headCells.find(cell => (cell.key || cell.id) === property);
-        const sortKey = headCell?.key || String(property);
-
-        const isAsc = tableState.orderBy === sortKey && tableState.order === 'asc';
-        setTableState(prev => ({
-            ...prev,
-            order: isAsc ? 'desc' : 'asc',
-            orderBy: sortKey
-        }));
-    }, [headCells, tableState.orderBy, tableState.order]);
-
-    const handleOpenDialog = useCallback((e: React.MouseEvent, mode: any, id: number) => {
-        e.stopPropagation();
-        const modelResource = visibleRows.find((item: T) => (item as any).id === id);
-        if (modelResource) {
-            onActionClick?.(mode, modelResource as unknown as T);
-        }
-        setDialogState({
-            open: true,
-            mode,
-            selectedModelResource: modelResource,
-        });
-    }, [visibleRows, onActionClick]);
-
-    const handleCloseDialog = useCallback(() => {
-        setTableState(prev => ({ ...prev, selected: [] }));
-        setDialogState(prev => ({ ...prev, open: false }));
-        onCloseDialog?.();
-    }, [onCloseDialog]);
-
-    const handleSubmitDialog = useCallback((data: any) => {
-        if (dialogState.mode === "delete") {
-            // Handle delete logic
-            console.log("Deleting item:", dialogState.selectedModelResource);
-        } else {
-            // Handle create/edit logic
-            onSubmitForm?.(data);
-        }
-        handleCloseDialog();
-    }, [dialogState.mode, dialogState.selectedModelResource, onSubmitForm, handleCloseDialog]);
-
-    const handleAddClick = useCallback(() => {
-        setDialogState({
-            open: true,
-            mode: 'create',
-            selectedModelResource: null,
-        });
-        onAddClick?.();
-    }, [onAddClick]);
-
-    const handleRowClick = useCallback((e: React.MouseEvent, row: T, isItemSelected: boolean) => {
-        const rowId = Number(row.id);
-        setTableState((prev) => ({
-            ...prev,
-            selected: isItemSelected
-                ? prev.selected.filter((id) => id !== rowId)
-                : [...prev.selected, rowId],
-        }));
-        handleOpenDialog(e, "view", rowId);
-    }, [handleOpenDialog]);
-
-    const handleCheckboxClick = useCallback((e: React.MouseEvent, row: T, isItemSelected: boolean) => {
-        e.stopPropagation();
-        const rowId = Number(row.id);
-        setTableState((prev) => ({
-            ...prev,
-            selected: isItemSelected
-                ? prev.selected.filter((id) => id !== rowId)
-                : [...prev.selected, rowId],
-        }));
-    }, []);
-
-    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        setTableState((prev) => ({
-            ...prev,
-            rowsPerPage: parseInt(event.target.value, 10),
-            page: 0,
-        }));
-    }, []);
-
-    const renderActions = useCallback((row: T) => {
-        if (customTableAction) {
-            return customTableAction(row);
-        }
-
-        const { ButtonGroup, Tooltip, IconButton } = require('@mui/material');
-        const { Delete, Edit } = require('@mui/icons-material');
-
-        return React.createElement(ButtonGroup, null,
-            React.createElement(Tooltip, { title: "Edit" },
-                React.createElement(IconButton, {
-                    color: "warning",
-                    onClick: (e: React.MouseEvent) => handleOpenDialog(e, "edit", row.id as any),
-                    size: "small"
-                }, React.createElement(Edit, { fontSize: "small" }))
-            ),
-            React.createElement(Tooltip, { title: "Delete" },
-                React.createElement(IconButton, {
-                    color: "error",
-                    onClick: (e: React.MouseEvent) => handleOpenDialog(e, "delete", row.id as any),
-                    size: "small"
-                }, React.createElement(Delete, { fontSize: "small" }))
-            )
-        );
-    }, [customTableAction, handleOpenDialog]);
-
-    // Memoized context value
-    const contextValue = useMemo<ResourceContextValue<T>>(() => ({
-        // Data
-        title,
-        data,
-        resource,
-        headCells,
-
-        // Configuration
-        showActions,
-        columnComponents,
-        customTableAction,
-        formBuilder,
-
-        // State
-        dialogState,
-        tableState,
-        setDialogState,
-        setTableState,
-
-        // Computed/Derived State
-        visibleRows,
-        emptyRows,
-        isIndeterminate,
-        isAllSelected,
-        numSelected,
-        rowCount,
-
-        // Memoized Handlers
-        handleSelectAllClick,
-        handleRequestSort,
-        handleRowClick,
-        handleCheckboxClick,
-        handleOpenDialog,
-        handleCloseDialog,
-        handleSubmitDialog,
-        handleAddClick,
-        handleChangeRowsPerPage,
-        getCellValue,
-        searchInRow,
-        renderActions,
-
-        // Event Handlers
-        onSearch,
-        onFilterClick,
-        onAddClick,
-        onPageChange,
-        onSubmitForm,
-        onActionClick,
-        onCloseDialog,
-    }), [
-        title, data, resource, headCells, showActions, columnComponents, customTableAction, formBuilder,
-        dialogState, tableState, visibleRows, emptyRows, isIndeterminate, isAllSelected, numSelected, rowCount,
-        handleSelectAllClick, handleRequestSort, handleRowClick, handleCheckboxClick, handleOpenDialog,
-        handleCloseDialog, handleSubmitDialog, handleAddClick, handleChangeRowsPerPage, getCellValue, searchInRow, renderActions,
-        onSearch, onFilterClick, onAddClick, onPageChange, onSubmitForm, onActionClick, onCloseDialog
-    ]);
-
-    return (
-        <ResourceContext.Provider value={contextValue}>
-            {children}
-        </ResourceContext.Provider>
-    );
-}
-
-export function useResourceContext<T extends BaseEntity>(): ResourceContextValue<T> {
-    const context = useContext(ResourceContext);
-    if (!context) {
-        throw new Error('useResourceContext must be used within a ResourceProvider');
+  // Shared functions
+  const refreshData = useCallback(async () => {
+    setSharedData((prev) => ({ ...prev, isLoading: true, lastAction: 'refresh' }));
+    try {
+      if (onRefreshData) {
+        await onRefreshData();
+        handleSuccess('Data refreshed successfully');
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setSharedData((prev) => ({ ...prev, isLoading: false }));
     }
-    return context as ResourceContextValue<T>;
+  }, [onRefreshData]);
+
+  const selectItem = useCallback((item: T) => {
+    setSharedData((prev) => ({
+      ...prev,
+      selectedItems: [item],
+      currentItem: item,
+      lastAction: 'select_item',
+    }));
+  }, []);
+
+  const selectMultipleItems = useCallback((items: T[]) => {
+    setSharedData((prev) => ({
+      ...prev,
+      selectedItems: items,
+      lastAction: 'select_multiple',
+    }));
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSharedData((prev) => ({
+      ...prev,
+      selectedItems: [],
+      currentItem: null,
+      lastAction: 'clear_selection',
+    }));
+    setTableState((prev: TableState<T>) => ({
+      ...prev,
+      selection: { ...prev.selection, selectedIdData: [] },
+    }));
+  }, []);
+
+  const openDialogWithItem = useCallback(
+    (mode: keyof typeof DialogMode, item?: T | number) => {
+      if (typeof item === 'number') {
+        // Handle case where item is an ID
+        let data: T[] = [];
+        if (resource?._embedded) {
+          const embeddedValues = Object.values(resource._embedded);
+          if (embeddedValues.length > 0) {
+            data = Array.isArray(embeddedValues[0]) ? (embeddedValues[0] as unknown as T[]) : [embeddedValues[0] as unknown as T];
+          }
+        }
+        const foundItem = data.find((dataItem: any) => dataItem.id === item);
+
+        setDialogState({
+          open: true,
+          mode,
+          selectedModelResource: foundItem || null,
+          isLoading: false,
+          hasValidationErrors: false,
+        });
+
+        if (foundItem) {
+          setSharedData((prev) => ({
+            ...prev,
+            currentItem: foundItem,
+            lastAction: `open_${mode.toLowerCase()}_dialog`,
+          }));
+        }
+      } else {
+        // Handle case where item is the actual object
+        setDialogState({
+          open: true,
+          mode,
+          selectedModelResource: item || null,
+          isLoading: false,
+          hasValidationErrors: false,
+        });
+
+        if (item) {
+          setSharedData((prev) => ({
+            ...prev,
+            currentItem: item,
+            lastAction: `open_${mode.toLowerCase()}_dialog`,
+          }));
+        }
+      }
+    },
+    [resource]
+  );
+
+  const closeDialogAndRefresh = useCallback(async () => {
+    setDialogState((prev) => ({ ...prev, open: false }));
+    setSharedData((prev) => ({
+      ...prev,
+      hasUnsavedChanges: false,
+      lastAction: 'close_dialog',
+    }));
+    await refreshData();
+  }, [refreshData]);
+
+  const handleError = useCallback(
+    (error: any) => {
+      setSharedData((prev) => ({ ...prev, lastAction: 'error' }));
+      if (onError) {
+        onError(error);
+      } else {
+        console.error('Resource error:', error);
+      }
+    },
+    [onError]
+  );
+
+  const handleSuccess = useCallback(
+    (message: string) => {
+      setSharedData((prev) => ({ ...prev, lastAction: 'success' }));
+      if (onSuccess) {
+        onSuccess(message);
+      } else {
+        console.log('Resource success:', message);
+      }
+    },
+    [onSuccess]
+  );
+
+  // Table context value
+  const tableContextValue = useMemo(
+    () => ({
+      tableState,
+      setTableState,
+      tableInterface: {
+        title,
+        headCells,
+        showActions,
+        size,
+      },
+      resource,
+      customColumnComponents: columnComponents,
+      customTableAction,
+      onSearch,
+      onFilterClick,
+      onAddClick,
+      onPageChange,
+    }),
+    [tableState, title, headCells, showActions, size, resource, columnComponents, customTableAction, onSearch, onFilterClick, onAddClick, onPageChange]
+  );
+
+  // Dialog context value
+  const dialogContextValue = useMemo(
+    () => ({
+      dialogState,
+      setDialogState,
+      dialogInterface: {
+        title,
+        maxWidth,
+        size,
+      },
+      formBuilder,
+      onOpenDialog: (e: React.MouseEvent, mode: keyof typeof DialogMode, id: number) => {
+        openDialogWithItem(mode, id);
+      },
+      onCloseDialog: async () => {
+        await closeDialogAndRefresh();
+        return true;
+      },
+      onSubmitDialog: async (formData: any, mode: keyof typeof DialogMode) => {
+        if (onSubmitForm) {
+          setDialogState((prev) => ({ ...prev, isLoading: true }));
+          try {
+            await onSubmitForm(formData, mode);
+            await closeDialogAndRefresh();
+            handleSuccess(`${mode} operation completed successfully`);
+          } catch (error) {
+            handleError(error);
+          } finally {
+            setDialogState((prev) => ({ ...prev, isLoading: false }));
+          }
+        }
+      },
+    }),
+    [dialogState, title, maxWidth, size, formBuilder, onSubmitForm, openDialogWithItem, closeDialogAndRefresh, handleError, handleSuccess]
+  );
+
+  // Main context value that bridges table and dialog
+  const contextValue = useMemo(
+    () => ({
+      tableContextValue,
+      dialogContextValue,
+      sharedData,
+      setSharedData,
+      refreshData,
+      selectItem,
+      selectMultipleItems,
+      clearSelection,
+      openDialogWithItem,
+      closeDialogAndRefresh,
+      handleError,
+      handleSuccess,
+    }),
+    [tableContextValue, dialogContextValue, sharedData, refreshData, selectItem, selectMultipleItems, clearSelection, openDialogWithItem, closeDialogAndRefresh, handleError, handleSuccess]
+  );
+
+  return (
+    <ResourceContext.Provider value={contextValue}>
+      <ResourceTableProvider {...tableContextValue}>
+        <ResourceDialogProvider {...dialogContextValue}>{children}</ResourceDialogProvider>
+      </ResourceTableProvider>
+    </ResourceContext.Provider>
+  );
 }
 
-export type { ResourceContextValue };
+// Hook to access the full resource context
+export function useResourceContext<T extends BaseEntity>(): ResourceContextValue<T> {
+  const context = useContext(ResourceContext);
+  if (!context) throw new Error('useResourceContext must be used within ResourceProvider');
+  return context;
+}
+
+// Hook to access only table-related functionality
+export function useResourceTable<T extends BaseEntity>() {
+  const context = useResourceContext<T>();
+  return {
+    tableState: context.tableContextValue.tableState,
+    setTableState: context.tableContextValue.setTableState,
+    tableInterface: context.tableContextValue.tableInterface,
+    resource: context.tableContextValue.resource,
+    onSearch: context.tableContextValue.onSearch,
+    onFilterClick: context.tableContextValue.onFilterClick,
+    onAddClick: context.tableContextValue.onAddClick,
+    onPageChange: context.tableContextValue.onPageChange,
+  };
+}
+
+// Hook to access only dialog-related functionality
+export function useResourceDialog<T extends BaseEntity>() {
+  const context = useResourceContext<T>();
+  return {
+    dialogState: context.dialogContextValue.dialogState,
+    setDialogState: context.dialogContextValue.setDialogState,
+    dialogInterface: context.dialogContextValue.dialogInterface,
+    formBuilder: context.dialogContextValue.formBuilder,
+    onOpenDialog: context.dialogContextValue.onOpenDialog,
+    onCloseDialog: context.dialogContextValue.onCloseDialog,
+    onSubmitDialog: context.dialogContextValue.onSubmitDialog,
+  };
+}
+
+// Hook to access shared data and functions
+export function useSharedResourceData<T extends BaseEntity>() {
+  const context = useResourceContext<T>();
+  return {
+    sharedData: context.sharedData,
+    setSharedData: context.setSharedData,
+  };
+}
+
+// Hook to access shared actions
+export function useResourceActions<T extends BaseEntity>() {
+  const context = useResourceContext<T>();
+  return {
+    refreshData: context.refreshData,
+    selectItem: context.selectItem,
+    selectMultipleItems: context.selectMultipleItems,
+    clearSelection: context.clearSelection,
+    openDialogWithItem: context.openDialogWithItem,
+    closeDialogAndRefresh: context.closeDialogAndRefresh,
+    handleError: context.handleError,
+    handleSuccess: context.handleSuccess,
+  };
+}
+
+// Alias for useResourceContext to maintain compatibility with existing ResourceTable usage
+export function useResourceView<T extends BaseEntity>() {
+  return useResourceContext<T>();
+}
