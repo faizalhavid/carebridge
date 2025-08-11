@@ -25,6 +25,10 @@ public class Biodata extends BaseEntity {
     @JsonView(Views.Public.class)
     private String fullName;
 
+    @Column(name = "address", length = 255)
+    @JsonView(Views.Public.class)
+    private String address;
+
     @Column(name = "mobile_phone", length = 15)
     @JsonView(Views.Public.class)
     private String mobilePhone;

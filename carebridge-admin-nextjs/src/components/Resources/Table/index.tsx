@@ -21,6 +21,8 @@ function ResourceTable<T extends BaseEntity>() {
     search,
   } = tableState;
 
+  console.log("table state:", tableState);
+
   const columnComponents = customColumnComponents || {};
 
   const handleChangePage = useCallback(

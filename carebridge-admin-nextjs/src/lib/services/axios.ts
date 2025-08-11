@@ -109,6 +109,12 @@ export const put = async <T>(url: string, data?: any, config?: AxiosRequestConfi
     return res.data;
 };
 
+export const patch = async <T>(url: string, data?: any, config?: AxiosRequestConfig, isRestResourcePath: boolean = false): Promise<T> => {
+    const instance = isRestResourcePath ? restApi : api;
+    const res = await instance.patch(url, data, config);
+    return res.data;
+};
+
 export const del = async <T>(url: string, config?: AxiosRequestConfig, isRestResourcePath: boolean = false): Promise<T> => {
     const instance = isRestResourcePath ? restApi : api;
     const res = await instance.delete(url, config);

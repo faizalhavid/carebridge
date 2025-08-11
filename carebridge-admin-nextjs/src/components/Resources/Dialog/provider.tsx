@@ -1,3 +1,4 @@
+
 import { BaseEntity } from '@/types/models/base-entity';
 import React, { createContext, useContext, useMemo, ReactNode } from 'react';
 import { DialogInterface, DialogMode, DialogState } from './type';

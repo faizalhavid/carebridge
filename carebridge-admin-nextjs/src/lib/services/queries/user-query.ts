@@ -28,24 +28,11 @@ export function useUserQuery(queryParams?: QueryParamsData) {
 export function useMutationUserQuery() {
     return useMutation({
         mutationFn: (newUser: UserRequest) => createUser(newUser),
-
-        // When a mutation is initiated
-        onMutate: async (newUser: UserRequest) => {
-            // For CREATE operations, we work with the 'all' users list
-            // For UPDATE operations, we would work with specific user detail
-
-            // Cancel any outgoing refetches for users list
+        onMutate: async (newUser) => {
             await queryClient.cancelQueries({ queryKey: userKey.all });
-
-            // Snapshot the previous users list
             const previousUsers = queryClient.getQueryData(userKey.all);
-
-            // Optimistically add the new user to the list
-            // Note: We don't have an ID yet, so we can use a temporary one
             queryClient.setQueryData(userKey.all, (old: any) => {
                 if (!old) return old;
-
-                // Add new user with temporary ID (will be replaced after success)
                 const tempUser = {
                     ...newUser,
                     id: `temp-${Date.now()}`, // Temporary ID
@@ -94,35 +81,38 @@ export function useMutationUserQuery() {
         }
     });
 }
-// ...existing code...
 
-export function useUpdateUserMutation() {
+export function useUpdateMutationUser() {
     return useMutation({
-        mutationFn: ({ id, userData }: { id: string | number; userData: Partial<UserRequest> }) =>
-            updateUser(id, userData), // You'll need to create this API function
-
-        // Optimistic update
+        mutationFn: ({ id, userData }: { id: string | number; userData: Partial<UserRequest> }) => {
+            console.log('Updating user:', id, userData); // Add logging
+            return updateUser(id, userData);
+        },
         onMutate: async ({ id, userData }) => {
-            // Cancel outgoing refetches
+            console.log('onMutate - Starting update for user:', id);
             await queryClient.cancelQueries({ queryKey: userKey.all });
             await queryClient.cancelQueries({ queryKey: userKey.detail(id) });
 
-            // Snapshot previous values
             const previousUsers = queryClient.getQueryData(userKey.all);
             const previousUser = queryClient.getQueryData(userKey.detail(id));
 
-            // Optimistically update the user in the list
+            // Optimistic update
             queryClient.setQueryData(userKey.all, (old: any) => {
-                if (!old) return old;
+                if (!old || !old._embedded || !old._embedded.userResponses) {
+                    console.warn('Cache data structure is invalid:', old);
+                    return old;
+                }
                 return {
                     ...old,
-                    data: old.data.map((user: any) =>
-                        user.id === id ? { ...user, ...userData } : user
-                    )
+                    _embedded: {
+                        ...old._embedded,
+                        userResponses: old._embedded.userResponses?.map((user: any) =>
+                            user.id === id ? { ...user, ...userData } : user
+                        )
+                    }
                 };
             });
 
-            // Optimistically update individual user cache
             queryClient.setQueryData(userKey.detail(id), (old: any) => {
                 if (!old) return old;
                 return { ...old, ...userData };
@@ -130,25 +120,20 @@ export function useUpdateUserMutation() {
 
             return { previousUsers, previousUser, id };
         },
-
-        // On success, update with server data
         onSuccess: (data, { id }) => {
-            // Update both list and detail caches with real server data
             queryClient.setQueryData(userKey.all, (old: any) => {
                 if (!old) return old;
                 return {
                     ...old,
-                    data: old.data.map((user: any) =>
+                    data: old.data?.map((user: any) =>
                         user.id === id ? data.data : user
                     )
                 };
             });
-
             queryClient.setQueryData(userKey.detail(id), data.data);
         },
-
-        // On error, rollback
         onError: (err, { id }, context: any) => {
+            console.error('onError - Update failed:', err);
             if (context?.previousUsers) {
                 queryClient.setQueryData(userKey.all, context.previousUsers);
             }
@@ -156,9 +141,8 @@ export function useUpdateUserMutation() {
                 queryClient.setQueryData(userKey.detail(id), context.previousUser);
             }
         },
-
-        // Invalidate queries to ensure consistency
         onSettled: (data, error, { id }) => {
+            console.log('onSettled - Invalidating queries');
             queryClient.invalidateQueries({ queryKey: userKey.all });
             queryClient.invalidateQueries({ queryKey: userKey.detail(id) });
         }

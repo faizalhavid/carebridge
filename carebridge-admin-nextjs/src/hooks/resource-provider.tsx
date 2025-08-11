@@ -1,7 +1,7 @@
 import React, { useContext, createContext, ReactNode, useState, useMemo, useCallback } from 'react';
 import { ResourceProvider as ResourceDialogProvider } from '@/components/Resources/Dialog/provider';
-import { ResourceTableProvider } from '@/components/Resources/Table/provider';
-import { DialogState, DialogMode } from '@/components/Resources/Dialog/type';
+import { ResourceTableProvider, TableInterface } from '@/components/Resources/Table/provider';
+import { DialogState, DialogMode, DialogInterface } from '@/components/Resources/Dialog/type';
 import { TableState } from '@/components/Resources/Table/type';
 import { BaseEntity } from '@/types/models/base-entity';
 import { ResourceTableHeadCell } from '@/components/Resources/Table/type';
@@ -10,13 +10,11 @@ import { RepositoryRestResource } from '@/types/api/repository';
 // Props interface for the ResourceProvider component
 export interface ResourceProviderProps<T extends BaseEntity> {
   children?: ReactNode;
-  title: string;
-  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  size?: 'small' | 'medium' | 'large';
+  dialogInterface: DialogInterface;
+  tableInterface: TableInterface;
   resource: RepositoryRestResource<T> | null;
-  headCells: ResourceTableHeadCell<T>[];
-  showActions?: boolean;
-  columnComponents?: { [key: string]: React.ComponentType<{ value: any; row: T }> };
+
+  customColumnComponents?: { [key: string]: React.ComponentType<{ value: any; row: T }> };
   customTableAction?: (row: T) => React.ReactNode;
   formBuilder?: React.ReactNode;
 
@@ -29,6 +27,14 @@ export interface ResourceProviderProps<T extends BaseEntity> {
   onFilterClick?: () => void;
   onAddClick?: () => void;
   onPageChange?: (event: React.ChangeEvent<unknown>, page: number) => void;
+
+  tableState: TableState<T>;
+  setTableState: React.Dispatch<React.SetStateAction<TableState<T>>>;
+  dialogState: DialogState<T>;
+  setDialogState: React.Dispatch<React.SetStateAction<DialogState<T>>>;
+  sharedData: SharedResourceData<T>;
+  setSharedData: React.Dispatch<React.SetStateAction<SharedResourceData<T>>>;
+
 }
 
 // Shared data interface that both table and dialog can access
@@ -49,10 +55,6 @@ export interface ResourceContextValue<T extends BaseEntity> {
   // Dialog context
   dialogContextValue: any;
 
-  // Shared state
-  sharedData: SharedResourceData<T>;
-  setSharedData: React.Dispatch<React.SetStateAction<SharedResourceData<T>>>;
-
   // Shared functions
   refreshData: () => Promise<void>;
   selectItem: (item: T) => void;
@@ -62,45 +64,38 @@ export interface ResourceContextValue<T extends BaseEntity> {
   closeDialogAndRefresh: () => Promise<void>;
   handleError: (error: any) => void;
   handleSuccess: (message: string) => void;
+  sharedData: SharedResourceData<T>;
+  setSharedData: React.Dispatch<React.SetStateAction<SharedResourceData<T>>>;
+
 }
 
 const ResourceContext = createContext<ResourceContextValue<any> | null>(null);
 
 // Main ResourceProvider component that acts as a bridge between table and dialog
-export function ResourceProvider<T extends BaseEntity>({ children, title, maxWidth = 'md', size = 'medium', resource, headCells, showActions = true, columnComponents, customTableAction, formBuilder, onRefreshData, onSubmitForm, onError, onSuccess, onSearch, onFilterClick, onAddClick, onPageChange }: ResourceProviderProps<T>) {
-  console.log('ResourceProvider rendering with resource:', resource);
+export function ResourceProvider<T extends BaseEntity>({
+  children,
+  dialogInterface,
+  tableInterface,
+  resource,
+  customColumnComponents: columnComponents,
+  customTableAction,
+  formBuilder,
+  onRefreshData,
+  onSubmitForm,
+  onError,
+  onSuccess,
+  onSearch,
+  onFilterClick,
+  onAddClick,
+  onPageChange,
+  tableState,
+  setTableState,
+  dialogState,
+  setDialogState,
+  sharedData,
+  setSharedData,
+}: ResourceProviderProps<T>) {
 
-  const [tableState, setTableState] = useState<TableState<T>>({
-    search: '',
-    sorting: { order: 'asc', orderBy: '' },
-    pagination: { page: 0, rowsPerPage: 10, emptyRows: 0 },
-    selection: { selectedIdData: [], isIndeterminate: false, isAllSelected: false, numSelected: 0, rowCount: 0 },
-    display: {
-      dense: false,
-      headCells,
-      visibleRows: [],
-      showTableActions: showActions,
-    },
-  });
-
-
-  const [dialogState, setDialogState] = useState<DialogState<T>>({
-    open: false,
-    mode: DialogMode.CREATE,
-    selectedModelResource: null,
-    isLoading: false,
-    hasValidationErrors: false,
-  });
-
-
-  const [sharedData, setSharedData] = useState<SharedResourceData<T>>({
-    isLoading: false,
-    selectedItems: [],
-    currentItem: null,
-    hasUnsavedChanges: false,
-    lastAction: null,
-    filters: {},
-  });
 
   // Shared functions
   const refreshData = useCallback(async () => {
@@ -202,7 +197,6 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
   const handleAddClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    // Update dialog state
     setDialogState({
       open: true,
       mode: DialogMode.CREATE,
@@ -210,15 +204,11 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
       isLoading: false,
       hasValidationErrors: false,
     });
-
-    // Clear current item in shared data
     setSharedData((prev) => ({
       ...prev,
       currentItem: null,
       lastAction: 'open_create_dialog',
     }));
-
-    // Call external onAddClick if provided
     if (onAddClick) {
       onAddClick();
     }
@@ -261,14 +251,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
   // Table context value
   const tableContextValue = useMemo(
     () => ({
-      tableState,
-      setTableState,
-      tableInterface: {
-        title,
-        headCells,
-        showActions,
-        size,
-      },
+      tableInterface,
       resource,
       customColumnComponents: columnComponents,
       customTableAction,
@@ -276,8 +259,10 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
       onFilterClick,
       onAddClick: handleAddClick,
       onPageChange,
+      tableState,
+      setTableState,
     }),
-    [tableState, title, headCells, showActions, size, resource, columnComponents, customTableAction, onSearch, onFilterClick, onAddClick, onPageChange]
+    [tableInterface, resource, columnComponents, customTableAction, onSearch, onFilterClick, onAddClick, onPageChange, sharedData, setSharedData, setTableState, tableState]
   );
 
   const dialogContextValue = useMemo(
@@ -285,11 +270,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
       dialogState,
       setDialogState,
       handleAddClick,
-      dialogInterface: {
-        title,
-        maxWidth,
-        size,
-      },
+      dialogInterface,
       formBuilder,
       onOpenDialog: (e: React.MouseEvent<HTMLButtonElement | HTMLTableRowElement>, mode: keyof typeof DialogMode, id: number) => {
         openDialogWithItem(e, mode, id);
@@ -313,7 +294,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
         }
       },
     }),
-    [dialogState, title, maxWidth, size, formBuilder, onSubmitForm, openDialogWithItem, closeDialogAndRefresh, handleError, handleSuccess, handleAddClick]
+    [dialogState, dialogInterface, formBuilder, onSubmitForm, openDialogWithItem, closeDialogAndRefresh, handleError, handleSuccess, handleAddClick]
   );
 
   // Main context value that bridges table and dialog
@@ -333,7 +314,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
       handleError,
       handleSuccess,
     }),
-    [tableContextValue, dialogContextValue, sharedData, refreshData, selectItem, selectMultipleItems, clearSelection, openDialogWithItem, handleAddClick, closeDialogAndRefresh, handleError, handleSuccess]
+    [tableContextValue, dialogContextValue, sharedData, setSharedData, refreshData, selectItem, selectMultipleItems, clearSelection, openDialogWithItem, handleAddClick, closeDialogAndRefresh, handleError, handleSuccess]
   );
 
   return (
@@ -371,13 +352,20 @@ export function useResourceTable<T extends BaseEntity>() {
 export function useResourceDialog<T extends BaseEntity>() {
   const context = useResourceContext<T>();
   return {
-    dialogState: context.dialogContextValue.dialogState,
-    setDialogState: context.dialogContextValue.setDialogState,
-    dialogInterface: context.dialogContextValue.dialogInterface,
-    formBuilder: context.dialogContextValue.formBuilder,
-    onOpenDialog: context.dialogContextValue.onOpenDialog,
-    onCloseDialog: context.dialogContextValue.onCloseDialog,
-    onSubmitDialog: context.dialogContextValue.onSubmitDialog,
+    dialogState: context.dialogContextValue.dialogState as DialogState<T>,
+    setDialogState: context.dialogContextValue.setDialogState as React.Dispatch<React.SetStateAction<DialogState<T>>>,
+    dialogInterface: context.dialogContextValue.dialogInterface as DialogInterface,
+    formBuilder: context.dialogContextValue.formBuilder as React.ReactNode,
+    onOpenDialog: context.dialogContextValue.onOpenDialog as (
+      e: React.MouseEvent<HTMLButtonElement | HTMLTableRowElement>,
+      mode: keyof typeof DialogMode,
+      id: number
+    ) => void,
+    onCloseDialog: context.dialogContextValue.onCloseDialog as () => Promise<boolean>,
+    onSubmitDialog: context.dialogContextValue.onSubmitDialog as (
+      formData: any,
+      mode: keyof typeof DialogMode
+    ) => Promise<void>,
   };
 }
 

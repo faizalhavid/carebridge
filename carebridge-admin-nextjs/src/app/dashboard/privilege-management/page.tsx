@@ -89,7 +89,7 @@ export default function UserManagementPage() {
         { key: 'email', label: 'Email', numeric: false, disablePadding: false },
         { key: 'roles', label: 'Role', numeric: false, disablePadding: false },
       ]}
-      columnComponents={{
+      customColumnComponents={{
         role: ({ value }) => <Chip label={value.split('_')[1].toLowerCase()} color="primary" size="small" />,
       }}
       onSearch={(v) => console.log(v)}

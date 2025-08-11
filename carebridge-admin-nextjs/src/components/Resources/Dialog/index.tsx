@@ -45,6 +45,7 @@ function ResourceDialog<T extends BaseEntity>() {
 
   const handleSubmitDialog = useCallback(
     (data: any) => {
+      console.log('Submitting dialog with data:', dialogState.hasValidationErrors);
       if (dialogState.hasValidationErrors) {
         console.log('Validation errors found');
         return;

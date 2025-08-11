@@ -3,7 +3,7 @@ import { BaseEntity } from '@/types/models/base-entity';
 import React, { createContext, useContext, ReactNode, useMemo, useCallback, useState } from 'react';
 import { ResourceTableHeadCell, TableState } from './type';
 
-interface TableInterface {
+export interface TableInterface {
   title: string;
   size: 'small' | 'medium' | 'large';
 }

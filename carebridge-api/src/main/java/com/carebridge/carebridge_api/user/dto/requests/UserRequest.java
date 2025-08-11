@@ -13,11 +13,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
+
+    @Schema(description = "User biodata information", nullable = true)
+    @Valid
+    private BiodataRequest biodata;
+
     @Schema(description = "Email", example = "nurhavid123@gmail.com")
     @NotBlank(message = "email cannot be blank")
     @Email(message = "Invalid email address")

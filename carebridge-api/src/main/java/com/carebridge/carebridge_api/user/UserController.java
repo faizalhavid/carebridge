@@ -41,26 +41,27 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponse<>(user, "Get user by ID successful", 200));
     }
 
-    // POST /api/users - Create a new user
+    // POST /admin/users - Create a new user
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<SuccessResponse<UserResponse, Object>> createUser(@RequestBody UserRequest userRequest) {
         UserResponse user = userService.createUser(userRequest);
         return ResponseEntity.ok(new SuccessResponse<>(user, "Create user successful", 200));
     }
 
-    // PUT /api/users/{id} - Update an existing user
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SuccessResponse<UserResponse, Object>> updateUser(@PathVariable Long id,
+    // PATCH /admin/users/{id} - Update an existing user (partial update)
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<SuccessResponse<UserResponse, Object>> updateUser(
+            @PathVariable Long id,
             @RequestBody UserRequest userRequest) {
         UserResponse user = userService.updateUser(id, userRequest);
         return ResponseEntity.ok(new SuccessResponse<>(user, "Update user successful", 200));
     }
 
-    // DELETE /api/users/{id} - Delete a user
+    // DELETE /admin/users/{id} - Delete a user
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<SuccessResponse<Void, Object>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(new SuccessResponse<>(null, "Delete user successful", 200));
@@ -72,5 +73,11 @@ public class UserController {
             @RequestBody UserRequest userRequest) {
         UserResponse user = userService.updateProfile(id, userRequest);
         return ResponseEntity.ok(new SuccessResponse<>(user, "Update profile successful", 200));
+    }
+
+    // Test endpoint to verify PATCH method support
+    @PatchMapping("/test")
+    public ResponseEntity<SuccessResponse<String, Object>> testPatch() {
+        return ResponseEntity.ok(new SuccessResponse<>("PATCH method is working!", "PATCH test successful", 200));
     }
 }

@@ -16,9 +16,10 @@ public class ProfileResponse {
     @NotNull
     private String mobilePhone;
     private String imagePath;
+    private String address;
 
     private Customer customer;
     private Admin admin;
     private Doctor doctor;
-//    private Medical medical;
+    // private Medical medical;
 }
