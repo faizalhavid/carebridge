@@ -5,26 +5,21 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchIcon from '@mui/icons-material/Search';
 import { Add, UnfoldLess, UnfoldMore } from '@mui/icons-material';
 import { alpha } from '@mui/material/styles';
-import { useResourceContext } from '../../../hooks/resource-provider';
+import { useResourceContext, useResourceDialog } from '../../../hooks/resource-provider';
 import { BaseEntity } from '@/types/models/base-entity';
 import { parseSearchInput, type SearchChip } from '@/lib/utils';
 import { useResourceTableContext } from './provider';
 
 function ResourceTableToolbar<T extends BaseEntity>() {
-  // Get all data from context
   const { tableInterface, tableState, onSearch, setTableState, onFilterClick, onAddClick } = useResourceTableContext<T>();
-
-  // Extract title from tableInterface
   const title = tableInterface?.title || 'Table';
 
   const numSelected = tableState.selection?.selectedIdData?.length || 0;
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
 
-  // State for search chips
   const [searchChips, setSearchChips] = useState<SearchChip[]>([]);
   const [currentInput, setCurrentInput] = useState('');
 
-  // Memoized toolbar styles
   const toolbarStyles = useMemo(
     () => [
       {
@@ -39,22 +34,19 @@ function ResourceTableToolbar<T extends BaseEntity>() {
     [numSelected]
   );
 
-  // Handle search input change
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setCurrentInput(value);
-
-      // Check if user pressed space after typing key:value
       if (value.endsWith(' ')) {
         const { chips, remainingText } = parseSearchInput(value.trim());
 
         if (chips.length > 0) {
-          // Add new chips and clear current input
+
           setSearchChips((prev) => {
             const newChips = [...prev];
             chips.forEach((chip) => {
-              // Avoid duplicates
+
               if (!newChips.some((existing) => existing.key === chip.key)) {
                 newChips.push(chip);
               }
@@ -63,19 +55,19 @@ function ResourceTableToolbar<T extends BaseEntity>() {
           });
           setCurrentInput(remainingText);
 
-          // Update table state with combined search
+
           const allChips = [...searchChips, ...chips];
 
           const combinedSearch = remainingText + ' ' + allChips.map((c) => `${c.key}:${c.value}`).join(' ');
           setTableState((prev) => ({ ...prev, search: combinedSearch.trim() }));
           onSearch?.(combinedSearch.trim());
         } else {
-          // Regular search
+
           setTableState((prev) => ({ ...prev, search: value.trim() }));
           onSearch?.(value.trim());
         }
       } else {
-        // Update search as user types
+
         setTableState((prev) => ({ ...prev, search: value }));
         if (!value.includes(':')) {
           onSearch?.(value);
@@ -85,13 +77,12 @@ function ResourceTableToolbar<T extends BaseEntity>() {
     [searchChips, setTableState, onSearch]
   );
 
-  // Handle chip deletion
   const handleDeleteChip = useCallback(
     (chipToDelete: SearchChip) => {
       setSearchChips((prev) => {
         const newChips = prev.filter((chip) => !(chip.key === chipToDelete.key && chip.value === chipToDelete.value));
 
-        // Update search state
+
         const combinedSearch = currentInput + ' ' + newChips.map((c) => `${c.key}:${c.value}`).join(' ');
         setTableState((prev) => ({ ...prev, search: combinedSearch.trim() }));
 
@@ -107,7 +98,6 @@ function ResourceTableToolbar<T extends BaseEntity>() {
     [currentInput, setTableState, onSearch]
   );
 
-  // Memoized density toggle handler
   const handleDensityToggle = useCallback(() => {
     setTableState((prev) => ({
       ...prev,
@@ -130,11 +120,11 @@ function ResourceTableToolbar<T extends BaseEntity>() {
             flex: '1 1 100%',
             display: 'flex',
             alignItems: 'center',
-            gap: 2,
+            gap: 8,
             flexDirection: isMobile ? 'column' : 'row',
           }}
         >
-          <Typography variant="h6" id="tableTitle" component="div" sx={{ minWidth: 'fit-content' }}>
+          <Typography variant="h6" id="tableTitle" component="div" sx={{ minWidth: 'fit-content', fontWeight: 500 }}>
             {title}
           </Typography>
           <Box
@@ -144,9 +134,9 @@ function ResourceTableToolbar<T extends BaseEntity>() {
               gap: 1,
               width: isMobile ? '100%' : '300px',
               minWidth: '200px',
+              flexGrow: 1
             }}
           >
-            {/* Search Chips */}
             {searchChips.length > 0 && (
               <Box
                 sx={{
@@ -162,32 +152,39 @@ function ResourceTableToolbar<T extends BaseEntity>() {
                 ))}
               </Box>
             )}
-
-            {/* Search Input */}
             <TextField
               size="small"
               placeholder={searchChips.length > 0 ? 'Add more filters...' : 'Search or type key:value...'}
               variant="outlined"
               value={currentInput}
               onChange={handleSearchChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                }
               }}
-              helperText={searchChips.length === 0 ? 'Try: email:john or role:admin' : undefined}
-              sx={{ width: '100%' }}
+
+              sx={{
+                width: '100%',
+                '&::placeholder': {
+                  color: 'red',
+                  opacity: 1,
+                  fontStyle: 'italic',
+                },
+              }}
             />
           </Box>
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
+      <Box sx={{ display: 'flex', gap: 3, mx: 2 }}>
         {numSelected === 0 && (
           <Tooltip title="Add New">
-            <IconButton onClick={onAddClick} color="primary">
+            <IconButton onClick={(e) => onAddClick?.(e)} color="primary">
               <Add />
             </IconButton>
           </Tooltip>

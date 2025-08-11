@@ -58,7 +58,7 @@ export interface ResourceContextValue<T extends BaseEntity> {
   selectItem: (item: T) => void;
   selectMultipleItems: (items: T[]) => void;
   clearSelection: () => void;
-  openDialogWithItem: (mode: keyof typeof DialogMode, item?: T | number) => void;
+  openDialogWithItem: (e: React.MouseEvent<HTMLButtonElement | HTMLTableRowElement>, mode: keyof typeof DialogMode, item?: T | number) => void;
   closeDialogAndRefresh: () => Promise<void>;
   handleError: (error: any) => void;
   handleSuccess: (message: string) => void;
@@ -70,7 +70,6 @@ const ResourceContext = createContext<ResourceContextValue<any> | null>(null);
 export function ResourceProvider<T extends BaseEntity>({ children, title, maxWidth = 'md', size = 'medium', resource, headCells, showActions = true, columnComponents, customTableAction, formBuilder, onRefreshData, onSubmitForm, onError, onSuccess, onSearch, onFilterClick, onAddClick, onPageChange }: ResourceProviderProps<T>) {
   console.log('ResourceProvider rendering with resource:', resource);
 
-  // Initialize table state
   const [tableState, setTableState] = useState<TableState<T>>({
     search: '',
     sorting: { order: 'asc', orderBy: '' },
@@ -84,7 +83,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
     },
   });
 
-  // Initialize dialog state
+
   const [dialogState, setDialogState] = useState<DialogState<T>>({
     open: false,
     mode: DialogMode.CREATE,
@@ -93,7 +92,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
     hasValidationErrors: false,
   });
 
-  // Initialize shared data state
+
   const [sharedData, setSharedData] = useState<SharedResourceData<T>>({
     isLoading: false,
     selectedItems: [],
@@ -128,6 +127,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
   }, []);
 
   const selectMultipleItems = useCallback((items: T[]) => {
+    console.log('items', items)
     setSharedData((prev) => ({
       ...prev,
       selectedItems: items,
@@ -149,7 +149,8 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
   }, []);
 
   const openDialogWithItem = useCallback(
-    (mode: keyof typeof DialogMode, item?: T | number) => {
+    (e: React.MouseEvent<HTMLButtonElement | HTMLTableRowElement>, mode: keyof typeof DialogMode, item?: T | number) => {
+      e.stopPropagation();
       if (typeof item === 'number') {
         // Handle case where item is an ID
         let data: T[] = [];
@@ -198,6 +199,31 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
     [resource]
   );
 
+  const handleAddClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    // Update dialog state
+    setDialogState({
+      open: true,
+      mode: DialogMode.CREATE,
+      selectedModelResource: null,
+      isLoading: false,
+      hasValidationErrors: false,
+    });
+
+    // Clear current item in shared data
+    setSharedData((prev) => ({
+      ...prev,
+      currentItem: null,
+      lastAction: 'open_create_dialog',
+    }));
+
+    // Call external onAddClick if provided
+    if (onAddClick) {
+      onAddClick();
+    }
+  }, [onAddClick]);
+
   const closeDialogAndRefresh = useCallback(async () => {
     setDialogState((prev) => ({ ...prev, open: false }));
     setSharedData((prev) => ({
@@ -205,7 +231,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
       hasUnsavedChanges: false,
       lastAction: 'close_dialog',
     }));
-    await refreshData();
+    // await refreshData();
   }, [refreshData]);
 
   const handleError = useCallback(
@@ -248,25 +274,25 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
       customTableAction,
       onSearch,
       onFilterClick,
-      onAddClick,
+      onAddClick: handleAddClick,
       onPageChange,
     }),
     [tableState, title, headCells, showActions, size, resource, columnComponents, customTableAction, onSearch, onFilterClick, onAddClick, onPageChange]
   );
 
-  // Dialog context value
   const dialogContextValue = useMemo(
     () => ({
       dialogState,
       setDialogState,
+      handleAddClick,
       dialogInterface: {
         title,
         maxWidth,
         size,
       },
       formBuilder,
-      onOpenDialog: (e: React.MouseEvent, mode: keyof typeof DialogMode, id: number) => {
-        openDialogWithItem(mode, id);
+      onOpenDialog: (e: React.MouseEvent<HTMLButtonElement | HTMLTableRowElement>, mode: keyof typeof DialogMode, id: number) => {
+        openDialogWithItem(e, mode, id);
       },
       onCloseDialog: async () => {
         await closeDialogAndRefresh();
@@ -287,7 +313,7 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
         }
       },
     }),
-    [dialogState, title, maxWidth, size, formBuilder, onSubmitForm, openDialogWithItem, closeDialogAndRefresh, handleError, handleSuccess]
+    [dialogState, title, maxWidth, size, formBuilder, onSubmitForm, openDialogWithItem, closeDialogAndRefresh, handleError, handleSuccess, handleAddClick]
   );
 
   // Main context value that bridges table and dialog
@@ -302,11 +328,12 @@ export function ResourceProvider<T extends BaseEntity>({ children, title, maxWid
       selectMultipleItems,
       clearSelection,
       openDialogWithItem,
+      handleAddClick,
       closeDialogAndRefresh,
       handleError,
       handleSuccess,
     }),
-    [tableContextValue, dialogContextValue, sharedData, refreshData, selectItem, selectMultipleItems, clearSelection, openDialogWithItem, closeDialogAndRefresh, handleError, handleSuccess]
+    [tableContextValue, dialogContextValue, sharedData, refreshData, selectItem, selectMultipleItems, clearSelection, openDialogWithItem, handleAddClick, closeDialogAndRefresh, handleError, handleSuccess]
   );
 
   return (

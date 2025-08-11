@@ -1,9 +1,9 @@
 import React from 'react';
 import ResourceTable from './Table';
-import ResourceDialog from './Dialog';
 import { ResourceProvider, ResourceProviderProps } from '@/hooks/resource-provider';
 import { BaseEntity } from '@/types/models/base-entity';
 import { Box } from '@mui/material';
+import ResourceDialog from './Dialog';
 
 // New ResourceView component that accepts high-level props
 export function ResourceView<T extends BaseEntity>(props: ResourceProviderProps<T>) {

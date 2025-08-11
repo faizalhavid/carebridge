@@ -9,12 +9,9 @@ import { extractAllValues, getCellValue, searchInRow, createNestedComparator } f
 import { useResourceView } from '@/hooks/resource-provider';
 
 function ResourceTable<T extends BaseEntity>() {
+  const { openDialogWithItem, selectMultipleItems, sharedData } = useResourceView();
   const { tableState, setTableState, tableInterface, resource, customColumnComponents, customTableAction, onSearch, onFilterClick, onAddClick, onPageChange } = useResourceTableContext<T>();
-  const { openDialogWithItem } = useResourceView();
-
-  console.log('ResourceTable - resource:', resource);
   const data: T[] = resource?._embedded ? (Object.values(resource._embedded).flat() as T[]) : [];
-  console.log('ResourceTable - extracted data:', data);
 
   const {
     sorting: { order, orderBy },
@@ -61,7 +58,7 @@ function ResourceTable<T extends BaseEntity>() {
   const emptyRows = useMemo(() => rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage), [rowsPerPage, data.length, page]);
 
   const handleRowClick = useCallback(
-    (e: React.MouseEvent, row: T, isItemSelected: boolean) => {
+    (e: React.MouseEvent<HTMLButtonElement | HTMLTableRowElement>, row: T, isItemSelected: boolean) => {
       const rowId = Number(row.id);
       setTableState((prev) => ({
         ...prev,
@@ -70,9 +67,9 @@ function ResourceTable<T extends BaseEntity>() {
           selectedIdData: isItemSelected ? prev.selection.selectedIdData.filter((id) => id !== rowId) : [...prev.selection.selectedIdData, rowId],
         },
       }));
-      openDialogWithItem('VIEW', rowId);
+      openDialogWithItem(e, 'VIEW', rowId);
     },
-    [setTableState]
+    [setTableState, openDialogWithItem]
   );
 
   const handleCheckboxClick = useCallback(
@@ -83,11 +80,21 @@ function ResourceTable<T extends BaseEntity>() {
         ...prev,
         selection: {
           ...prev.selection,
-          selectedIdData: isItemSelected ? prev.selection.selectedIdData.filter((id) => id !== rowId) : [...prev.selection.selectedIdData, rowId],
+          selectedIdData: isItemSelected
+            ? prev.selection.selectedIdData.filter((id) => id !== rowId)
+            : [...prev.selection.selectedIdData, rowId],
         },
       }));
+
+      if (isItemSelected) {
+        selectMultipleItems(
+          sharedData.selectedItems.filter(item => Number(item.id) !== rowId)
+        );
+      } else {
+        selectMultipleItems([...sharedData.selectedItems, row]);
+      }
     },
-    [setTableState]
+    [setTableState, selectMultipleItems, sharedData.selectedItems]
   );
 
   const renderActions = useCallback(
@@ -98,19 +105,19 @@ function ResourceTable<T extends BaseEntity>() {
       return (
         <ButtonGroup>
           <Tooltip title="Edit">
-            <IconButton color="warning" onClick={(e) => openDialogWithItem('EDIT', row.id as any)} size="small">
+            <IconButton color="warning" onClick={(e) => openDialogWithItem(e, 'EDIT', row.id as any)} size="small">
               <Edit fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton color="error" onClick={(e) => openDialogWithItem('DELETE', row.id as any)} size="small">
+            <IconButton color="error" onClick={(e) => openDialogWithItem(e, 'DELETE', row.id as any)} size="small">
               <Delete fontSize="small" />
             </IconButton>
           </Tooltip>
         </ButtonGroup>
       );
     },
-    [customTableAction]
+    [customTableAction, openDialogWithItem]
   );
 
   return (
@@ -122,13 +129,11 @@ function ResourceTable<T extends BaseEntity>() {
           sx={{
             minWidth: 650,
             overflowX: 'auto',
-            maxHeight: 345,
           }}
         >
-          <Table size={dense ? 'small' : 'medium'} sx={{ minWidth: 650 }} aria-labelledby="tableTitle" stickyHeader>
+          <Table size={dense ? 'small' : 'medium'} sx={{ minWidth: 650 }} aria-labelledby={tableInterface.title} stickyHeader>
             <ResourceTableHead<T> />
-
-            <TableBody>
+            <TableBody sx={{ height: 'auto' }}>
               {visibleRows.map((row: T, idx: number) => {
                 const isItemSelected = selectedIdData.includes(Number(row.id));
                 return (
@@ -169,7 +174,11 @@ function ResourceTable<T extends BaseEntity>() {
                         </TableCell>
                       );
                     })}
-                    {showActions && <TableCell>{renderActions(row)}</TableCell>}
+                    {showActions &&
+                      <TableCell key={`actions-${row.id}`} align="center" padding="checkbox" sx={{ minWidth: 120, color: 'text.secondary' }}>
+                        {!(sharedData.selectedItems.length > 1) ? renderActions(row) : '-'}
+                      </TableCell>
+                    }
                   </TableRow>
                 );
               })}

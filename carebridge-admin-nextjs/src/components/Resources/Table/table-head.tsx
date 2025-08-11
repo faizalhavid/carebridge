@@ -5,6 +5,7 @@ import { BaseEntity } from '@/types/models/base-entity';
 import { useResourceTableContext } from './provider';
 import { ResourceTableHeadCell } from './type';
 import { calculateSelectionState, createSelectAllHandler, createSortHandler, getSortKey, extractResourceData, createColumnSortHandler, shouldShowActions } from '@/lib/utils';
+import { useResourceContext } from '@/hooks/resource-provider';
 
 interface ResourceTableHeadProps<T extends BaseEntity> {
   /** Optional override for showing actions column */
@@ -12,10 +13,9 @@ interface ResourceTableHeadProps<T extends BaseEntity> {
 }
 
 function ResourceTableHead<T extends BaseEntity>({ showActionsOverride }: ResourceTableHeadProps<T> = {}) {
-  // Get all data from context
   const { tableState, setTableState, resource } = useResourceTableContext<T>();
+  const { sharedData, selectMultipleItems } = useResourceContext<T>();
 
-  // Extract data and properties from nested state structure
   const data = useMemo(() => {
     const extractedData = extractResourceData(resource);
     return extractedData as unknown as T[];
@@ -27,13 +27,10 @@ function ResourceTableHead<T extends BaseEntity>({ showActionsOverride }: Resour
     selection: { selectedIdData },
   } = tableState;
 
-  // Determine if actions should be shown
   const showActions = shouldShowActions(showTableActions, showActionsOverride);
 
-  // Memoized selection state calculations
   const { numSelected, rowCount, isIndeterminate, isAllSelected } = useMemo(() => calculateSelectionState(selectedIdData, data.length), [selectedIdData, data.length]);
 
-  // Memoized handlers
   const handleSelectAllClick = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const newSelectedIds = event.target.checked ? data.map((item: T) => Number(item.id)) : [];
@@ -48,8 +45,13 @@ function ResourceTableHead<T extends BaseEntity>({ showActionsOverride }: Resour
           ...selectionState,
         },
       }));
+      if (event.target.checked) {
+        selectMultipleItems(data);
+      } else {
+        selectMultipleItems([]);
+      }
     },
-    [data, setTableState]
+    [data, setTableState, selectMultipleItems]
   );
 
   const handleRequestSort = useCallback(
@@ -69,7 +71,6 @@ function ResourceTableHead<T extends BaseEntity>({ showActionsOverride }: Resour
     [orderBy, order, setTableState]
   );
 
-  // Memoized sort handler creator for individual columns
   const createSortHandlerForColumn = useCallback(
     (property: string) => (event: React.MouseEvent<unknown>) => {
       event.preventDefault();

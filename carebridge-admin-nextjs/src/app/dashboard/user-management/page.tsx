@@ -67,7 +67,7 @@ export default function UserManagementPage() {
   // Success handler
   const handleSuccess = useCallback((message: string) => {
     console.log('Resource success:', message);
-    alert(`Success: ${message}`);
+    // alert(`Success: ${message}`);
   }, []);
 
   // Search handler
@@ -93,35 +93,33 @@ export default function UserManagementPage() {
   }, [refetch, data]);
 
   return (
-    <>
-      <ResourceView<User>
-        title="User Management"
-        resource={data || null}
-        headCells={[
-          { id: 'id', label: 'ID', numeric: true, disablePadding: true, key: 'id', visible: true },
-          { id: 'biodata', label: 'Full Name', numeric: false, disablePadding: false, key: 'biodata.fullName', visible: true },
-          { id: 'email', label: 'Email', numeric: false, disablePadding: false, key: 'email', visible: true },
-          { id: 'roles', label: 'Role', numeric: false, disablePadding: false, key: 'roles', visible: true },
-        ]}
-        columnComponents={{
-          roles: ({ value }) => {
-            const role = Array.isArray(value) ? value[0]?.name : value;
-            const roleName = role ? role.split('_')[1]?.toLowerCase() : 'user';
-            return <Chip label={roleName} color="primary" size="small" />;
-          },
-        }}
-        onRefreshData={handleRefreshData}
-        onSubmitForm={handleSubmitUserForm}
-        onError={handleError}
-        onSuccess={handleSuccess}
-        onSearch={handleSearch}
-        onFilterClick={handleFilterClick}
-        onAddClick={handleAddClick}
-        onPageChange={handlePageChange}
-        showActions={true}
-        formBuilder={<UserForm selectedUser={selectedUser} onSubmit={handleSubmitUserForm} />}
-      />
-      <div className="w-100 h-100 bg-blue-400"></div>
-    </>
+    <ResourceView<User>
+      title="User Management"
+      resource={data || null}
+      headCells={[
+        { id: 'id', label: 'ID', numeric: true, disablePadding: true, key: 'id', visible: true },
+        { id: 'biodata', label: 'Full Name', numeric: false, disablePadding: false, key: 'biodata.fullName', visible: true },
+        { id: 'email', label: 'Email', numeric: false, disablePadding: false, key: 'email', visible: true },
+        { id: 'roles', label: 'Role', numeric: false, disablePadding: false, key: 'roles', visible: true },
+      ]}
+      columnComponents={{
+        roles: ({ value }) => {
+          const role = Array.isArray(value) ? value[0]?.name : value;
+          const roleName = role ? role.split('_')[1]?.toLowerCase() : 'user';
+          return <Chip label={roleName} color="primary" size="small" />;
+        },
+      }}
+      onRefreshData={handleRefreshData}
+      onSubmitForm={handleSubmitUserForm}
+      onError={handleError}
+      onSuccess={handleSuccess}
+      onSearch={handleSearch}
+      onFilterClick={handleFilterClick}
+      onAddClick={handleAddClick}
+      onPageChange={handlePageChange}
+      showActions={true}
+      formBuilder={<UserForm selectedUser={selectedUser} onSubmit={handleSubmitUserForm} />}
+    />
+
   );
 }

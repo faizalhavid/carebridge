@@ -22,7 +22,7 @@ interface ResourceTableContextValue<T extends BaseEntity> {
   // Event Handlers
   onSearch?: (value: string) => void;
   onFilterClick?: () => void;
-  onAddClick?: () => void;
+  onAddClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   onPageChange?: (event: React.ChangeEvent<unknown>, value: number) => void;
 }
 

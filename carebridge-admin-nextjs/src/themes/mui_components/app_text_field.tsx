@@ -50,6 +50,7 @@ export function AppTextField({ id, variant = 'outlined', sizes = 'medium', type 
       size={sizes}
       type={type}
       label={label}
+      color={localState.isError ? 'error' : 'primary'}
       helperText={localState.helperText}
       error={localState.isError}
       disabled={isDisabled}

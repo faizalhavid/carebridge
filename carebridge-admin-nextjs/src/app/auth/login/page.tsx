@@ -180,6 +180,7 @@ export default function LoginPage() {
                         <AppTextField
                             {...field}
                             variant="outlined"
+
                             isAutoComplete
                             sizes="small"
                             type="email"

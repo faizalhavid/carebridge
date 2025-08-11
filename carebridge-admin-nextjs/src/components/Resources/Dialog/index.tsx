@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { BaseEntity } from '@/types/models/base-entity';
 import { modeTitle, modeSubmitLabel } from './type';
@@ -14,12 +14,12 @@ function ResourceDialog<T extends BaseEntity>() {
     return modeSubmitLabel[mode];
   }, [mode]);
 
-  React.useEffect(() => {
-    handleOpenDialog(null, dialogState.mode, Number(dialogState.selectedModelResource?.id ?? 0));
-  }, []);
+  // React.useEffect(() => {
+  //   handleOpenDialog(null, dialogState.mode, Number(selectedModelResource?.id ?? 0));
+  // }, []);
 
   const handleOpenDialog = useCallback(
-    (e: React.MouseEvent | null, mode: any, id: number) => {
+    (e: React.MouseEvent<HTMLButtonElement | HTMLTableRowElement>, mode: any, id: number) => {
       if (e) e.stopPropagation();
       setDialogState({
         open: true,
@@ -76,6 +76,7 @@ function ResourceDialog<T extends BaseEntity>() {
           justifyContent: 'space-between',
         }}
       >
+        <Typography variant="h6" component="div">{dialogTitle}</Typography>
         <IconButton aria-label="close" onClick={(event) => handleCloseDialog(event, 'backdropClick')} size="small" disabled={dialogState.isLoading || dialogState.hasValidationErrors}>
           <CloseIcon />
         </IconButton>

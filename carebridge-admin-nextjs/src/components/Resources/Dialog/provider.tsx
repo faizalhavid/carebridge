@@ -6,7 +6,7 @@ interface ResourceDialogContextValue<T extends BaseEntity> {
   children: ReactNode;
   dialogInterface: DialogInterface;
   formBuilder?: React.ReactNode;
-  onOpenDialog: (e: React.MouseEvent, mode: any, id: number) => void;
+  onOpenDialog: (e: React.MouseEvent<HTMLButtonElement | HTMLTableRowElement>, mode: any, id: number) => void;
   onCloseDialog: (event?: React.MouseEvent, reason?: 'backdropClick' | 'escapeKeyDown') => Promise<boolean | void>;
   onSubmitDialog: (data: any, dialogMode: keyof typeof DialogMode) => void;
   dialogState: DialogState<T>;
