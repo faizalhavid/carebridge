@@ -1,41 +1,71 @@
 package com.carebridge.carebridge_api.customer.services;
 
-import com.carebridge.carebridge_api.customer.dto.responses.CustomerBiodataResponse;
-import com.carebridge.carebridge_api.customer.models.CustomerMember;
-import com.carebridge.carebridge_api.customer.repositories.CustomerMemberRepository;
-import com.carebridge.carebridge_api.customer.repositories.CustomerRelationRepository;
-import com.carebridge.carebridge_api.customer.repositories.CustomerRepository;
-import com.carebridge.carebridge_api.user.dto.projections.BiodataProjection;
-import com.carebridge.carebridge_api.user.models.Biodata;
-import com.carebridge.carebridge_api.user.models.User;
-import com.carebridge.carebridge_api.user.repositories.BiodataRepository;
-import com.carebridge.carebridge_api.user.repositories.UserRepository;
-import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.carebridge.carebridge_api.customer.dto.requests.CustomerRequest;
+import com.carebridge.carebridge_api.customer.dto.responses.CustomerResponse;
+import com.carebridge.carebridge_api.customer.mappers.CustomerMapper;
+import com.carebridge.carebridge_api.customer.models.Customer;
+import com.carebridge.carebridge_api.customer.repositories.CustomerRepository;
+
+import lombok.RequiredArgsConstructor;
+
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CustomerService {
 
-    final private ModelMapper modelMapper;
-    final private CustomerRepository customerRepository;
-    final private BiodataRepository biodataRepository;
-    final private UserRepository userRepository;
-    private final CustomerMemberRepository customerMemberRepository;
+    private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
 
-
-    public CustomerBiodataResponse getCustomerBiodata(Long customerId) {
-        User user = userRepository.findById(customerId).orElseThrow(() -> new RuntimeException("User not found"));
-        Biodata biodata = biodataRepository.findById(user.getId()).orElseThrow(() -> new RuntimeException("Biodata not found"));
-        BiodataProjection biodataProjection = modelMapper.map(biodata, BiodataProjection.class);
-        CustomerMember customerMember = customerMemberRepository.findById(customerId).orElseThrow(() -> new RuntimeException("CustomerMember not found"));
-        return null;
-
-
+    public Page<CustomerResponse> getAllCustomers(Pageable pageable) {
+        return customerRepository.findAll(pageable)
+                .map(customerMapper::toResponse);
     }
 
-    public BiodataProjection updateCustomerBiodata(String customerEmail) {
-        return null;
+    public Optional<CustomerResponse> getCustomerById(Long id) {
+        return customerRepository.findById(id)
+                .map(customerMapper::toResponse);
     }
+
+    public CustomerResponse saveCustomer(CustomerRequest customerRequest) {
+        Customer customer = customerMapper.toEntity(customerRequest);
+        customer = customerRepository.save(customer);
+        return customerMapper.toResponse(customer);
+    }
+
+    public List<CustomerResponse> saveCustomers(List<CustomerRequest> customerRequests) {
+        List<Customer> customers = customerRequests.stream()
+                .map(customerMapper::toEntity)
+                .collect(Collectors.toList());
+        List<Customer> savedCustomers = customerRepository.saveAll(customers);
+        return savedCustomers.stream()
+                .map(customerMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<CustomerResponse> updateCustomer(Long id, CustomerRequest customerRequest) {
+        return customerRepository.findById(id)
+                .map(existingCustomer -> {
+                    customerMapper.patch(customerRequest, existingCustomer);
+                    Customer updatedCustomer = customerRepository.save(existingCustomer);
+                    return customerMapper.toResponse(updatedCustomer);
+                });
+    }
+
+    public void deleteCustomer(Long id) {
+        // Todo: Implement to update base entity (soft delete)
+        customerRepository.deleteById(id);
+    }
+
+    public void deleteCustomers(List<Long> ids) {
+        // Todo: Implement to update base entity (soft delete)
+        customerRepository.deleteAllById(ids);
+    }
+
 }

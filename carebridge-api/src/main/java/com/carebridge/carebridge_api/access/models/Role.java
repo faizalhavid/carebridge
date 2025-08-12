@@ -1,10 +1,11 @@
 package com.carebridge.carebridge_api.access.models;
 
+import java.util.Collection;
+
 import com.carebridge.carebridge_api.core.BaseEntity;
-import com.carebridge.carebridge_api.core.annotations.validators.Views;
 import com.carebridge.carebridge_api.user.models.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonView;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,8 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.util.Collection;
 
 @Entity
 @Data

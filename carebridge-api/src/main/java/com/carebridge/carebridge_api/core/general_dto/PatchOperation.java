@@ -1,4 +1,4 @@
-package com.carebridge.carebridge_api.core.dto;
+package com.carebridge.carebridge_api.core.general_dto;
 
 import lombok.Data;
 import lombok.AllArgsConstructor;
@@ -16,12 +16,5 @@ public class PatchOperation {
     private Operation op;
     private String path;
     private Object value;
-    private String from; // Used for copy and move operations
-
-    // Convenience constructors
-    public PatchOperation(Operation op, String path, Object value) {
-        this.op = op;
-        this.path = path;
-        this.value = value;
-    }
+    private String from;
 }
