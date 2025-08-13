@@ -21,11 +21,9 @@ import com.carebridge.carebridge_api.user.models.User;
 import com.carebridge.carebridge_api.user.repositories.BiodataRepository;
 import com.carebridge.carebridge_api.user.repositories.UserRepository;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -37,7 +35,7 @@ public class UserService {
     @Value("${credentials.default-password}")
     private String defaultPassword;
 
-    // getAllUsers : admin, manager,medical, doctor : view
+    // getAllPUsers : admin, manager,medical, doctor : view
     public Page<UserResponse> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(userMapper::toResponse);
@@ -63,7 +61,7 @@ public class UserService {
         User authenticatedUser = userRepository.findByEmailAndIsDeletedFalse(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         Admin authenticatedAdmin = authenticatedUser.getBiodata().getAdmin();
-        if (userRequest.getRoles() != null && userRequest.getRoles().contains("ADMIN")) {
+        if (userRequest.getRoleIds() != null && userRequest.getRoleIds().contains("ADMIN")) {
             int adminCount = userRepository.getNumberOfGenerateAdminUser(authenticatedUser.getId());
             if (adminCount >= 2) {
                 throw new RuntimeException("Cannot create more than 2 users with ADMIN role.");
@@ -80,10 +78,12 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         }
 
-        List<Role> roles;
-        if (userRequest.getRoles() != null && !userRequest.getRoles().isEmpty()) {
-            roles = roleRepository.findByCodeIn(userRequest.getRoles())
-                    .orElseThrow(() -> new RuntimeException("One or more specified roles not found"));
+        List<Role> roles = List.of();
+        if (userRequest.getRoleIds() != null && !userRequest.getRoleIds().isEmpty()) {
+            roles = roleRepository.findAllById(userRequest.getRoleIds());
+            if (roles.isEmpty()) {
+                throw new RuntimeException("One or more specified roles not found");
+            }
         } else {
             Role defaultRole = roleRepository.findFirstByCode("ROLE_CUSTOMER")
                     .orElseThrow(() -> new RuntimeException("Default role not found: ROLE_CUSTOMER"));
@@ -106,7 +106,7 @@ public class UserService {
     public UserResponse updateUser(Long id, UserRequest userRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-        userMapper.patchData(userRequest, user);
+        userMapper.patch(userRequest, user);
         userRepository.save(user);
         return userMapper.toResponse(user);
     }

@@ -29,6 +29,6 @@ public class UserRequest {
     private String password;
 
     @Schema(description = "Roles of the user", example = "ADMIN,USER")
-    private List<String> roles;
+    private List<Long> roleIds;
 
 }

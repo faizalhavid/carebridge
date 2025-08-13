@@ -8,8 +8,8 @@ import com.carebridge.carebridge_api.customer.dto.requests.CustomerRelationReque
 import com.carebridge.carebridge_api.customer.dto.responses.CustomerRelationResponse;
 import com.carebridge.carebridge_api.customer.models.CustomerRelation;
 
-@Mapper(config = MapStructConfig.class)
+@Mapper(config = MapStructConfig.class, componentModel = "spring")
 public interface CustomerRelationMapper
-        extends BaseMapper<CustomerRelation, CustomerRelationRequest, CustomerRelationResponse> {
+                extends BaseMapper<CustomerRelation, CustomerRelationRequest, CustomerRelationResponse> {
 
 }

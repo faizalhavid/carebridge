@@ -61,33 +61,6 @@ public interface BaseMapper<E, DRequest, DResponse> {
     }
 
     /**
-     * Mengambil ID dari entity.
-     * <p>
-     * Cocok untuk kasus:
-     * <ul>
-     * <li>Response DTO hanya membutuhkan ID dari entity relasi</li>
-     * <li>Tidak ingin memuat object relasi penuh</li>
-     * </ul>
-     *
-     * <pre>
-     * Contoh penggunaan di MapStruct:
-     *
-     * {@code
-     * &#64;Mapping(target = "roleId", expression = "java(toIdFromEntity(entity.getRole()))")
-     * }
-     * </pre>
-     */
-    default Long toIdFromEntity(Object entity) {
-        if (entity == null)
-            return null;
-        try {
-            return (Long) entity.getClass().getMethod("getId").invoke(entity);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Gagal mengambil ID dari entity " + entity.getClass().getSimpleName(), e);
-        }
-    }
-
-    /**
      * Konversi dari DTO yang bisa berupa:
      * <ul>
      * <li>Hanya ID (field id terisi, field lain kosong)</li>

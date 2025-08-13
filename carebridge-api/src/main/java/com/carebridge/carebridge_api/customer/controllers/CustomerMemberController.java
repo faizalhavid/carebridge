@@ -30,70 +30,77 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomerMemberController {
 
-    private final CustomerMemberService customerMemberService;
+        private final CustomerMemberService customerMemberService;
 
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR','ADMIN_CREDENTIALS', 'ADMIN_DATA_MASTER') or hasAnyAuthority('READ_CUSTOMER_MEMBER')")
-    public ResponseEntity<PagedModel<EntityModel<CustomerMemberResponse>>> getAllCustomerMembers(Pageable pageable) {
-        PagedModel<EntityModel<CustomerMemberResponse>> pagedModel = PagedModel.of(
-                customerMemberService.getAllCustomerMembers(pageable).getContent().stream()
-                        .map(EntityModel::of)
-                        .toList(),
-                new PagedModel.PageMetadata(pageable.getPageSize(), pageable.getPageNumber(),
-                        customerMemberService.getAllCustomerMembers(pageable).getTotalElements(),
-                        customerMemberService.getAllCustomerMembers(pageable).getTotalPages()));
-        return ResponseEntity.ok(pagedModel);
-    }
+        @GetMapping
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR','ADMIN_CREDENTIALS', 'ADMIN_DATA_MASTER') or hasAnyAuthority('READ_CUSTOMER_MEMBER')")
+        public ResponseEntity<PagedModel<EntityModel<CustomerMemberResponse>>> getAllCustomerMembers(
+                        Pageable pageable) {
+                PagedModel<EntityModel<CustomerMemberResponse>> pagedModel = PagedModel.of(
+                                customerMemberService.getAllCustomerMembers(pageable).getContent().stream()
+                                                .map(EntityModel::of)
+                                                .toList(),
+                                new PagedModel.PageMetadata(pageable.getPageSize(), pageable.getPageNumber(),
+                                                customerMemberService.getAllCustomerMembers(pageable)
+                                                                .getTotalElements(),
+                                                customerMemberService.getAllCustomerMembers(pageable).getTotalPages()));
+                return ResponseEntity.ok(pagedModel);
+        }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR','ADMIN_CREDENTIALS', 'ADMIN_DATA_MASTER') or hasAnyAuthority('READ_CUSTOMER_MEMBER')")
-    public ResponseEntity<SuccessResponse<CustomerMemberResponse, Object>> getCustomerMemberById(
-            @PathVariable Long id) {
-        return customerMemberService.getCustomerMemberById(id)
-                .map(customerMember -> ResponseEntity.ok(
-                        new SuccessResponse<>(customerMember, "Get customer member by ID successful", 200)))
-                .orElse(ResponseEntity.notFound().build());
-    }
+        @GetMapping("/{id}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'MEDICAL', 'DOCTOR','ADMIN_CREDENTIALS', 'ADMIN_DATA_MASTER') or hasAnyAuthority('READ_CUSTOMER_MEMBER')")
+        public ResponseEntity<SuccessResponse<CustomerMemberResponse, Object>> getCustomerMemberById(
+                        @PathVariable Long id) {
+                return customerMemberService.getCustomerMemberById(id)
+                                .map(customerMember -> ResponseEntity.ok(
+                                                new SuccessResponse<>(customerMember,
+                                                                "Get customer member by ID successful", 200)))
+                                .orElse(ResponseEntity.notFound().build());
+        }
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('CREATE_CUSTOMER_MEMBER')")
-    public ResponseEntity<SuccessResponse<CustomerMemberResponse, Object>> saveCustomerMember(
-            @RequestBody CustomerMemberRequest customerMemberRequest) {
-        return ResponseEntity.ok(new SuccessResponse<>(customerMemberService.saveCustomerMember(customerMemberRequest),
-                "Save customer member successful", 201));
-    }
+        @PostMapping
+        @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('CREATE_CUSTOMER_MEMBER')")
+        public ResponseEntity<SuccessResponse<CustomerMemberResponse, Object>> saveCustomerMember(
+                        @RequestBody CustomerMemberRequest customerMemberRequest) {
+                return ResponseEntity.ok(
+                                new SuccessResponse<>(customerMemberService.saveCustomerMember(customerMemberRequest),
+                                                "Save customer member successful", 201));
+        }
 
-    @PostMapping("/bulk")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('CREATE_CUSTOMER_MEMBER')")
-    public ResponseEntity<SuccessResponse<List<CustomerMemberResponse>, Object>> saveCustomerMembers(
-            @RequestBody List<CustomerMemberRequest> customerMemberRequests) {
-        return ResponseEntity
-                .ok(new SuccessResponse<>(customerMemberService.saveCustomerMembers(customerMemberRequests),
-                        "Save customer members successful", 201));
-    }
+        @PostMapping("/bulk")
+        @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('CREATE_CUSTOMER_MEMBER')")
+        public ResponseEntity<SuccessResponse<List<CustomerMemberResponse>, Object>> saveCustomerMembers(
+                        @RequestBody List<CustomerMemberRequest> customerMemberRequests) {
+                return ResponseEntity
+                                .ok(new SuccessResponse<>(
+                                                customerMemberService.saveCustomerMembers(customerMemberRequests),
+                                                "Save customer members successful", 201));
+        }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('UPDATE_CUSTOMER_MEMBER')")
-    public ResponseEntity<SuccessResponse<CustomerMemberResponse, Object>> updateCustomerMember(@PathVariable Long id,
-            @RequestBody CustomerMemberRequest customerMemberRequest) {
-        return customerMemberService.updateCustomerMember(id, customerMemberRequest)
-                .map(customerMember -> ResponseEntity.ok(
-                        new SuccessResponse<>(customerMember, "Update customer member successful", 200)))
-                .orElse(ResponseEntity.notFound().build());
-    }
+        @PutMapping("/{id}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('UPDATE_CUSTOMER_MEMBER')")
+        public ResponseEntity<SuccessResponse<CustomerMemberResponse, Object>> updateCustomerMember(
+                        @PathVariable Long id,
+                        @RequestBody CustomerMemberRequest customerMemberRequest) {
+                return customerMemberService.updateCustomerMember(id, customerMemberRequest)
+                                .map(customerMember -> ResponseEntity.ok(
+                                                new SuccessResponse<>(customerMember,
+                                                                "Update customer member successful", 200)))
+                                .orElse(ResponseEntity.notFound().build());
+        }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('DELETE_CUSTOMER_MEMBER')")
-    public ResponseEntity<SuccessResponse<Void, Object>> deleteCustomerMember(@PathVariable Long id) {
-        customerMemberService.deleteCustomerMember(id);
-        return ResponseEntity.ok(new SuccessResponse<>(null, "Delete customer member successful", 200));
-    }
+        @DeleteMapping("/{id}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('DELETE_CUSTOMER_MEMBER')")
+        public ResponseEntity<SuccessResponse<Void, Object>> deleteCustomerMember(@PathVariable Long id) {
+                customerMemberService.deleteCustomerMember(id);
+                return ResponseEntity.ok(new SuccessResponse<>(null, "Delete customer member successful", 200));
+        }
 
-    @DeleteMapping("/bulk")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('DELETE_CUSTOMER_MEMBER')")
-    public ResponseEntity<SuccessResponse<Void, Object>> deleteCustomerMembers(@RequestBody List<Long> ids) {
-        customerMemberService.deleteCustomerMembers(ids);
-        return ResponseEntity.ok(new SuccessResponse<>(null, "Delete customer members successful", 200));
-    }
+        @DeleteMapping("/bulk")
+        @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_CREDENTIALS') or hasAnyAuthority('DELETE_CUSTOMER_MEMBER')")
+        public ResponseEntity<SuccessResponse<Void, Object>> deleteCustomerMembers(@RequestBody List<Long> ids) {
+                customerMemberService.deleteCustomerMembers(ids);
+                return ResponseEntity.ok(new SuccessResponse<>(null, "Delete customer members successful", 200));
+        }
 
 }

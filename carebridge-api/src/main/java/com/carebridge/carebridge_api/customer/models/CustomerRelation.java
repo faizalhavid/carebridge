@@ -18,6 +18,10 @@ import java.util.List;
 @AllArgsConstructor
 public class CustomerRelation extends BaseEntity {
 
+    public CustomerRelation(Long id) {
+        super(id);
+    }
+
     @Column(name = "name", length = 50)
     private String name;
 

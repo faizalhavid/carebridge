@@ -67,6 +67,10 @@ public class User extends BaseEntity implements UserDetails {
     @JsonView(Views.Internal.class)
     private List<DeviceInfo> deviceInfos;
 
+    public User(Long id) {
+        super(id);
+    }
+
     @Override
     public List<SimpleGrantedAuthority> getAuthorities() {
         if (roles == null) {

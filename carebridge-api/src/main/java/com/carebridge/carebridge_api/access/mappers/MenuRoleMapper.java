@@ -9,7 +9,7 @@ import com.carebridge.carebridge_api.access.models.MenuRole;
 import com.carebridge.carebridge_api.core.BaseMapper;
 import com.carebridge.carebridge_api.core.configs.MapStructConfig;
 
-@Mapper(config = MapStructConfig.class, uses = { MenuMapper.class, RoleMapper.class })
+@Mapper(config = MapStructConfig.class, componentModel = "spring", uses = { MenuMapper.class, RoleMapper.class })
 public interface MenuRoleMapper extends BaseMapper<MenuRole, MenuRoleRequest, MenuRoleResponse> {
 
     @Override
@@ -18,8 +18,8 @@ public interface MenuRoleMapper extends BaseMapper<MenuRole, MenuRoleRequest, Me
     MenuRole toEntity(MenuRoleRequest request);
 
     @Override
-    @Mapping(target = "roleId", expression = "java(toIdFromEntity(entity.getRole()))")
-    @Mapping(target = "menuId", expression = "java(toIdFromEntity(entity.getMenu()))")
+    @Mapping(target = "roleId", expression = "java(entity.getRole() != null ? entity.getRole().getId() : null)")
+    @Mapping(target = "menuId", expression = "java(entity.getMenu() != null ? entity.getMenu().getId() : null)")
     MenuRoleResponse toResponse(MenuRole entity);
 
 }

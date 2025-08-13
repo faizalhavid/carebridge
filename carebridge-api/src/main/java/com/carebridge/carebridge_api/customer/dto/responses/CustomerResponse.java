@@ -3,6 +3,7 @@ package com.carebridge.carebridge_api.customer.dto.responses;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.carebridge.carebridge_api.customer.models.BloodGroup;
 import com.carebridge.carebridge_api.user.dto.responses.BiodataResponse;
 
 public record CustomerResponse(
@@ -10,9 +11,9 @@ public record CustomerResponse(
         BiodataResponse biodata,
         LocalDate dob,
         String gender,
-        Long bloodGroupId,
+        BloodGroup bloodGroup,
         String rhesusType,
         Float height,
         Float weight,
-        List<Long> customerMemberIds) {
+        List<CustomerMemberResponse> customerMemberIds) {
 }

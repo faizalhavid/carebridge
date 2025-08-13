@@ -9,7 +9,7 @@ import com.carebridge.carebridge_api.access.models.Privilege;
 import com.carebridge.carebridge_api.core.BaseMapper;
 import com.carebridge.carebridge_api.core.configs.MapStructConfig;
 
-@Mapper(config = MapStructConfig.class)
+@Mapper(config = MapStructConfig.class, componentModel = "spring")
 public interface PrivilegeMapper extends BaseMapper<Privilege, PrivilegeRequest, PrivilegeResponse> {
 
     @Override
@@ -17,7 +17,7 @@ public interface PrivilegeMapper extends BaseMapper<Privilege, PrivilegeRequest,
     Privilege toEntity(PrivilegeRequest request);
 
     @Override
-    @Mapping(target = "roleIds", expression = "java(entity.getRoles() != null ? entity.getRoles().stream().map(role -> toIdFromEntity(role)).collect(java.util.stream.Collectors.toList()) : null)")
+    @Mapping(target = "roleIds", expression = "java(entity.getRoles() != null ? entity.getRoles().stream().map(role -> role.getId()).collect(java.util.stream.Collectors.toList()) : null)")
     PrivilegeResponse toResponse(Privilege entity);
 
 }

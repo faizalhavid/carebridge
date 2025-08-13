@@ -7,13 +7,11 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
+
 
 @Entity
 @Data
@@ -22,6 +20,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer extends BaseEntity {
+
+    public Customer(Long id) {
+        super(id);
+    }
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "biodata_id", referencedColumnName = "id")

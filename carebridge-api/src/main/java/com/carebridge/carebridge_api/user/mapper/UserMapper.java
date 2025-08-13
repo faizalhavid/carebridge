@@ -8,7 +8,12 @@ import com.carebridge.carebridge_api.user.models.User;
 
 import org.mapstruct.Mapper;
 
-@Mapper(config = MapStructConfig.class, uses = { BiodataMapper.class })
+@Mapper(config = MapStructConfig.class, componentModel = "spring", uses = { BiodataMapper.class })
 public interface UserMapper extends BaseMapper<User, UserRequest, UserResponse> {
+    @Override
+    User toEntity(UserRequest request);
+
+    @Override
+    UserResponse toResponse(User entity);
 
 }
