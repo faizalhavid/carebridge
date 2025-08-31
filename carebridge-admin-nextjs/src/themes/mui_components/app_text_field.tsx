@@ -21,9 +21,10 @@ interface AppTextFieldProps {
   disableAutofill?: boolean; // New prop for explicit autofill disabling
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onKeyUp?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-export function AppTextField({ id, variant = 'outlined', sizes = 'medium', type = 'text', label, helperText, suffix, prefix, isDisabled = false, isRequired = false, isError = false, multiline = false, isReadOnly = false, isAutoComplete = false, disableAutofill = false, value, defaultValue, onChange, onBlur }: AppTextFieldProps) {
+export function AppTextField({ id, variant = 'outlined', sizes = 'medium', type = 'text', label, helperText, suffix, prefix, isDisabled = false, isRequired = false, isError = false, multiline = false, isReadOnly = false, isAutoComplete = false, disableAutofill = false, value, defaultValue, onChange, onBlur, onKeyUp }: AppTextFieldProps) {
   const [localState, setLocalState] = useState({
     helperText: helperText || '',
     isError: isError || false,
@@ -98,6 +99,7 @@ export function AppTextField({ id, variant = 'outlined', sizes = 'medium', type 
       rows={multiline ? 4 : 1}
       defaultValue={defaultValue}
       onChange={onChange}
+      onKeyUp={onKeyUp}
       onBlur={onBlur}
       id={id}
       fullWidth

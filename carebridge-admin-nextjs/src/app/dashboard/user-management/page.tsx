@@ -1,16 +1,17 @@
 'use client';
-import React, { useCallback, useEffect, useState } from 'react';
-import { User } from '@/types/models/user';
 import ResourceView from '@/components/Resources';
-import { Chip } from '@mui/material';
 import { DialogMode, DialogState } from '@/components/Resources/Dialog/type';
-import { useAuthStore } from '@/lib/stores/auth_store';
-import { useMutationUserQuery, useUpdateMutationUser, useUserQuery } from '@/lib/services/queries/user-query';
-import { UserFormSchema, userSchema } from '@/types/schemas/user-schema';
-import { Controller, useForm, SubmitHandler } from 'react-hook-form';
-import { SharedResourceData, useResourceDialog } from '@/hooks/resource-provider';
-import { AppTextField } from '@/themes/mui_components/app_text_field';
 import { TableState } from '@/components/Resources/Table/type';
+import { SharedResourceData } from '@/hooks/resource-provider';
+import { useMutationUserQuery, useUpdateMutationUser, useUserQuery } from '@/lib/services/queries/user-query';
+import { useAuthStore } from '@/lib/stores/auth_store';
+import { User } from '@/types/models/user';
+import { UserFormSchema, userSchema } from '@/types/schemas/user-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Chip } from '@mui/material';
+import React, { useCallback, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { FormContainer, PasswordElement, TextFieldElement } from 'react-hook-form-mui';
 
 export default function UserManagementPage() {
   const { user: authenticatedUser } = useAuthStore();
@@ -37,7 +38,6 @@ export default function UserManagementPage() {
     },
   });
 
-
   const [dialogState, setDialogState] = useState<DialogState<User>>({
     open: false,
     mode: DialogMode.CREATE,
@@ -45,8 +45,6 @@ export default function UserManagementPage() {
     isLoading: false,
     hasValidationErrors: false,
   });
-
-
 
   const [sharedData, setSharedData] = useState<SharedResourceData<User>>({
     isLoading: false,
@@ -57,7 +55,6 @@ export default function UserManagementPage() {
     filters: {},
   });
 
-
   const {
     control,
     handleSubmit,
@@ -67,7 +64,8 @@ export default function UserManagementPage() {
     clearErrors,
     trigger,
   } = useForm<UserFormSchema>({
-    mode: 'onChange', // Enable validation on change
+    resolver: zodResolver(userSchema),
+    mode: 'onChange',
     defaultValues: {
       email: '',
       biodata: {
@@ -79,34 +77,37 @@ export default function UserManagementPage() {
   });
 
   // Custom validation function
-  const validateForm = useCallback(async (data: UserFormSchema) => {
-    clearErrors();
+  const validateForm = useCallback(
+    async (data: UserFormSchema) => {
+      clearErrors();
 
-    try {
-      // Validate with Zod
-      userSchema.parse(data);
+      try {
+        // Validate with Zod
+        userSchema.parse(data);
 
-      // Additional validation based on mode
-      if (dialogState.mode === DialogMode.CREATE && (!data.password || data.password.length < 6)) {
-        setError('password', { message: 'Password must be at least 6 characters' });
+        // Additional validation based on mode
+        if (dialogState.mode === DialogMode.CREATE && (!data.password || data.password.length < 6)) {
+          setError('password', { message: 'Password must be at least 6 characters' });
+          return false;
+        }
+
+        if (dialogState.mode === DialogMode.EDIT && data.password && data.password.length < 6) {
+          setError('password', { message: 'Password must be at least 6 characters' });
+          return false;
+        }
+
+        return true;
+      } catch (error: any) {
+        if (error.errors) {
+          error.errors.forEach((err: any) => {
+            setError(err.path[0] as keyof UserFormSchema, { message: err.message });
+          });
+        }
         return false;
       }
-
-      if (dialogState.mode === DialogMode.EDIT && data.password && data.password.length < 6) {
-        setError('password', { message: 'Password must be at least 6 characters' });
-        return false;
-      }
-
-      return true;
-    } catch (error: any) {
-      if (error.errors) {
-        error.errors.forEach((err: any) => {
-          setError(err.path[0] as keyof UserFormSchema, { message: err.message });
-        });
-      }
-      return false;
-    }
-  }, [clearErrors, setError, dialogState.mode]);
+    },
+    [clearErrors, setError, dialogState.mode]
+  );
 
   const mode = dialogState.mode;
   const isCreateMode = mode === DialogMode.CREATE;
@@ -125,20 +126,15 @@ export default function UserManagementPage() {
     });
   }, [dialogState.selectedModelResource, reset]);
 
-
-
   React.useEffect(() => {
     setDialogState((prev) => ({
       ...prev,
       hasValidationErrors: !isValid,
     }));
-    console.log('Validation errors:', errors, 'hasErrors:', isValid, 'dialogState.hasValidationErrors:', !isValid);
   }, [isValid, setDialogState]);
-
 
   const showPasswordField = true;
 
-  // Handle form submission - this will be called by React Hook Form with validated data
   const onSubmitForm: SubmitHandler<UserFormSchema> = useCallback(
     async (formData) => {
       console.log('Form submitted with data:', formData);
@@ -147,7 +143,6 @@ export default function UserManagementPage() {
         console.log('Form validation failed');
         return;
       }
-
 
       try {
         const mode = dialogState.mode;
@@ -160,17 +155,18 @@ export default function UserManagementPage() {
           });
         } else if (mode === DialogMode.EDIT && dialogState.selectedModelResource) {
           await updateUser({
-            id: dialogState.selectedModelResource.id, userData: {
+            id: dialogState.selectedModelResource.id,
+            userData: {
               email: formData.email,
               biodata: formData.biodata,
               ...(formData.password && { password: formData.password }),
-            }
+            },
           });
         } else if (mode === DialogMode.DELETE && dialogState.selectedModelResource) {
           // await handleDeleteUser(dialogState.selectedModelResource.id);
         }
-        // Close dialog after successful submission
-        setDialogState(prev => ({ ...prev, open: false }));
+
+        setDialogState((prev) => ({ ...prev, open: false }));
       } catch (error) {
         console.error('Form submission error:', error);
         throw error;
@@ -179,7 +175,6 @@ export default function UserManagementPage() {
     [validateForm, createUser, dialogState.selectedModelResource, dialogState.mode, setDialogState]
   );
 
-  // Handle form submission for ResourceView (this will trigger the form validation)
   const handleSubmitUserForm = useCallback(
     async (formData: any) => {
       handleSubmit(onSubmitForm)();
@@ -187,48 +182,65 @@ export default function UserManagementPage() {
     [handleSubmit, onSubmitForm]
   );
 
-  // Handle data refresh
   const handleRefreshData = useCallback(async () => {
     console.log('Refreshing user data...');
     return await refetch();
   }, [refetch]);
 
-
-  // Handle page change
   const handlePageChange = useCallback((event: React.ChangeEvent<unknown>, value: number) => {
     console.log('Page changed to:', value);
   }, []);
 
-  // Error handler
   const handleError = useCallback((error: any) => {
     console.error('Resource error:', error);
     alert(`Error: ${error.message || 'An error occurred'}`);
   }, []);
 
-  // Success handler
   const handleSuccess = useCallback((message: string) => {
     console.log('Resource success:', message);
     // alert(`Success: ${message}`);
   }, []);
 
-  // Search handler
   const handleSearch = useCallback((searchTerm: string) => {
     console.log('Search term:', searchTerm);
     // Implement search logic here
   }, []);
 
-  // Filter handler
   const handleFilterClick = useCallback(() => {
     console.log('Filter clicked');
     // Implement filter logic here
   }, []);
 
-  // Add handler
   const handleAddClick = useCallback(() => {
     console.log('Add clicked');
-    setDialogState((prev) => ({ ...prev, selectedModelResource: null }))
-  }, []);
 
+    // Reset form when opening create dialog
+    reset({
+      email: '',
+      biodata: { fullName: '', address: '' },
+      password: '',
+    });
+    clearErrors();
+
+    setDialogState((prev) => ({
+      ...prev,
+      selectedModelResource: null,
+      open: true,
+      mode: DialogMode.CREATE,
+    }));
+  }, [reset, clearErrors]);
+
+  const handleCloseDialog = useCallback(() => {
+    // Reset form when closing
+    reset({
+      email: '',
+      biodata: { fullName: '', address: '' },
+      password: '',
+    });
+    clearErrors();
+
+    setDialogState((prev) => ({ ...prev, open: false }));
+  }, [reset, clearErrors]);
 
   return (
     <ResourceView<User>
@@ -249,118 +261,35 @@ export default function UserManagementPage() {
       onSearch={handleSearch}
       onFilterClick={handleFilterClick}
       onAddClick={handleAddClick}
+      onCloseForm={handleCloseDialog}
       onPageChange={handlePageChange}
       formBuilder={
-        <form onSubmit={handleSubmit(handleSubmitUserForm)} noValidate className="flex flex-col gap-4">
-          <Controller
-            name="biodata.fullName"
-            control={control}
-            rules={{
-              required: 'Full name is required',
-              minLength: { value: 1, message: 'Full name is required' }
-            }}
-            render={({ field }) => (
-              <AppTextField
-                {...field}
-                variant="outlined"
-                sizes="small"
-                label="Full Name"
-                helperText={errors.biodata?.fullName?.message || "Enter the user's full name"}
-                isError={!!errors.biodata?.fullName}
-                isRequired
-                isDisabled={isViewMode}
-              />
-            )}
-          />
+        <FormContainer
+          key={`${dialogState.open}-${dialogState.mode}-${dialogState.selectedModelResource?.id || 'new'}`}
+          defaultValues={{
+            email: dialogState.selectedModelResource?.email || '',
+            biodata: {
+              fullName: dialogState.selectedModelResource?.biodata?.fullName || '',
+              address: dialogState.selectedModelResource?.biodata?.address || '',
+            },
+            password: '',
+          }}
+          onSuccess={handleSubmitUserForm}
+          resolver={zodResolver(userSchema)}
+          mode="onChange"
+          FormProps={{
+            noValidate: true,
+            className: 'flex flex-col gap-4',
+          }}
+        >
+          <TextFieldElement name="biodata.fullName" label="Full Name" variant="outlined" size="small" required={true} disabled={isViewMode} helperText="Enter the user's full name" />
 
-          <Controller
-            name="email"
-            control={control}
-            rules={{
-              required: 'Email is required',
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Invalid email address'
-              }
-            }}
-            render={({ field }) => (
-              <AppTextField
-                {...field}
-                variant="outlined"
-                sizes="small"
-                label="Email"
-                type="email"
-                helperText={errors.email?.message || "Enter the user's email address"}
-                isError={!!errors.email}
-                isRequired
-                isDisabled={isViewMode}
-              />
-            )}
-          />
+          <TextFieldElement name="email" label="Email" type="email" variant="outlined" size="small" required={true} disabled={isViewMode} helperText="Enter the user's email address" />
 
-          <Controller
-            name="biodata.address"
-            control={control}
-            rules={{
-              required: 'Address is required',
-              minLength: { value: 1, message: 'Address is required' }
-            }}
-            render={({ field }) => (
-              <AppTextField
-                {...field}
-                variant="outlined"
-                multiline
-                sizes="small"
-                label="Address"
-                helperText={errors.biodata?.address?.message || "Enter the user's address"}
-                isError={!!errors.biodata?.address}
-                isRequired
-                isDisabled={isViewMode}
-              />
-            )}
-          />
+          <TextFieldElement name="biodata.address" label="Address" variant="outlined" size="small" multiline required={true} disabled={isViewMode} helperText="Enter the user's address" />
 
-          {showPasswordField && (
-            <Controller
-              name="password"
-              control={control}
-              rules={{
-                required: isCreateMode ? 'Password is required' : false,
-                minLength: {
-                  value: 6,
-                  message: 'Password must be at least 6 characters'
-                },
-                validate: (value) => {
-                  if (isCreateMode && (!value || value.length < 6)) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  if (isEditMode && value && value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return true;
-                }
-              }}
-              render={({ field }) => (
-                <AppTextField
-                  {...field}
-                  variant="outlined"
-                  sizes="small"
-                  isAutoComplete={false}
-                  label={isCreateMode ? 'Password' : 'New Password'}
-                  type="password"
-                  helperText={
-                    isEditMode && !errors.password
-                      ? "Leave empty to keep current password"
-                      : errors.password?.message || (isCreateMode ? 'Enter a secure password' : 'Leave empty to keep current password')
-                  }
-                  isRequired={isCreateMode}
-                  isError={!!errors.password}
-                  isDisabled={isViewMode}
-                />
-              )}
-            />
-          )}
-        </form>
+          {showPasswordField && <PasswordElement name="password" label={isCreateMode ? 'Password' : 'New Password'} variant="outlined" size="small" required={isCreateMode} disabled={isViewMode} helperText={isEditMode ? 'Leave empty to keep current password' : isCreateMode ? 'Enter a secure password' : 'Leave empty to keep current password'} />}
+        </FormContainer>
       }
       dialogState={dialogState}
       setDialogState={setDialogState}
@@ -368,8 +297,6 @@ export default function UserManagementPage() {
       setTableState={setTableState}
       sharedData={sharedData}
       setSharedData={setSharedData}
-
     />
-
   );
 }
